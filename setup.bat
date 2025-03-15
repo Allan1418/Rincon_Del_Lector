@@ -27,14 +27,37 @@ echo Entorno virtual creado y dependencias instaladas.
 echo Desactivando entorno virtual...
 call deactivate
 
-rem configuaricon React
 
+rem configuracion React
 
+echo Verificando si Node.js está instalado...
 
+where node > nul 2>&1
+if %errorlevel% neq 0 (
+    echo Node.js no esta instalado. Por favor, instale Node.js y agreguelo a su PATH.
+    echo Puede descargar el instalador desde: https://nodejs.org/
+    pause
+    exit /b 1
+)
 
+pushd FRONTEND
+echo Verificando version de npm...
+call npm -v
 
+echo Verificando si existe la carpeta node_modules y borrandola si existe...
+rmdir /s /q node_modules
 
-rem creacion archios de configuracion para conexiones
+echo Instalando dependencias del proyecto FRONTEND...
+call npm install
+
+echo Instalando Bootstrap 5.3.3 en FRONTEND...
+call npm install bootstrap@5.3.3
+popd
+
+echo Dependencias y Bootstrap instalados correctamente.
+pause
+
+rem creacion archivos de configuracion para conexiones
 echo Copiando archivos de configuaricon...
 if not exist "connections" (
   mkdir "connections"
