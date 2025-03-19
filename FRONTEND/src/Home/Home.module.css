@@ -1,0 +1,30 @@
+
+.bodyindex{
+  padding-top: 35%;
+  background-image: url("../../public/images/index.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+
+}
+
+.homeContainer {
+  padding: 0% 0% 0% 4%;
+  margin: 0 auto;
+}
+
+.heroSection {
+  padding: 48px 16px;
+}
+
+.heroContent h1 {
+  font-size: 40px;
+  color: #ffffff;
+  max-width: 600px;
+}
+
+.heroContent p {
+  font-size: 18px;
+  color: #ffffff;
+  max-width: 500px;
+}

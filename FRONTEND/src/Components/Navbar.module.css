@@ -1,0 +1,100 @@
+.navbarContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  position: fixed; 
+  top: 0; 
+  z-index: 100;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1024px;
+  background-color: #f5f0e8;
+  border-radius: 9999px;
+  padding: 12px 24px;
+}
+
+.navbarLogo {
+  color: #8b6c44;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.navbarMenu {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.menuItem {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 8px 12px;
+  color: rgba(139, 108, 68, 0.7);
+  transition: color 0.2s;
+}
+
+.menuItem:hover {
+  color: #8b6c44;
+}
+
+.menuItem.active {
+  color: #8b6c44;
+}
+
+.navbarAuth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loginButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  color: #8b6c44;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.loginButton:hover {
+  color: rgba(139, 108, 68, 0.8);
+}
+
+.registerButton {
+  background-color: #8b6c44;
+  border: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  color: white;
+  border-radius: 9999px;
+  font-size: 14px;
+}
+
+.registerButton:hover {
+  background-color: rgba(139, 108, 68, 0.9);
+}
+
+.carrito {
+  font-size: 28px;
+  color: #333;
+  text-decoration: none;
+  padding: 3px; 
+}
+
+.carrito:hover {
+  color: #8b8a8a;
+}
+
+.carrito svg {
+  vertical-align: middle;
+}
