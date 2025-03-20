@@ -41,9 +41,52 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "corsheaders",
     "rest_framework",
-    "coreapi",
-    "libros"
+    "rest_framework.authtoken",
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    "drf_spectacular",
+    "libros",
+    "usuarios"
 ]
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+PASSWORD_RESET_TIMEOUT = 86400
+FRONTEND_URL = 'http://localhost:5173'
+
+# configuracion de usuario
+
+AUTH_USER_MODEL = 'usuarios.Usuario'
+#ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_LOGIN_METHODS = ["username", "email"]
+ACCOUNT_SIGNUP_FIELDS = ["username*", "email*", "password1*", "password2*"]
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_PRESERVE_USERNAME_CASING = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
+#ACCOUNT_USERNAME_REQUIRED = True
+SITE_ID = 1
+
+# Silencia los warnings de MySQL
+SILENCED_SYSTEM_CHECKS = ["models.W036"]
+
+
+# Silencia USERNAME_REQUIRED y EMAIL_REQUIRED deprecados
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message="app_settings.USERNAME_REQUIRED is deprecated.*",
+    category=UserWarning,
+)
+
+warnings.filterwarnings(
+    "ignore",
+    message="app_settings.EMAIL_REQUIRED is deprecated.*",
+    category=UserWarning,
+)
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,6 +97,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # librerias externas
+    'allauth.account.middleware.AccountMiddleware'
 ]
 
 ROOT_URLCONF = 'api_core.urls'
@@ -61,7 +107,7 @@ ROOT_URLCONF = 'api_core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,8 +177,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# borrar
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     file_path = os.path.join(BASE_DIR, '..', 'connections', 'mysqlConnection.json')
@@ -152,6 +198,28 @@ try:
 except FileNotFoundError as e:
     raise Exception(f"Error: Archivo de configuracion mysqlConnection.json no encontrado en: {os.path.join(BASE_DIR, '..', '..', 'connections', 'mysqlConnection.json')}") from e
 
-CORS_ALLOWED_ORIGINS = [
-	
-]
+CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
+
+# revisar
+# admin.site.register(Usuario, UserAdmin)
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+REST_AUTH = {
+    "USER_DETAILS_SERIALIZER": "usuarios.serializers.CustomUserDetailsSerializer",
+    "LOGIN_SERIALIZER": "usuarios.serializers.CustomLoginSerializer",
+    'PASSWORD_RESET_SERIALIZER': 'usuarios.serializers.CustomPasswordResetSerializer',
+    'PASSWORD_RESET_CONFIRM_SERIALIZER': 'usuarios.serializers.CustomPasswordResetConfirmSerializer',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Your Project API',
+    'DESCRIPTION': 'Your project description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': True,
+}
