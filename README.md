@@ -8,6 +8,8 @@ Integrantes:
 
 * Anyelo Dario Vargas Merlo
 * Allan Nuñez Brenes
+* Emma Alfaro Vargas
+* Jose Andrés Chavarría Araya
 
 ## Funcionalidades Principales
 
