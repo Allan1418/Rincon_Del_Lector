@@ -35,7 +35,7 @@ echo Verificando si Node.js está instalado...
 where node > nul 2>&1
 if %errorlevel% neq 0 (
     echo Node.js no esta instalado. Por favor, instale Node.js y agreguelo a su PATH.
-    echo Puede descargar el instalador desde: https://nodejs.org/
+    echo Puede descargar el instalador desde: https://nodejs.org/en/download
     pause
     exit /b 1
 )
