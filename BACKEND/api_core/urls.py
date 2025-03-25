@@ -22,38 +22,21 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+
+    # Documentacion
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
+    # Admin
     path('admin/', admin.site.urls),
+
+    # Autenticacion
     path('api/auth/', include('dj_rest_auth.urls')),  # Login, logout, etc.
     path('api/auth/registration/', 
          usuariosViews.CustomRegisterView.as_view(), name='rest_register'),  # Registro
 
-    # Seguir a un usuario
-    path('api/users/follow/<str:username>/', 
-         usuariosViews.UserRelationshipViewSet.as_view({'post': 'follow'})),
-    
-    # Dejar de seguir
-    path('api/users/follow/<str:username>/', 
-         usuariosViews.UserRelationshipViewSet.as_view({'delete': 'unfollow'})),
-    
-    # Listar usuarios seguidos
-    path('api/users/following/',
-         usuariosViews.UserRelationshipViewSet.as_view({'get': 'following_list'})),
-    
-    # Listar seguidores
-    path('api/users/followers/',
-         usuariosViews.UserRelationshipViewSet.as_view({'get': 'followers_list'})),
-
-    
-    # Endpoint para buscar usuarios
-    path("api/users/search/", 
-         usuariosViews.UserSearchView.as_view(), name="user-search"),
-
-    # Endpoint para obtener un usuario por username
-    path("api/users/<str:username>/", 
-         usuariosViews.UserRetrieveView.as_view(), name="user-detail"),
+    # Usuarios
+    path('api/users/', include('usuarios.urls')),
     
 ]

@@ -540,7 +540,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PublicUser'
+                  $ref: '#/components/schemas/PublicShortUser'
           description: ''
 components:
   schemas:
@@ -625,8 +625,16 @@ components:
         about:
           type: string
           nullable: true
+        followers_count:
+          type: integer
+          readOnly: true
+        following_count:
+          type: integer
+          readOnly: true
       required:
       - email
+      - followers_count
+      - following_count
       - pk
       - username
     PasswordChange:
@@ -663,6 +671,12 @@ components:
         about:
           type: string
           nullable: true
+        followers_count:
+          type: integer
+          readOnly: true
+        following_count:
+          type: integer
+          readOnly: true
     PublicShortUser:
       type: object
       properties:
@@ -694,7 +708,19 @@ components:
           type: string
           nullable: true
           maxLength: 200
+        followers_count:
+          type: integer
+          readOnly: true
+        following_count:
+          type: integer
+          readOnly: true
+        is_following:
+          type: boolean
+          readOnly: true
       required:
+      - followers_count
+      - following_count
+      - is_following
       - username
     RestAuthDetail:
       type: object
