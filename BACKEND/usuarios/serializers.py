@@ -1,20 +1,43 @@
 # usuarios/serializers.py
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from dj_rest_auth.registration.serializers import RegisterSerializer
-from dj_rest_auth.serializers import UserDetailsSerializer
-from dj_rest_auth.serializers import PasswordResetSerializer
+from dj_rest_auth.serializers import UserDetailsSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer
 from django.conf import settings
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import extend_schema_field
+
+from allauth.account.forms import ResetPasswordForm
+from allauth.account.adapter import get_adapter
 
 User = get_user_model()
 
 class PublicUserSerializer(serializers.ModelSerializer):
+    is_following = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ("username", "about", "image")  # Solo estos campos
+        fields = ("username", 
+                  "about", 
+                  "image",
+                  "followers_count", 
+                  "following_count",
+                  "is_following"
+                )
+    
+    @extend_schema_field(serializers.BooleanField)
+    def get_is_following(self, obj):
+        request_user = self.context.get('request_user')
+        
+        if request_user and request_user.is_authenticated:
+            return obj.followers.filter(pk=request_user.pk).exists()
+        
+        return False
 
 class PublicShortUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,7 +53,8 @@ class CustomRegisterSerializer(RegisterSerializer):
         return email
 
     def custom_signup(self, request, user):
-        pass  # Opcional: logica adicional durante el registro
+        # Opcional: logica adicional durante el registro
+        pass  
 
     def save(self, request):
         try:
@@ -76,21 +100,16 @@ class CustomLoginSerializer(serializers.Serializer):
                 {"password": _("credenciales incorrectas.")}
             )
 
-        # Verificar si el usuario está activo
+        # Verificar si el usuario esta activo
         if not user.is_active:
             raise serializers.ValidationError(
-                {"login": _("Esta cuenta está desactivada.")}
+                {"login": ("Esta cuenta esta desactivada.")}
             )
 
         attrs["user"] = user
         return attrs
 
-from allauth.account.forms import ResetPasswordForm
-from django.contrib.auth.tokens import default_token_generator
-from allauth.account.adapter import get_adapter
-from allauth.account.utils import user_pk_to_url_str
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.utils.encoding import force_bytes
+
 class CustomPasswordResetSerializer(PasswordResetSerializer):
     def save(self):
         request = self.context.get('request')
@@ -118,8 +137,7 @@ class CustomPasswordResetSerializer(PasswordResetSerializer):
                 }
             )
 
-from dj_rest_auth.serializers import PasswordResetConfirmSerializer
-from rest_framework.exceptions import ValidationError
+
 class CustomPasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
     uid = serializers.CharField()
     token = serializers.CharField()
@@ -152,9 +170,17 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
     username = serializers.CharField(required=True)
     about = serializers.CharField(allow_null=True, required=False)
 
+    followers_count = serializers.ReadOnlyField()
+    following_count = serializers.ReadOnlyField()
+
     class Meta(UserDetailsSerializer.Meta):
-        fields = UserDetailsSerializer.Meta.fields + ("username", "about")
-        read_only_fields = ()
+        fields = UserDetailsSerializer.Meta.fields + (
+            "username", 
+            "about",
+            "followers_count",
+            "following_count"
+        )
+        read_only_fields = ('followers_count', 'following_count')
 
     def validate_email(self, value):
         user = self.context['request'].user

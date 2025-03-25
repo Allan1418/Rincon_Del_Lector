@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from .models import Usuario
-from .serializers import PublicUserSerializer, PublicShortUserSerializer
+from . import serializers
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes, extend_schema_view
 
 
@@ -20,10 +20,25 @@ class CustomRegisterView(RegisterView):
     serializer_class = CustomRegisterSerializer
 
 class UserRetrieveView(RetrieveAPIView):
-    serializer_class = PublicUserSerializer
+    serializer_class = serializers.PublicUserSerializer
     permission_classes = [AllowAny]
     lookup_field = "username"
     queryset = Usuario.objects.all()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request_user'] = self.request.user
+        return context
+
+    def get(self, request, *args, **kwargs):
+        self.usuario = self.get_object()
+        return super().get(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.request.user.is_authenticated and self.request.user == self.usuario:
+            return serializers.CustomUserDetailsSerializer
+        
+        return serializers.PublicUserSerializer
 
 
 @extend_schema_view(
@@ -39,7 +54,7 @@ class UserRetrieveView(RetrieveAPIView):
     )
 )
 class UserSearchView(ListAPIView):
-    serializer_class = PublicUserSerializer
+    serializer_class = serializers.PublicShortUserSerializer
     permission_classes = [AllowAny]
 
     def get_queryset(self):
@@ -50,7 +65,7 @@ class UserSearchView(ListAPIView):
 
 class UserRelationshipViewSet(GenericViewSet):
     queryset = Usuario.objects.all()
-    serializer_class = PublicShortUserSerializer
+    serializer_class = serializers.PublicShortUserSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'username'
 
