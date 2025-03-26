@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 from usuarios import views as usuariosViews
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -39,4 +40,9 @@ urlpatterns = [
     # Usuarios
     path('api/users/', include('usuarios.urls')),
     
+    
+
+    #!!!__ULTIMOS__!!!
+    # Redirect a docs
+    path('', RedirectView.as_view(url='/api/schema/swagger-ui/')),
 ]

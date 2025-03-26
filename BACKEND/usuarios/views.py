@@ -1,23 +1,34 @@
 # usuarios/views.py
 from dj_rest_auth.registration.views import RegisterView
-from .serializers import CustomRegisterSerializer
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser
+from rest_framework import serializers as dj_serializers
 from django.shortcuts import get_object_or_404
+from django.conf import settings
+from django.http import FileResponse
+from django.core.files.base import ContentFile
+from django.db import IntegrityError
 from .models import Usuario
 from . import serializers
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes, extend_schema_view
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes, extend_schema_view, OpenApiResponse, OpenApiExample
+import os
+import io
+import uuid
+from PIL import Image
 
 
 
 
 class CustomRegisterView(RegisterView):
-    serializer_class = CustomRegisterSerializer
+    serializer_class = serializers.CustomRegisterSerializer
+
 
 class UserRetrieveView(RetrieveAPIView):
     serializer_class = serializers.PublicUserSerializer
@@ -62,7 +73,6 @@ class UserSearchView(ListAPIView):
         return Usuario.objects.filter(username__icontains=query)
 
 
-
 class UserRelationshipViewSet(GenericViewSet):
     queryset = Usuario.objects.all()
     serializer_class = serializers.PublicShortUserSerializer
@@ -105,3 +115,114 @@ class UserRelationshipViewSet(GenericViewSet):
         users = request.user.followers.all()
         serializer = self.get_serializer(users, many=True)
         return Response(serializer.data)
+    
+
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='filename',
+                description='Nombre único del archivo',
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.PATH
+            )
+        ],
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.BINARY,
+                description="Imagen WEBP"
+            ),
+            404: OpenApiResponse(
+                response=OpenApiTypes.STR,
+                description="Error 404"
+            )
+        }
+    )
+)
+class GetProfileImageView(APIView):
+    def get(self, request, filename):
+        safe_filename = os.path.basename(filename)
+        file_path = os.path.join(settings.MEDIA_ROOT, 'profile_pics', safe_filename)
+        
+        if not os.path.isfile(file_path):
+            return Response({'error': 'Imagen no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+        
+        return FileResponse(open(file_path, 'rb'), content_type='image/webp')
+    
+
+@extend_schema_view(
+    post=extend_schema(
+        request=serializers.FileUploadSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=OpenApiTypes.STR,
+                description="Éxito"
+            ),
+            400: OpenApiResponse(
+                response=OpenApiTypes.STR,
+                description="Error"
+            )
+        }
+    )
+)
+class UploadProfileImageView(APIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        # print("URL:", request.path)
+        # print("Archivos recibidos:", request.FILES)
+        # print("Datos POST:", request.POST)
+        # print("Request:", request)
+        # print("Request META:", request.META) 
+
+        user = request.user
+        uploaded_file = request.FILES.get('image')
+
+        # Validar archivo
+        if not uploaded_file:
+            return Response({"error": "No se envio ninguna imagen"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not uploaded_file.content_type.startswith('image/'):
+            return Response({"error": "El archivo no es una imagen"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Procesar imagen
+        try:
+            # Procesar imagen...
+            img = Image.open(uploaded_file)
+            img = img.convert('RGB')
+            
+            output = io.BytesIO()
+            img.save(output, format='WEBP', quality=40, optimize=True)
+            output.seek(0)
+
+            # Generar nuevo UUID y nombre
+            new_uuid = uuid.uuid4().hex
+            image_name = f"{new_uuid}.webp"
+
+            # Eliminar imagen anterior si existe
+            if user.image:
+                user.image.delete(save=False)  # Elimina el archivo sin guardar el modelo
+
+            # Asignar nueva imagen
+            user.image.save(
+                name=image_name,
+                content=ContentFile(output.read()),
+                save=False
+            )
+            user.image_name = image_name
+            user.save()
+
+            return Response({"image_name": user.image_name}, status=status.HTTP_200_OK)
+
+        except IntegrityError:
+            return Response(
+                {"error": "Error inesperado. Intentalo de nuevo."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"Error procesando imagen: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )

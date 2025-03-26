@@ -1,12 +1,12 @@
 openapi: 3.0.3
 info:
-  title: Your Project API
+  title: API Documentation
   version: 1.0.0
-  description: Your project description
+  description: Your API description
 paths:
   /api/auth/login/:
     post:
-      operationId: api_auth_login_create
+      operationId: auth_login_create
       description: |-
         Check the credentials and return the REST Token
         if the credentials are valid and authenticated.
@@ -16,18 +16,18 @@ paths:
         Accept the following POST parameters: username, password
         Return the REST Framework Token Object's key.
       tags:
-      - api
+      - auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomLogin'
+              $ref: '#/components/schemas/CustomLoginRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CustomLogin'
+              $ref: '#/components/schemas/CustomLoginRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CustomLogin'
+              $ref: '#/components/schemas/CustomLoginRequest'
         required: true
       security:
       - tokenAuth: []
@@ -41,14 +41,14 @@ paths:
           description: ''
   /api/auth/logout/:
     post:
-      operationId: api_auth_logout_create
+      operationId: auth_logout_create
       description: |-
         Calls Django logout method and delete the Token object
         assigned to the current User object.
 
         Accepts/Returns nothing.
       tags:
-      - api
+      - auth
       security:
       - tokenAuth: []
       - {}
@@ -61,25 +61,25 @@ paths:
           description: ''
   /api/auth/password/change/:
     post:
-      operationId: api_auth_password_change_create
+      operationId: auth_password_change_create
       description: |-
         Calls Django Auth SetPasswordForm save method.
 
         Accepts the following POST parameters: new_password1, new_password2
         Returns the success/fail message.
       tags:
-      - api
+      - auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PasswordChange'
+              $ref: '#/components/schemas/PasswordChangeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PasswordChange'
+              $ref: '#/components/schemas/PasswordChangeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PasswordChange'
+              $ref: '#/components/schemas/PasswordChangeRequest'
         required: true
       security:
       - tokenAuth: []
@@ -92,25 +92,25 @@ paths:
           description: ''
   /api/auth/password/reset/:
     post:
-      operationId: api_auth_password_reset_create
+      operationId: auth_password_reset_create
       description: |-
         Calls Django Auth PasswordResetForm save method.
 
         Accepts the following POST parameters: email
         Returns the success/fail message.
       tags:
-      - api
+      - auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomPasswordReset'
+              $ref: '#/components/schemas/CustomPasswordResetRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CustomPasswordReset'
+              $ref: '#/components/schemas/CustomPasswordResetRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CustomPasswordReset'
+              $ref: '#/components/schemas/CustomPasswordResetRequest'
         required: true
       security:
       - tokenAuth: []
@@ -124,7 +124,7 @@ paths:
           description: ''
   /api/auth/password/reset/confirm/:
     post:
-      operationId: api_auth_password_reset_confirm_create
+      operationId: auth_password_reset_confirm_create
       description: |-
         Password reset e-mail link is confirmed, therefore
         this resets the user's password.
@@ -133,18 +133,18 @@ paths:
             new_password1, new_password2
         Returns the success/fail message.
       tags:
-      - api
+      - auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomPasswordResetConfirm'
+              $ref: '#/components/schemas/CustomPasswordResetConfirmRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CustomPasswordResetConfirm'
+              $ref: '#/components/schemas/CustomPasswordResetConfirmRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CustomPasswordResetConfirm'
+              $ref: '#/components/schemas/CustomPasswordResetConfirmRequest'
         required: true
       security:
       - tokenAuth: []
@@ -158,24 +158,24 @@ paths:
           description: ''
   /api/auth/registration/:
     post:
-      operationId: api_auth_registration_create
+      operationId: auth_registration_create
       description: |-
         Registers a new user.
 
         Accepts the following POST parameters: username, email, password1, password2.
       tags:
-      - api
+      - auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomRegister'
+              $ref: '#/components/schemas/CustomRegisterRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CustomRegister'
+              $ref: '#/components/schemas/CustomRegisterRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CustomRegister'
+              $ref: '#/components/schemas/CustomRegisterRequest'
         required: true
       security:
       - tokenAuth: []
@@ -189,7 +189,7 @@ paths:
           description: ''
   /api/auth/user/:
     get:
-      operationId: api_auth_user_retrieve
+      operationId: auth_user_retrieve
       description: |-
         Reads and updates UserModel fields
         Accepts GET, PUT, PATCH methods.
@@ -200,7 +200,7 @@ paths:
 
         Returns UserModel fields.
       tags:
-      - api
+      - auth
       security:
       - tokenAuth: []
       responses:
@@ -211,7 +211,7 @@ paths:
                 $ref: '#/components/schemas/CustomUserDetails'
           description: ''
     put:
-      operationId: api_auth_user_update
+      operationId: auth_user_update
       description: |-
         Reads and updates UserModel fields
         Accepts GET, PUT, PATCH methods.
@@ -222,18 +222,18 @@ paths:
 
         Returns UserModel fields.
       tags:
-      - api
+      - auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomUserDetails'
+              $ref: '#/components/schemas/CustomUserDetailsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CustomUserDetails'
+              $ref: '#/components/schemas/CustomUserDetailsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CustomUserDetails'
+              $ref: '#/components/schemas/CustomUserDetailsRequest'
         required: true
       security:
       - tokenAuth: []
@@ -245,7 +245,7 @@ paths:
                 $ref: '#/components/schemas/CustomUserDetails'
           description: ''
     patch:
-      operationId: api_auth_user_partial_update
+      operationId: auth_user_partial_update
       description: |-
         Reads and updates UserModel fields
         Accepts GET, PUT, PATCH methods.
@@ -256,18 +256,18 @@ paths:
 
         Returns UserModel fields.
       tags:
-      - api
+      - auth
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUserDetails'
+              $ref: '#/components/schemas/PatchedCustomUserDetailsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUserDetails'
+              $ref: '#/components/schemas/PatchedCustomUserDetailsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCustomUserDetails'
+              $ref: '#/components/schemas/PatchedCustomUserDetailsRequest'
       security:
       - tokenAuth: []
       responses:
@@ -277,154 +277,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/CustomUserDetails'
           description: ''
-  /api/schema/:
-    get:
-      operationId: api_schema_retrieve
-      description: |-
-        OpenApi3 schema for this API. Format can be selected via content negotiation.
-
-        - YAML: application/vnd.oai.openapi
-        - JSON: application/vnd.oai.openapi+json
-      parameters:
-      - in: query
-        name: format
-        schema:
-          type: string
-          enum:
-          - json
-          - yaml
-      - in: query
-        name: lang
-        schema:
-          type: string
-          enum:
-          - af
-          - ar
-          - ar-dz
-          - ast
-          - az
-          - be
-          - bg
-          - bn
-          - br
-          - bs
-          - ca
-          - ckb
-          - cs
-          - cy
-          - da
-          - de
-          - dsb
-          - el
-          - en
-          - en-au
-          - en-gb
-          - eo
-          - es
-          - es-ar
-          - es-co
-          - es-mx
-          - es-ni
-          - es-ve
-          - et
-          - eu
-          - fa
-          - fi
-          - fr
-          - fy
-          - ga
-          - gd
-          - gl
-          - he
-          - hi
-          - hr
-          - hsb
-          - hu
-          - hy
-          - ia
-          - id
-          - ig
-          - io
-          - is
-          - it
-          - ja
-          - ka
-          - kab
-          - kk
-          - km
-          - kn
-          - ko
-          - ky
-          - lb
-          - lt
-          - lv
-          - mk
-          - ml
-          - mn
-          - mr
-          - ms
-          - my
-          - nb
-          - ne
-          - nl
-          - nn
-          - os
-          - pa
-          - pl
-          - pt
-          - pt-br
-          - ro
-          - ru
-          - sk
-          - sl
-          - sq
-          - sr
-          - sr-latn
-          - sv
-          - sw
-          - ta
-          - te
-          - tg
-          - th
-          - tk
-          - tr
-          - tt
-          - udm
-          - ug
-          - uk
-          - ur
-          - uz
-          - vi
-          - zh-hans
-          - zh-hant
-      tags:
-      - api
-      security:
-      - tokenAuth: []
-      - {}
-      responses:
-        '200':
-          content:
-            application/vnd.oai.openapi:
-              schema:
-                type: object
-                additionalProperties: {}
-            application/yaml:
-              schema:
-                type: object
-                additionalProperties: {}
-            application/vnd.oai.openapi+json:
-              schema:
-                type: object
-                additionalProperties: {}
-            application/json:
-              schema:
-                type: object
-                additionalProperties: {}
-          description: ''
   /api/users/{username}/:
     get:
-      operationId: api_users_retrieve
+      operationId: users_retrieve
       parameters:
       - in: path
         name: username
@@ -432,7 +287,7 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - users
       security:
       - tokenAuth: []
       - {}
@@ -445,7 +300,7 @@ paths:
           description: ''
   /api/users/follow/{username}/:
     post:
-      operationId: api_users_follow_create
+      operationId: users_follow_create
       parameters:
       - in: path
         name: username
@@ -453,18 +308,18 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - users
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PublicShortUser'
+              $ref: '#/components/schemas/PublicShortUserRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PublicShortUser'
+              $ref: '#/components/schemas/PublicShortUserRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PublicShortUser'
+              $ref: '#/components/schemas/PublicShortUserRequest'
         required: true
       security:
       - tokenAuth: []
@@ -476,7 +331,7 @@ paths:
                 $ref: '#/components/schemas/PublicShortUser'
           description: ''
     delete:
-      operationId: api_users_follow_destroy
+      operationId: users_follow_destroy
       parameters:
       - in: path
         name: username
@@ -484,7 +339,7 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - users
       security:
       - tokenAuth: []
       responses:
@@ -492,9 +347,9 @@ paths:
           description: No response body
   /api/users/followers/:
     get:
-      operationId: api_users_followers_retrieve
+      operationId: users_followers_retrieve
       tags:
-      - api
+      - users
       security:
       - tokenAuth: []
       responses:
@@ -506,9 +361,9 @@ paths:
           description: ''
   /api/users/following/:
     get:
-      operationId: api_users_following_retrieve
+      operationId: users_following_retrieve
       tags:
-      - api
+      - users
       security:
       - tokenAuth: []
       responses:
@@ -518,9 +373,64 @@ paths:
               schema:
                 $ref: '#/components/schemas/PublicShortUser'
           description: ''
+  /api/users/image/:
+    post:
+      operationId: users_image_create
+      tags:
+      - users
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUploadRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Éxito
+        '400':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Error
+  /api/users/image/{filename}/:
+    get:
+      operationId: users_image_retrieve
+      parameters:
+      - in: path
+        name: filename
+        schema:
+          type: string
+        description: Nombre único del archivo
+        required: true
+      tags:
+      - users
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+          description: Imagen WEBP
+        '404':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Error 404
   /api/users/search/:
     get:
-      operationId: api_users_search_list
+      operationId: users_search_list
       parameters:
       - in: query
         name: q
@@ -529,7 +439,7 @@ paths:
         description: Texto de busqueda para filtrar usuarios por nombre de usuario
           sin matchcase.
       tags:
-      - api
+      - users
       security:
       - tokenAuth: []
       - {}
@@ -544,44 +454,51 @@ paths:
           description: ''
 components:
   schemas:
-    CustomLogin:
+    CustomLoginRequest:
       type: object
       properties:
         login:
           type: string
+          minLength: 1
         password:
           type: string
+          minLength: 1
       required:
       - login
       - password
-    CustomPasswordReset:
-      type: object
-      description: Serializer for requesting a password reset e-mail.
-      properties:
-        email:
-          type: string
-          format: email
-      required:
-      - email
-    CustomPasswordResetConfirm:
+    CustomPasswordResetConfirmRequest:
       type: object
       description: Serializer for confirming a password reset attempt.
       properties:
         new_password1:
           type: string
           writeOnly: true
+          minLength: 1
         new_password2:
           type: string
           writeOnly: true
+          minLength: 1
         uid:
           type: string
+          minLength: 1
         token:
           type: string
+          minLength: 1
       required:
       - new_password1
       - new_password2
       - token
       - uid
+    CustomPasswordResetRequest:
+      type: object
+      description: Serializer for requesting a password reset e-mail.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
     CustomRegister:
       type: object
       properties:
@@ -592,12 +509,28 @@ components:
         email:
           type: string
           format: email
+      required:
+      - email
+      - username
+    CustomRegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          minLength: 1
         password1:
           type: string
           writeOnly: true
+          minLength: 1
         password2:
           type: string
           writeOnly: true
+          minLength: 1
       required:
       - email
       - password1
@@ -622,6 +555,7 @@ components:
           maxLength: 150
         username:
           type: string
+          pattern: ^[\w.@+-]+$
         about:
           type: string
           nullable: true
@@ -631,35 +565,24 @@ components:
         following_count:
           type: integer
           readOnly: true
+        image_name:
+          type: string
+          readOnly: true
       required:
       - email
       - followers_count
       - following_count
+      - image_name
       - pk
       - username
-    PasswordChange:
-      type: object
-      properties:
-        new_password1:
-          type: string
-          maxLength: 128
-        new_password2:
-          type: string
-          maxLength: 128
-      required:
-      - new_password1
-      - new_password2
-    PatchedCustomUserDetails:
+    CustomUserDetailsRequest:
       type: object
       description: User model w/o password
       properties:
-        pk:
-          type: integer
-          readOnly: true
-          title: ID
         email:
           type: string
           format: email
+          minLength: 1
         first_name:
           type: string
           maxLength: 150
@@ -668,15 +591,59 @@ components:
           maxLength: 150
         username:
           type: string
+          minLength: 1
+          pattern: ^[\w.@+-]+$
         about:
           type: string
           nullable: true
-        followers_count:
-          type: integer
-          readOnly: true
-        following_count:
-          type: integer
-          readOnly: true
+          minLength: 1
+      required:
+      - email
+      - username
+    FileUploadRequest:
+      type: object
+      properties:
+        image:
+          type: string
+          format: binary
+      required:
+      - image
+    PasswordChangeRequest:
+      type: object
+      properties:
+        new_password1:
+          type: string
+          minLength: 1
+          maxLength: 128
+        new_password2:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - new_password1
+      - new_password2
+    PatchedCustomUserDetailsRequest:
+      type: object
+      description: User model w/o password
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        username:
+          type: string
+          minLength: 1
+          pattern: ^[\w.@+-]+$
+        about:
+          type: string
+          nullable: true
+          minLength: 1
     PublicShortUser:
       type: object
       properties:
@@ -686,10 +653,23 @@ components:
             only.
           pattern: ^[\w.@+-]+$
           maxLength: 150
-        image:
+        image_name:
           type: string
+          readOnly: true
           nullable: true
-          maxLength: 200
+      required:
+      - image_name
+      - username
+    PublicShortUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
       required:
       - username
     PublicUser:
@@ -704,10 +684,10 @@ components:
         about:
           type: string
           nullable: true
-        image:
+        image_name:
           type: string
+          readOnly: true
           nullable: true
-          maxLength: 200
         followers_count:
           type: integer
           readOnly: true
@@ -720,6 +700,7 @@ components:
       required:
       - followers_count
       - following_count
+      - image_name
       - is_following
       - username
     RestAuthDetail:

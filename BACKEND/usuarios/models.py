@@ -2,6 +2,10 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from drf_spectacular.utils import extend_schema_field
 from rest_framework.serializers import IntegerField
+import os
+import uuid
+
+
 
 class UsuarioManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -23,8 +27,21 @@ class Usuario(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    image = models.CharField(max_length=200, blank=True, null=True)
     about = models.TextField(blank=True, null=True)
+
+    image = models.ImageField(
+        upload_to='profile_pics',
+        blank=True,
+        null=True,
+        verbose_name='Imagen de perfil'
+    )
+    image_name = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        editable=False,
+        unique=True
+    )
 
     following = models.ManyToManyField(
         'self',
@@ -44,6 +61,8 @@ class Usuario(AbstractUser):
         return self.following.count()
 
     objects = UsuarioManager()
+
+    
 
     
 
