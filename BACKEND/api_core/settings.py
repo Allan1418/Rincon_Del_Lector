@@ -88,6 +88,15 @@ warnings.filterwarnings(
 )
 
 
+# configuracion files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+# max-size de upload (50MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -199,6 +208,7 @@ except FileNotFoundError as e:
     raise Exception(f"Error: Archivo de configuracion mysqlConnection.json no encontrado en: {os.path.join(BASE_DIR, '..', '..', 'connections', 'mysqlConnection.json')}") from e
 
 CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
+#CORS_ALLOW_ALL_ORIGINS = True
 
 # revisar
 # admin.site.register(Usuario, UserAdmin)
@@ -218,8 +228,13 @@ REST_AUTH = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
-    'DESCRIPTION': 'Your project description',
+    'TITLE': 'API Documentation',
+    'DESCRIPTION': 'Your API description',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': True,
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'ENUM_NAME_OVERRIDES': {
+        'ImageFormats': ['webp', 'jpeg', 'png'],
+    },
 }
