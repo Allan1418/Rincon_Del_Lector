@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from drf_spectacular.utils import extend_schema_field
+from rest_framework.serializers import IntegerField
 
 class UsuarioManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -30,6 +32,16 @@ class Usuario(AbstractUser):
         related_name='followers',
         blank=True
     )
+
+    @property
+    @extend_schema_field(IntegerField)
+    def followers_count(self):
+        return self.followers.count()
+
+    @property
+    @extend_schema_field(IntegerField)
+    def following_count(self):
+        return self.following.count()
 
     objects = UsuarioManager()
 
