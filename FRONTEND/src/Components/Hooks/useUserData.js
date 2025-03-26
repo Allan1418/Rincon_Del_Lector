@@ -12,7 +12,7 @@ export const useUserData = () => {
       getUserData(token)
         .then(data => {
           setProfileData(data);
-          console.log(data)
+          console.log(data);
           setIsLoading(false);
         })
         .catch(err => {

@@ -1,35 +1,29 @@
-// src/services/authService.js
+
 
 const API_BASE_URL = 'http://127.0.0.1:8000/api/auth';
 
 export const handleLogin = async (loginEmail, loginPassword) => {
-    try {
-        const response = await fetch(`${API_BASE_URL}/login/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                login: loginEmail,
-                password: loginPassword
-            }),
-        });
+  try {
+      const response = await fetch(`${API_BASE_URL}/login/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              login: loginEmail,
+              password: loginPassword
+          }),
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (!response.ok) {
-            throw data;
-        }
+      if (!response.ok) {
+          throw data;
+      }
 
-        localStorage.setItem('Authorization', `Token ${data.key}`);
-        if (data.user) {
-            localStorage.setItem('username', data.user.username);
-        }
+      return data;
 
-        return data;
-
-    } catch (error) {
-        console.error('Error en login:', error);
-        throw error;
-    }
+  } catch (error) {
+      throw error;
+  }
 };
 
 export const handleRegister = async (username, email, password, password2) => {
@@ -103,19 +97,24 @@ export const handleLogout = async (token) => {
 };
 
 export const getUserByUsername = async (username) => {
-    try {
-        const response = await fetch(`http://127.0.0.0.1:8000/api/users/${username}/`);
+  try {
+      const response = await fetch(`http://127.0.0.1:8000/api/users/${username}/`, {
+          method: 'GET',
+          headers: {
+              'Accept': 'application/json',
+          }
+      });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Usuario no encontrado');
-        }
+      if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Usuario no encontrado');
+      }
 
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching user:', error);
-        throw error;
-    }
+      return await response.json();
+  } catch (error) {
+      console.error('Error fetching user:', error);
+      throw error;
+  }
 };
 
 export const updateUserProfile = async (token, userData) => {
@@ -145,27 +144,105 @@ export const updateUserProfile = async (token, userData) => {
 
 export const changePassword = async (newPassword1, newPassword2, token) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/password/change/`, {
+      console.log('API Request - URL:', `${API_BASE_URL}/password/change/`); // Log the API URL
+      console.log('API Request - Headers:', { 
+          'Content-Type': 'application/json',
+          Authorization: token 
+      });
+      console.log('API Request - Body:', JSON.stringify({ 
+          new_password1: newPassword1, 
+          new_password2: newPassword2 
+      }));
+      const response = await fetch(`${API_BASE_URL}/password/change/`, {
+          method: 'POST',
+          headers: { 
+              'Content-Type': 'application/json',
+              Authorization: token 
+          },
+          body: JSON.stringify({ 
+              new_password1: newPassword1, 
+              new_password2: newPassword2 
+          }),
+      });
+
+      const data = await response.json();
+
+      console.log('API Response - Status:', response.status);
+      console.log('API Response - Data:', data);
+      if (!response.ok) {
+          throw new Error(data.detail || JSON.stringify(data));
+      }
+
+      return data;
+  } catch (error) {
+      console.error('Error al cambiar la contraseña:', error);
+      throw error;
+  }
+};
+
+export const resetPassword = async (email) => {
+  try {
+      const response = await fetch(`${API_BASE_URL}/password/reset/`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+      });
+
+      if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Ocurrió un error al restablecer la contraseña.');
+      }
+
+      return response.json();
+  } catch (error) {
+      throw error;
+  }
+};
+
+export const confirmResetPassword = async (uid, token, newPassword1, newPassword2) => {
+  try {
+      const response = await fetch(`${API_BASE_URL}/password/reset/confirm/`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ uid, token, new_password1: newPassword1, new_password2: newPassword2 })
+      });
+
+      if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Ocurrió un error al restablecer la contraseña.');
+      }
+
+      return response.json();
+  } catch (error) {
+      throw error;
+  }
+};
+
+export const followUser = async (usernameToFollow, token) => {
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/api/users/follow/${usernameToFollow}/`, {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        Authorization: token 
+        'Authorization': `${token}`
       },
-      body: JSON.stringify({ 
-        new_password1: newPassword1, 
-        new_password2: newPassword2 
-      }),
+      body: JSON.stringify({
+        username: usernameToFollow
+      })
     });
 
-    const data = await response.json();
-    
     if (!response.ok) {
-      throw data;
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Error al seguir al usuario');
     }
 
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error('Error al cambiar la contraseña:', error);
+    console.error('Error en followUser:', error);
     throw error;
   }
 };

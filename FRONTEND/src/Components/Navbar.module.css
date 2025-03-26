@@ -125,5 +125,53 @@
 
 .searchInput:focus {
   border-color: #007bff; 
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.727); /* Agrega una sombra al enfocar */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.727); 
+}
+
+.userMenu {
+  position: relative;
+}
+
+.userButton {
+  background: none;
+  border: none;
+  color: #8b6c44;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 16px; 
+  border-radius: 50px; 
+  transition: color 0.2s;
+}
+
+.userButton:hover {
+  color: rgba(139, 108, 68, 0.8);
+}
+
+.menuDropdown {
+  position: absolute;
+  top: 120%;
+  right: 5;
+  background-color: #f5f0e8; 
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgb(182, 121, 9);
+  z-index: 1000;
+  min-width: 150px; 
+}
+
+.menuDropdownItem {
+  background: none;
+  border: none;
+  color: #8b6c44e1;
+  padding: 10px 15px;
+  display: block;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s;
+  font-size: 14px;
+}
+
+.menuDropdownItem:hover {
+  color: rgba(139, 108, 68, 0.8);
+  background-color: rgba(139, 108, 68, 0.1)
 }

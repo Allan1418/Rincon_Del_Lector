@@ -1,86 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import styles from "./ProfileSection.module.css";
 import { FiEdit } from "react-icons/fi";
-import ModalEditarProfile from './ModalProfile/ModalEditarProfile';
-import { updateUserProfile } from '../../services/ProfileService';
-import { useUserData } from '../Hooks/useUserData';
+import { getUserByUsername } from '../../services/ProfileService';
+import LoadingScreen from '../Hooks/LoadingScreen';
 
 export default function ProfileSection() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { profileData, isLoading, error } = useUserData();
+    const { username } = useParams();
+    const [profileData, setProfileData] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  if (isLoading) {
-    return <div>Cargando perfil...</div>;
-  }
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const data = await getUserByUsername(username);
+                setProfileData(data);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error obteniendo perfil:', err);
+                setError(err.message || 'Error al cargar el perfil');
+                setLoading(false);
+            }
+        };
 
-  if (error) {
-    return <div>Error al cargar el perfil: {error.message}</div>;
-  }
+        fetchProfile();
+    }, [username]);
 
-  const handleSaveModal = (formData) => {
-    const token = localStorage.getItem('Authorization');
-    if (!token) return Promise.reject('No hay token');
+    if (loading) return <LoadingScreen />;
+    if (error) return <div className={styles.error}>{error}</div>;
 
-    return updateUserProfile(token, formData)
-      .then(data => {
-        setIsModalOpen(false);
-        return data;
-      })
-      .catch(error => {
-        console.error('Error updating profile:', error);
-        throw error;
-      });
-  };
-
-  const handleEditProfileClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  return (
-    <div>
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <div className={styles.profileSection}>
-            <div className={styles.profileHeader}>
-              <div className={styles.avatarWrapper}>
-                <img src={profileData.image} alt='' className={styles.avatar} />
-                <button className={styles.avatarEdit}>
-                  <FiEdit className={styles.editIcon} />
-                </button>
-              </div>
-              <div className={styles.profileActions}>
-                <a href={`/${profileData.username}/changed`} > <button className={styles.editProfile}> Cambiar datos Personales</button> </a>
-                <button className={styles.followButton}>Seguir</button>
-              </div>
+    return (
+        <div>
+            <div className={styles.container}>
+                <div className={styles.content}>
+                    <div className={styles.profileSection}>
+                        <div className={styles.profileHeader}>
+                            <div className={styles.avatarWrapper}>
+                                <img 
+                                    src={profileData.image || '/default-avatar.png'} 
+                                    alt='Avatar' 
+                                    className={styles.avatar} 
+                                />
+                                <button className={styles.avatarEdit}>
+                                    <FiEdit className={styles.editIcon} />
+                                </button>
+                            </div>
+                            <div className={styles.profileActions}>
+                                <button className={styles.followButton}>Seguir</button>
+                            </div>
+                        </div>
+                        <div className={styles.profileInfo}>
+                            <div className={styles.nameSection}>
+                                <h1 className={styles.name}>{profileData.username}</h1>
+                                <span className={styles.verifiedBadge}>✓ Verificado</span>
+                            </div>
+                            <p className={styles.bio}>{profileData.about || 'Sin descripción'}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div className={styles.profileInfo}>
-              <div className={styles.nameSection}>
-                <h1 className={styles.name}>{profileData.username}</h1>
-                <span className={styles.verifiedBadge}>✓ Verificado</span>
-                <button className={styles.editProfile} onClick={handleEditProfileClick}>
-                  <FiEdit /> Editar perfil
-                </button>
-              </div>
-              <p className={styles.bio}>{profileData.about}</p>
-              <div className={styles.metaInfo}>
-                <p className={styles.website}> Mi Correo: <a>{profileData.email}</a></p>
-                <p className={styles.website}> Mi nombre es: {profileData.first_name} {profileData.last_name}</p>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-
-      <ModalEditarProfile
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        userInfo={profileData}
-        onSave={handleSaveModal}
-      />
-    </div>
-  );
+    );
 }
