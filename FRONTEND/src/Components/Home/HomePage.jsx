@@ -1,10 +1,12 @@
 import React from 'react';
 import styles from './Home.module.css';
 import Libreria from './Libreria';
+import LoadingScreen from '../Hooks/LoadingScreen';
 
 function HomePage() {
   return (
     <div>
+      <LoadingScreen />
       <div className={styles.bodyindex}>
         <div className={styles.homeContainer}>
           <div className={styles.heroSection}>
