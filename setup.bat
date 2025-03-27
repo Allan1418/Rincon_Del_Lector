@@ -1,7 +1,7 @@
 
 @echo off
 
-rem configuracion django
+rem Verificacion de Python
 echo Verificando instalacion de Python...
 where python > nul 2>&1
 if %errorlevel% neq 0 (
@@ -10,6 +10,19 @@ if %errorlevel% neq 0 (
   exit /b 1
 )
 
+rem Verificacion Node JS
+
+echo Verificando si Node.js está instalado...
+where node > nul 2>&1
+if %errorlevel% neq 0 (
+    echo Node.js no esta instalado. Por favor, instale Node.js y agreguelo a su PATH.
+    echo Puede descargar el instalador desde: https://nodejs.org/en/download
+    pause
+    exit /b 1
+)
+
+
+rem configuracion django
 
 rmdir /s /q BACKEND\venv
 
@@ -29,16 +42,6 @@ call deactivate
 
 
 rem configuracion React
-
-echo Verificando si Node.js está instalado...
-
-where node > nul 2>&1
-if %errorlevel% neq 0 (
-    echo Node.js no esta instalado. Por favor, instale Node.js y agreguelo a su PATH.
-    echo Puede descargar el instalador desde: https://nodejs.org/en/download
-    pause
-    exit /b 1
-)
 
 pushd FRONTEND
 echo Verificando version de npm...
@@ -64,6 +67,7 @@ call npm install bootstrap@5.3.3
 popd
 
 echo Dependencias y Bootstrap instalados correctamente.
+call npm install lucide-react
 pause
 
 rem creacion archivos de configuracion para conexiones

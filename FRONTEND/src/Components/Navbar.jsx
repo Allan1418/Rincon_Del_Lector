@@ -3,20 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import { FaShoppingCart, FaSearch } from 'react-icons/fa';
 import { AuthContext } from './Context/AuthContext';
-import { handleLogout } from '../services/ProfileService';
+import { handleLogout, searchUsers } from '../services/ProfileService';
 import { useUserData } from './Hooks/useUserData';
 
 function Navbar() {
   const { profileData } = useUserData();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const searchInputRef = useRef(null);
   const { isAuthenticated, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  const toggleSearch = () => {
-    setIsSearchOpen(!isSearchOpen);
-  };
+  const [searchQuery, setSearchQuery] = useState('');
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -45,6 +40,18 @@ function Navbar() {
     setIsMenuOpen(false);
   };
 
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    
+    try {
+      const results = await searchUsers(searchQuery);
+      navigate('/search', { state: { results } });
+    } catch (error) {
+      console.error('Error buscando usuarios:', error);
+      alert('Error al realizar la búsqueda');
+    }
+  };
+
   return (
     <div className={styles.navbarContainer}>
       <nav className={styles.navbar}>
@@ -55,17 +62,18 @@ function Navbar() {
           <button className={styles.menuItem}>Explorar libreria</button>
         </div>
         <div className={styles.navbarAuth}>
-          <div className={styles.navbarSearch}>
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Buscar..."
-              className={styles.searchInput}
-            />
-            <button className={styles.searchButton} onClick={toggleSearch}>
-              <FaSearch />
-            </button>
-          </div>
+        <div className={styles.navbarSearch}>
+          <input
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar..."
+            className={styles.searchInput}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          />
+          <button className={styles.searchButton} onClick={handleSearch}>
+            <FaSearch />
+          </button>
+        </div>
 
           {!isAuthenticated && (
             <a href='/AuthForm'><button className={styles.registerButton}>Registrarse </button></a>
