@@ -9,13 +9,65 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
+from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 
 from allauth.account.forms import ResetPasswordForm
 from allauth.account.adapter import get_adapter
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.contrib.auth.password_validation import validate_password
 
 User = get_user_model()
+
+class CustomUserDetailsSerializer(UserDetailsSerializer):
+    email = serializers.EmailField(
+        required=True,
+        validators=[validate_email]
+    )
+    username = serializers.CharField(
+        required=True,
+        validators=[UnicodeUsernameValidator()]
+    )
+    about = serializers.CharField(allow_null=True, required=False)
+
+    followers_count = serializers.ReadOnlyField()
+    following_count = serializers.ReadOnlyField()
+
+    image_name = serializers.CharField(read_only=True)
+
+    class Meta(UserDetailsSerializer.Meta):
+        fields = UserDetailsSerializer.Meta.fields + (
+            "username", 
+            "about",
+            "followers_count",
+            "following_count",
+            "image_name"
+        )
+        read_only_fields = ('followers_count', 'following_count', 'image_name')
+
+    def validate_email(self, value):
+        user = self.context['request'].user
+        # Verifica que el nuevo email no exista en otros usuarios
+        if User.objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError("Este correo ya está registrado.")
+        return value
+
+    def validate_username(self, value):
+        user = self.context['request'].user
+        # Verifica que el nuevo username no exista en otros usuarios
+        if User.objects.exclude(pk=user.pk).filter(username=value).exists():
+            raise serializers.ValidationError("Este nombre de usuario ya existe.")
+        return value
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        instance.about = validated_data.get("about", instance.about)
+        instance.save()
+        return instance
+
 
 class PublicUserSerializer(serializers.ModelSerializer):
     is_following = serializers.SerializerMethodField()
@@ -24,7 +76,7 @@ class PublicUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ("username", 
                   "about", 
-                  "image",
+                  "image_name",
                   "followers_count", 
                   "following_count",
                   "is_following"
@@ -39,10 +91,12 @@ class PublicUserSerializer(serializers.ModelSerializer):
         
         return False
 
+
 class PublicShortUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'image')
+        fields = ('username', 'image_name')
+
 
 class CustomRegisterSerializer(RegisterSerializer):
     email = serializers.EmailField(required=True)
@@ -63,7 +117,6 @@ class CustomRegisterSerializer(RegisterSerializer):
             if 'usuarios_usuario_email_0a82e5f9_uniq' in str(e):
                 raise serializers.ValidationError({"email": "This email is already registered."})
             raise serializers.ValidationError("Error registering user.")
-
 
 
 class CustomLoginSerializer(serializers.Serializer):
@@ -146,7 +199,7 @@ class CustomPasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
 
     def validate(self, attrs):
         try:
-            uid = urlsafe_base64_decode(attrs['uid']).decode()
+            uid = force_str(urlsafe_base64_decode(attrs['uid']))
             self.user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             raise ValidationError({'uid': ['Invalid value']})
@@ -155,7 +208,16 @@ class CustomPasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
             raise ValidationError({'token': ['Invalid value']})
 
         if attrs['new_password1'] != attrs['new_password2']:
-            raise serializers.ValidationError({"non_field_errors": ["Las contraseñas no coinciden"]})
+            raise serializers.ValidationError({"non_field_errors": ["Las passwords no coinciden"]})
+
+         # Aplicar validadores de contraseña de Django
+        try:
+            validate_password(
+                password=attrs['new_password1'],
+                user=self.user
+            )
+        except DjangoValidationError as e:
+            raise ValidationError({'new_password': e.messages})
 
         return attrs
 
@@ -165,39 +227,6 @@ class CustomPasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
         return self.user
 
 
-class CustomUserDetailsSerializer(UserDetailsSerializer):
-    email = serializers.EmailField(required=True)
-    username = serializers.CharField(required=True)
-    about = serializers.CharField(allow_null=True, required=False)
+class FileUploadSerializer(serializers.Serializer):
+    image = serializers.ImageField()
 
-    followers_count = serializers.ReadOnlyField()
-    following_count = serializers.ReadOnlyField()
-
-    class Meta(UserDetailsSerializer.Meta):
-        fields = UserDetailsSerializer.Meta.fields + (
-            "username", 
-            "about",
-            "followers_count",
-            "following_count"
-        )
-        read_only_fields = ('followers_count', 'following_count')
-
-    def validate_email(self, value):
-        user = self.context['request'].user
-        # Verifica que el nuevo email no exista en otros usuarios
-        if User.objects.exclude(pk=user.pk).filter(email=value).exists():
-            raise serializers.ValidationError("Este correo ya está registrado.")
-        return value
-
-    def validate_username(self, value):
-        user = self.context['request'].user
-        # Verifica que el nuevo username no exista en otros usuarios
-        if User.objects.exclude(pk=user.pk).filter(username=value).exists():
-            raise serializers.ValidationError("Este nombre de usuario ya existe.")
-        return value
-
-    def update(self, instance, validated_data):
-        instance = super().update(instance, validated_data)
-        instance.about = validated_data.get("about", instance.about)
-        instance.save()
-        return instance

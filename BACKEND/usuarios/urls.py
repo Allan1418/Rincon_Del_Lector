@@ -5,6 +5,10 @@ from . import views
 app_name = "usuarios"
 
 urlpatterns = [
+
+    path('image/', views.UploadProfileImageView.as_view(), name='upload_image'),
+    path('image/<str:filename>/', views.GetProfileImageView.as_view(), name='get_image'),
+
     # Follow/Unfollow
     path('follow/<str:username>/', 
          views.UserRelationshipViewSet.as_view({'post': 'follow', 'delete': 'unfollow'})),
@@ -17,11 +21,19 @@ urlpatterns = [
          views.UserRelationshipViewSet.as_view({'get': 'followers_list'}), 
          name='followers-list'),
     
-    # Search y detalle
+    # Search
     path('search/', 
          views.UserSearchView.as_view(), 
          name='user-search'),
+
+
+
+    #!!!__ULTIMOS__!!!
+    # Detalle usuario
     path('<str:username>/', 
          views.UserRetrieveView.as_view(), 
          name='user-detail'),
+
+    
+    
 ]
