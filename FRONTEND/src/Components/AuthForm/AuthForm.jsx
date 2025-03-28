@@ -18,7 +18,7 @@ function AuthForm() {
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
 
-    const [errorMessage, setErrorMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState(null);
     const [modalIsOpen, setModalIsOpen] = useState(false);
 
     const toggleMode = () => {
@@ -31,23 +31,23 @@ function AuthForm() {
         try {
             await handleRegister(username, email, password, password2);
             alert('Registro exitoso. Ahora puedes iniciar sesión.');
-            setUsername('');
-            setEmail('');
-            setPassword('');
-            setPassword2('');
             setIsSignUpMode(false);
             setErrorMessage('');
         } catch (error) {
             console.error('Error en registro:', error);
+
             let message = "Error al registrar el usuario.";
 
-            if (error.message) message = error.message;
-            else if (error.username) message = error.username[0];
-            else if (error.email) message = error.email[0];
-            else if (error.password1) message = error.password1[0];
-            else if (error.password2) message = error.password2[0];
-            else if (error.non_field_errors) message = error.non_field_errors[0];
-            else if (error.detail) message = error.detail;
+            if (typeof error === 'object' && error !== null) {
+                const errorKeys = Object.keys(error);
+                if (errorKeys.length > 0) {
+                    const firstKey = errorKeys[0];
+                    const firstError = error[firstKey];
+                    message = Array.isArray(firstError) ? firstError[0] : firstError;
+                }
+            } else if (typeof error === 'string') {
+                message = error;
+            }
 
             setErrorMessage(message);
         }
@@ -88,10 +88,34 @@ function AuthForm() {
                 <div className={`${styles.formContainer} ${styles.registerContainer} ${isSignUpMode ? styles.active : ''}`}>
                     <form className={styles.form} onSubmit={handleRegisterSubmit}>
                         <h1>Registrar.</h1>
-                        <input className={styles.input} type="text" placeholder="Nombre de usuario" value={username} onChange={(e) => setUsername(e.target.value)} required />
-                        <input className={styles.input} type="email" placeholder="Correo electrónico" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                        <input className={styles.input} type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                        <input className={styles.input} type="password" placeholder="Confirmar Contraseña" value={password2} onChange={(e) => setPassword2(e.target.value)} required />
+                        <input className={styles.input}
+                        type="text"
+                        placeholder="Nombre de usuario" 
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)} 
+                        required />
+
+                        <input className={styles.input}
+                        type="email" 
+                        placeholder="Correo electrónico"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required />
+
+                        <input className={styles.input}
+                        type="password"
+                         placeholder="Contraseña"
+                         value={password}
+                         onChange={(e) => setPassword(e.target.value)}
+                         required />
+
+                        <input className={styles.input}
+                        type="password"
+                        placeholder="Confirmar Contraseña" 
+                        value={password2}
+                        onChange={(e) => setPassword2(e.target.value)}
+                        required />
+                        
                         <button className={styles.button} type="submit">Registrar</button>
                         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
                     </form>

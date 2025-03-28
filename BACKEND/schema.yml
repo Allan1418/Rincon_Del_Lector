@@ -277,6 +277,332 @@ paths:
               schema:
                 $ref: '#/components/schemas/CustomUserDetails'
           description: ''
+  /api/libros/:
+    get:
+      operationId: libros_list
+      description: "\n        Obtiene una lista paginada de libros con múltiples opciones\
+        \ de filtrado y ordenamiento.\n        "
+      summary: Lista de libros
+      parameters:
+      - in: query
+        name: ordering
+        schema:
+          type: string
+          enum:
+          - -price
+          - -published_date
+          - -title
+          - least_purchased
+          - most_purchased
+          - price
+          - published_date
+          - title
+        description: Ordenamiento de resultados
+        examples:
+          MásVendidosPrimero:
+            value: most_purchased
+            summary: Más vendidos primero
+          PrecioAscendente:
+            value: price
+            summary: Precio ascendente
+          MásRecientesPrimero:
+            value: -published_date
+            summary: Más recientes primero
+      - in: query
+        name: owned
+        schema:
+          type: boolean
+        description: Filtra libros propiedad del usuario autenticado
+        examples:
+          EjemploTrue:
+            value: 'true'
+            summary: Solo mis libros
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: purchased
+        schema:
+          type: boolean
+        description: Filtra libros comprados por el usuario autenticado
+        examples:
+          EjemploTrue:
+            value: 'true'
+            summary: Libros comprados
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Búsqueda por título o sinopsis (insensible a mayúsculas)
+        examples:
+          BúsquedaPorPalabraClave:
+            value: fantasia
+            summary: Búsqueda por palabra clave
+      tags:
+      - libros
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLibroList'
+          description: ''
+    post:
+      operationId: libros_create
+      tags:
+      - libros
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LibroRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LibroRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LibroRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Libro'
+          description: ''
+  /api/libros/{id}/:
+    get:
+      operationId: libros_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this libro.
+        required: true
+      tags:
+      - libros
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Libro'
+          description: ''
+    put:
+      operationId: libros_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this libro.
+        required: true
+      tags:
+      - libros
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LibroRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LibroRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LibroRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Libro'
+          description: ''
+    patch:
+      operationId: libros_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this libro.
+        required: true
+      tags:
+      - libros
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLibroRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLibroRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLibroRequest'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Libro'
+          description: ''
+    delete:
+      operationId: libros_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this libro.
+        required: true
+      tags:
+      - libros
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/libros/{id}/get_file/:
+    get:
+      operationId: libros_get_file_retrieve
+      description: Descarga el archivo EPUB (dueño o compradores)
+      summary: Descargar archivo EPUB
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this libro.
+        required: true
+      tags:
+      - libros
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            file/epub:
+              schema:
+                type: string
+                format: binary
+          description: Archivo Epub
+        '403':
+          description: Acceso denegado
+        '404':
+          description: Archivo no encontrado
+  /api/libros/{id}/get_image/:
+    get:
+      operationId: libros_get_image_retrieve
+      description: Descarga la imagen del libro en formato WEBP
+      summary: Obtener imagen del libro
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this libro.
+        required: true
+      tags:
+      - libros
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            image/webp:
+              schema:
+                type: string
+                format: binary
+          description: Imagen WEBP
+        '404':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Imagen no encontrada
+  /api/libros/{id}/upload_file/:
+    post:
+      operationId: libros_upload_file_create
+      description: Sube el archivo EPUB del libro (solo owner)
+      summary: Subir archivo EPUB del libro
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this libro.
+        required: true
+      tags:
+      - libros
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LibroRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: Archivo actualizado
+        '403':
+          description: No eres el owner
+        '400':
+          description: Archivo inválido
+  /api/libros/{id}/upload_image/:
+    post:
+      operationId: libros_upload_image_create
+      description: Sube una imagen para el libro
+      summary: Subir imagen del libro
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this libro.
+        required: true
+      tags:
+      - libros
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LibroRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: Imagen actualizada
+        '403':
+          description: No eres el owner
+        '400':
+          description: Error en la imagen
+        '404':
+          description: Libro no encontrado
   /api/users/{username}/:
     get:
       operationId: users_retrieve
@@ -432,6 +758,12 @@ paths:
     get:
       operationId: users_search_list
       parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
       - in: query
         name: q
         schema:
@@ -448,9 +780,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/PublicShortUser'
+                $ref: '#/components/schemas/PaginatedPublicShortUserList'
           description: ''
 components:
   schemas:
@@ -608,6 +938,107 @@ components:
           format: binary
       required:
       - image
+    Libro:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        is_owner:
+          type: boolean
+          description: Verifica si el usuario actual es el dueño del libro
+          readOnly: true
+        is_purchased:
+          type: boolean
+          description: Verifica si el usuario actual ha comprado el libro
+          readOnly: true
+        owner:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        synopsis:
+          type: string
+          nullable: true
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        published_date:
+          type: string
+          format: date
+          readOnly: true
+      required:
+      - id
+      - is_owner
+      - is_purchased
+      - owner
+      - published_date
+      - title
+    LibroRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        synopsis:
+          type: string
+          nullable: true
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - title
+    PaginatedLibroList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Libro'
+    PaginatedPublicShortUserList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicShortUser'
     PasswordChangeRequest:
       type: object
       properties:
@@ -644,6 +1075,20 @@ components:
           type: string
           nullable: true
           minLength: 1
+    PatchedLibroRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        synopsis:
+          type: string
+          nullable: true
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
     PublicShortUser:
       type: object
       properties:

@@ -2,25 +2,31 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { confirmResetPassword } from '../../services/ProfileService';
 import styles from './ResetPassword.module.css';
+import LoadingScreen from '../Hooks/LoadingScreen';
 
 function ResetPassword() {
   const { uid, token } = useParams();
   const [newPassword1, setNewPassword1] = useState('');
   const [newPassword2, setNewPassword2] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleResetPasswordSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await confirmResetPassword(uid, token, newPassword1, newPassword2);
-      alert('Contraseña restablecida con éxito.');
-      navigate('/AuthForm');
+      setIsLoading(false);
     } catch (error) {
       console.error('Error al restablecer la contraseña:', error);
       setErrorMessage(error.message || 'Ocurrió un error al restablecer la contraseña.');
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className={styles.container}>

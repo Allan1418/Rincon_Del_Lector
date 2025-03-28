@@ -6,6 +6,7 @@ import ProfileSection from './Components/Profile/ProfileSection.jsx';
 import Layout from './Components/Layout.jsx';
 import ChangePasswordForm from './Components/Profile/ChangesProfile/ChangeProfileForm.jsx';
 import ResetPassword from './Components/Profile/ResetPassword.jsx';
+import UserSearchResults from './Components/SearchResults/UserSearchResults.jsx';
 
 function App() {
   
@@ -18,6 +19,7 @@ function App() {
           <Route path="/user/:username" element={<ProfileSection />} />
           <Route path='/user/:username/changed' element={<ChangePasswordForm />} />
           <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+          <Route path="/search" element={<UserSearchResults />} />
         </Routes>
       </Layout>
     </BrowserRouter>
