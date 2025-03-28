@@ -10,26 +10,29 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
-    "bootstrap": "^5.3.3",
-    "pdfjs-dist": "^5.0.375",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-icons": "^5.5.0",
-    "react-pdf": "^9.2.1",
-    "react-router-dom": "^7.3.0",
+    "@vitejs/plugin-react": "4.3.4",
+    "axios": "1.8.4",
+    "bootstrap": "5.3.3",
+    "jwt-decode": "4.0.0",
+    "lucide-react": "0.484.0",
+    "pdfjs-dist": "5.0.375",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-icons": "5.5.0",
+    "react-pdf": "9.2.1",
+    "react-router-dom": "7.3.0",
     "ui-core": "file:"
   },
   "devDependencies": {
-    "@eslint/js": "^9.21.0",
-    "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4",
-    "@vitejs/plugin-react-swc": "^3.8.0",
-    "eslint": "^9.21.0",
-    "eslint-plugin-react-hooks": "^5.1.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
-    "globals": "^15.15.0",
-    "sass": "^1.85.1",
-    "vite": "^6.2.2"
+    "@eslint/js": "9.21.0",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
+    "@vitejs/plugin-react-swc": "3.8.0",
+    "eslint": "9.21.0",
+    "eslint-plugin-react-hooks": "5.1.0",
+    "eslint-plugin-react-refresh": "0.4.19",
+    "globals": "15.15.0",
+    "sass": "1.85.1",
+    "vite": "6.2.2"
   }
 }

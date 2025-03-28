@@ -1,0 +1,266 @@
+.pageWrapper {
+    min-height: 100vh;
+    padding: 7rem 1rem;
+  }
+  
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px -15px rgba(139, 108, 68, 0.2);
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #f9f6f2;
+  }
+  
+  .headerContent {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .title {
+    color: rgba(139, 108, 68, 0.9);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .iconContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: rgba(139, 108, 68, 0.1);
+  }
+  
+  .headerIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: rgba(139, 108, 68, 0.8);
+  }
+  
+  .sectionIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: rgba(139, 108, 68, 0.8);
+  }
+  
+  .alertIcon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+  
+  .tabsContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 2rem 2rem 1rem;
+  }
+  
+  .tabButton {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background-color: white;
+    color: rgba(139, 108, 68, 0.9);
+    font-weight: 500;
+    border: 1px solid rgba(139, 108, 68, 0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .tabButton:hover {
+    background-color: rgba(139, 108, 68, 0.05);
+  }
+  
+  .activeTab {
+    background-color: rgba(139, 108, 68, 0.9);
+    color: white;
+    border-color: rgba(139, 108, 68, 1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .formContainer {
+    padding: 1.5rem 2rem 2rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    margin: 0 2rem 2rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .formSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .sectionTitle {
+    color: rgba(139, 108, 68, 0.8);
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .formGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .formGrid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .label {
+    color: #4b5563;
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+  
+  .input,
+  .aboutTextarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: #fafafa;
+    height: 2.75rem;
+  }
+  
+  .aboutTextarea {
+    min-height: 250px;
+    resize: vertical;
+    height: auto;
+  }
+  
+  .input:focus,
+  .aboutTextarea:focus {
+    border-color: #c4d2a1;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(196, 210, 161, 0.2);
+  }
+  
+  .primaryButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background-color: rgba(139, 108, 68, 0.9);
+    color: white;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+    align-self: flex-start;
+  }
+  
+  .primaryButton:hover {
+    background-color: rgba(139, 108, 68, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .errorMessage,
+  .successMessage {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin: 1.5rem 2rem 0;
+    font-size: 0.875rem;
+    animation: slideIn 0.3s ease;
+  }
+  
+  .errorMessage {
+    background-color: #fff8f8;
+    color: #d32f2f;
+    border-left: 4px solid #d32f2f;
+  }
+  
+  .successMessage {
+    background-color: #f8fff9;
+    color: #388e3c;
+    border-left: 4px solid #388e3c;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      margin: 0;
+    }
+  
+    .tabsContainer {
+      grid-template-columns: 1fr;
+    }
+  
+    .formContainer,
+    .errorMessage,
+    .successMessage {
+      margin-left: 1rem;
+      margin-right: 1rem;
+    }
+  
+    .header {
+      padding: 1rem 1.5rem;
+    }
+  }
+  
+  

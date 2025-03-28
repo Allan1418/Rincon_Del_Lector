@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 
     export default defineConfig(() => {
 
-      const configPath = path.resolve(__dirname, 'config.json');
+      const configPath = path.resolve(__dirname, 'configPort.json');
       let config;
       try {
         const configFile = fs.readFileSync(configPath, 'utf-8');
