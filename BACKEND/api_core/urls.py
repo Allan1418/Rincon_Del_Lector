@@ -20,7 +20,7 @@ from django.views.generic import RedirectView
 from usuarios import views as usuariosViews
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
-from django.contrib.auth import views as auth_views
+#from django.contrib.auth import views as auth_views
 
 urlpatterns = [
 
@@ -40,7 +40,10 @@ urlpatterns = [
     # Usuarios
     path('api/users/', include('usuarios.urls')),
     
-    
+    # Libros
+    path('api/libros/', include('libros.urls')),
+
+
 
     #!!!__ULTIMOS__!!!
     # Redirect a docs

@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
-from rest_framework import serializers as dj_serializers
+#from rest_framework import serializers as dj_serializers
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.http import FileResponse
@@ -17,7 +17,7 @@ from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from .models import Usuario
 from . import serializers
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes, extend_schema_view, OpenApiResponse, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes, extend_schema_view, OpenApiResponse#, OpenApiExample
 import os
 import io
 import uuid

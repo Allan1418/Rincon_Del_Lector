@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from drf_spectacular.utils import extend_schema_field
 from rest_framework.serializers import IntegerField
-import os
-import uuid
 
 
 
