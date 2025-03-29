@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import json
 import os
+import warnings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,7 +74,6 @@ SILENCED_SYSTEM_CHECKS = ["models.W036"]
 
 
 # Silencia USERNAME_REQUIRED y EMAIL_REQUIRED deprecados
-import warnings
 
 warnings.filterwarnings(
     "ignore",
@@ -218,6 +218,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
 }
 
 REST_AUTH = {
