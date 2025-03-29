@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { changePassword, updateUserProfile } from '../../../services/ProfileService';
+import { changePassword,  updateUserProfile, getProfileImage, uploadProfileImage  } from '../../../services/ProfileService';
 import { useUserData } from '../../Hooks/useUserData';
 import styles from './ChangeProfileForm.module.css';
 import { CheckCircle, AlertCircle, Settings, Lock, User, FileText } from 'lucide-react';
@@ -103,6 +103,27 @@ function ChangeProfileForm() {
     }
   };
 
+  const handleProfileImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+  
+    try {
+      const token = localStorage.getItem('Authorization');
+      if (!token) {
+        setError('No estás autenticado.');
+        return;
+      }
+      
+      await uploadProfileImage(file, token);
+      setSuccessMessage('Imagen de perfil actualizada con éxito.');
+      window.location.reload();
+    } catch (err) {
+      setError(err.message || 'Error al actualizar la imagen de perfil.');
+    }
+  };
+  
+  
+
   const renderPasswordForm = () => (
     <div className={styles.formSection}>
       <div className={styles.sectionHeader}>
@@ -156,7 +177,7 @@ function ChangeProfileForm() {
     let messages = [];
     for (const key in error) {
       if (Array.isArray(error[key])) {
-        messages.push(...error[key].map(msg => msg.replace(`${key}: `, ''))); // Elimina el nombre del campo
+        messages.push(...error[key].map(msg => msg.replace(`${key}: `, '')));
       } else if (typeof error[key] === 'string') {
         messages.push(error[key].replace(`${key}: `, ''));
       }
@@ -165,80 +186,103 @@ function ChangeProfileForm() {
   };
 
   const renderPersonalInfoForm = () => (
-    <div className={styles.formSection}>
-      <div className={styles.sectionHeader}>
-        <div className={styles.iconContainer}>
-          <User className={styles.sectionIcon} />
-        </div>
-        <h3 className={styles.sectionTitle}>Datos Personales</h3>
+  <div className={styles.formSection}>
+    <div className={styles.sectionHeader}>
+      <div className={styles.iconContainer}>
+        <User className={styles.sectionIcon} />
       </div>
-      
-      <div className={styles.form}>
-        <div className={styles.formGrid}>
-          <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="username">
-              Nombre de Usuario
-            </label>
-            <input
-              id="username"
-              type="text"
-              value={personalInfoData.username}
-              onChange={(e) => setPersonalInfoData({ ...personalInfoData, username: e.target.value })}
-              className={styles.input}
-            />
-          </div>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="email">
-              Correo Electrónico
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={personalInfoData.email}
-              onChange={(e) => setPersonalInfoData({ ...personalInfoData, email: e.target.value })}
-              className={styles.input}
-            />
-          </div>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="first-name">
-              Nombre
-            </label>
-            <input
-              id="first-name"
-              type="text"
-              value={personalInfoData.first_name}
-              onChange={(e) => setPersonalInfoData({ ...personalInfoData, first_name: e.target.value })}
-              className={styles.input}
-            />
-          </div>
-          
-          <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="last-name">
-              Apellido
-            </label>
-            <input
-              id="last-name"
-              type="text"
-              value={personalInfoData.last_name}
-              onChange={(e) => setPersonalInfoData({ ...personalInfoData, last_name: e.target.value })}
-              className={styles.input}
-            />
-          </div>
-        </div>
-        
-        <button 
-          type="button" 
-          onClick={handlePersonalInfoSubmit} 
-          className={styles.primaryButton}
-        >
-          Guardar Información Personal
-        </button>
-      </div>
+      <h3 className={styles.sectionTitle}>Datos Personales</h3>
     </div>
-  );
 
+    <div className={styles.profileImageContainer}>
+      <img 
+        src={getProfileImage(profileData?.image_name)} 
+        alt="Foto de perfil" 
+        className={styles.profileImage} 
+        onError={(e) => e.target.src = '/default-profile.png'}
+      />
+      <button 
+        className={styles.editImageButton} 
+        onClick={() => document.getElementById('profile-image-upload').click()}
+      >
+        Editar Foto
+      </button>
+      <input 
+        type="file" 
+        id="profile-image-upload" 
+        style={{ display: 'none' }} 
+        accept="image/*" 
+        onChange={handleProfileImageUpload} 
+      />
+    </div>
+      
+    <div className={styles.form}>
+      <div className={styles.formGrid}>
+        <div className={styles.formGroup}>
+          <label className={styles.label} htmlFor="username">
+            Nombre de Usuario
+          </label>
+          <input
+            id="username"
+            type="text"
+            value={personalInfoData.username}
+            onChange={(e) => setPersonalInfoData({ ...personalInfoData, username: e.target.value })}
+            className={styles.input}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label} htmlFor="email">
+            Correo Electrónico
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={personalInfoData.email}
+            onChange={(e) => setPersonalInfoData({ ...personalInfoData, email: e.target.value })}
+            className={styles.input}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label} htmlFor="first-name">
+            Nombre
+          </label>
+          <input
+            id="first-name"
+            type="text"
+            value={personalInfoData.first_name}
+            onChange={(e) => setPersonalInfoData({ ...personalInfoData, first_name: e.target.value })}
+            className={styles.input}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label} htmlFor="last-name">
+            Apellido
+          </label>
+          <input
+            id="last-name"
+            type="text"
+            value={personalInfoData.last_name}
+            onChange={(e) => setPersonalInfoData({ ...personalInfoData, last_name: e.target.value })}
+            className={styles.input}
+          />
+        </div>
+      </div>
+
+      <button 
+        type="button" 
+        onClick={handlePersonalInfoSubmit} 
+        className={styles.primaryButton}
+      >
+        Guardar Información Personal
+      </button>
+    </div>
+  </div>
+);
+
+  
   const renderAboutForm = () => (
     <div className={styles.formSection}>
       <div className={styles.sectionHeader}>

@@ -1,4 +1,5 @@
 const API_BASE_URL = 'http://127.0.0.1:8000/api/auth';
+const API_USERS_URL = 'http://127.0.0.1:8000/api/users';
 
 export const handleLogin = async (loginEmail, loginPassword) => {
   try {
@@ -9,7 +10,6 @@ export const handleLogin = async (loginEmail, loginPassword) => {
     });
     const data = await response.json();
     if (response.ok) {
-      localStorage.setItem('token', data.token);
       return data;
     } else {
       throw data;
@@ -20,9 +20,6 @@ export const handleLogin = async (loginEmail, loginPassword) => {
 };
 
 export const handleRegister = async (username, email, password, password2) => {
-  if (password !== password2) {
-    throw { message: 'Las contraseñas no coinciden' };
-  }
   try {
     const response = await fetch(`${API_BASE_URL}/registration/`, {
       method: 'POST',
@@ -71,9 +68,13 @@ export const updateUserProfile = async (token, userData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/user/`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', Authorization: `${token}` },
+      headers: { 
+        'Content-Type': 'application/json', 
+        Authorization: `${token}`
+      },
       body: JSON.stringify(userData),
     });
+
     const data = await response.json();
     if (!response.ok) {
       throw data;
@@ -135,6 +136,23 @@ export const confirmResetPassword = async (uid, token, newPassword1, newPassword
   }
 };
 
+export const getFollowing = async (token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/following/`, {
+      headers: { Authorization: `${token}` },
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw errorData;
+    }
+    return response.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+
 export const followUser = async (username, token) => {
   try {
     const response = await fetch(`http://127.0.0.1:8000/api/users/follow/${username}/`, {
@@ -158,8 +176,8 @@ export const unfollowUser = async (username, token) => {
       headers: { Authorization: `${token}`, 'Content-Type': 'application/json' },
     });
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Error al dejar de seguir');
+      const errorData = await response.json();
+      throw errorData;
     }
     return response.status;
   } catch (error) {
@@ -170,22 +188,7 @@ export const unfollowUser = async (username, token) => {
 export const getFollowers = async (token) => {
   try {
     const response = await fetch(`${API_BASE_URL}/followers/`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw errorData;
-    }
-    return response.json();
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const getFollowing = async (token) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/following/`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `${token}` },
     });
     if (!response.ok) {
       const errorData = await response.json();
@@ -200,25 +203,26 @@ export const getFollowing = async (token) => {
 export const getUserByUsername = async (username, token) => {
   try {
     const url = `http://127.0.0.1:8000/api/users/${username}/`;
-    const headers = {};
-    if (token) {
-      headers['Authorization'] = `${token}`;
-    }
+    const headers = token ? { Authorization: `${token}` } : {};
+
     const response = await fetch(url, { headers });
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Usuario no encontrado');
+      throw await response.json();
     }
+
     const data = await response.json();
+    console.log("📦 Datos recibidos de la API:", data);
+
     return {
       username: data.username,
       about: data.about,
-      image: data.image,
+      image_name: data.image_name || null,
       follower_count: data.followers_count,
       following_count: data.following_count,
       is_following: data.is_following,
     };
   } catch (error) {
+    console.error("❌ Error en getUserByUsername:", error);
     throw error;
   }
 };
@@ -231,10 +235,37 @@ export const searchUsers = async (query, token = null) => {
 
     const response = await fetch(url, { headers });
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Error en la búsqueda');
+      const errorData = await response.json();
+      throw errorData;
     }
     return response.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getProfileImage = (imageName) => {
+  return `${API_USERS_URL}/image/${imageName}`;
+};
+
+export const uploadProfileImage = async (imageFile, token) => {
+  try {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    const response = await fetch(`${API_USERS_URL}/image/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw data;
+    }
+    return data;
   } catch (error) {
     throw error;
   }
