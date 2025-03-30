@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { changePassword,  updateUserProfile, getProfileImage, uploadProfileImage  } from '../../../services/ProfileService';
+import { changePassword, updateUserProfile, getProfileImage, uploadProfileImage } from '../../../services/ProfileService';
 import { useUserData } from '../../Hooks/useUserData';
 import styles from './ChangeProfileForm.module.css';
 import { CheckCircle, AlertCircle, Settings, Lock, User, FileText } from 'lucide-react';
@@ -14,13 +13,14 @@ function ChangeProfileForm() {
     username: '',
     email: '',
     last_name: '',
-    first_name: ''
+    first_name: '',
   });
   const [aboutData, setAboutData] = useState({
-    about: ''
+    about: '',
   });
   const [newPassword1, setNewPassword1] = useState('');
   const [newPassword2, setNewPassword2] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
     if (profileData) {
@@ -28,10 +28,10 @@ function ChangeProfileForm() {
         username: profileData.username || '',
         email: profileData.email || '',
         last_name: profileData.last_name || '',
-        first_name: profileData.first_name || ''
+        first_name: profileData.first_name || '',
       });
       setAboutData({
-        about: profileData.about || ''
+        about: profileData.about || '',
       });
     }
   }, [profileData]);
@@ -69,18 +69,24 @@ function ChangeProfileForm() {
     setError(null);
     setSuccessMessage(null);
     const token = localStorage.getItem('Authorization');
-    
+
     if (!token) {
       setError('No estás autenticado.');
       return;
     }
-    
+
     try {
+      if (selectedFile) {
+        await uploadProfileImage(selectedFile, token);
+      }
       await updateUserProfile(token, personalInfoData);
-      setSuccessMessage('Información personal actualizada con éxito!');
-      window.location.reload();
+      setSuccessMessage('Información personal y foto de perfil actualizadas con éxito!');
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (err) {
-      setError(err.message || 'Error al actualizar información personal');
+      setError(err.message || 'Error al actualizar información personal o la foto de perfil');
     }
   };
 
@@ -88,12 +94,12 @@ function ChangeProfileForm() {
     setError(null);
     setSuccessMessage(null);
     const token = localStorage.getItem('Authorization');
-    
+
     if (!token) {
       setError('No estás autenticado.');
       return;
     }
-    
+
     try {
       await updateUserProfile(token, aboutData);
       setSuccessMessage('Acerca de mí actualizado con éxito!');
@@ -103,26 +109,28 @@ function ChangeProfileForm() {
     }
   };
 
-  const handleProfileImageUpload = async (event) => {
+  const handleProfileImageUpload = (event) => {
     const file = event.target.files[0];
-    if (!file) return;
-  
-    try {
-      const token = localStorage.getItem('Authorization');
-      if (!token) {
-        setError('No estás autenticado.');
-        return;
-      }
-      
-      await uploadProfileImage(file, token);
-      setSuccessMessage('Imagen de perfil actualizada con éxito.');
-      window.location.reload();
-    } catch (err) {
-      setError(err.message || 'Error al actualizar la imagen de perfil.');
+    if (file) {
+      setSelectedFile(file);
     }
   };
-  
-  
+
+  const getErrorMessage = (error) => {
+    if (error instanceof Error) return error.message;
+    if (error.detail) return error.detail;
+    if (error.non_field_errors) return error.non_field_errors.join(' ');
+
+    let messages = [];
+    for (const key in error) {
+      if (Array.isArray(error[key])) {
+        messages.push(...error[key].map(msg => msg.replace(`${key}: `, '')));
+      } else if (typeof error[key] === 'string') {
+        messages.push(error[key].replace(`${key}: `, ''));
+      }
+    }
+    return messages.join('. ') || 'Error desconocido';
+  };
 
   const renderPasswordForm = () => (
     <div className={styles.formSection}>
@@ -169,120 +177,103 @@ function ChangeProfileForm() {
     </div>
   );
 
-  const getErrorMessage = (error) => {
-    if (error instanceof Error) return error.message;
-    if (error.detail) return error.detail;
-    if (error.non_field_errors) return error.non_field_errors.join(' ');
-    
-    let messages = [];
-    for (const key in error) {
-      if (Array.isArray(error[key])) {
-        messages.push(...error[key].map(msg => msg.replace(`${key}: `, '')));
-      } else if (typeof error[key] === 'string') {
-        messages.push(error[key].replace(`${key}: `, ''));
-      }
-    }
-    return messages.join('. ') || 'Error desconocido';
-  };
-
   const renderPersonalInfoForm = () => (
-  <div className={styles.formSection}>
-    <div className={styles.sectionHeader}>
-      <div className={styles.iconContainer}>
-        <User className={styles.sectionIcon} />
-      </div>
-      <h3 className={styles.sectionTitle}>Datos Personales</h3>
-    </div>
-
-    <div className={styles.profileImageContainer}>
-      <img 
-        src={getProfileImage(profileData?.image_name)} 
-        alt="Foto de perfil" 
-        className={styles.profileImage} 
-        onError={(e) => e.target.src = '/default-profile.png'}
-      />
-      <button 
-        className={styles.editImageButton} 
-        onClick={() => document.getElementById('profile-image-upload').click()}
-      >
-        Editar Foto
-      </button>
-      <input 
-        type="file" 
-        id="profile-image-upload" 
-        style={{ display: 'none' }} 
-        accept="image/*" 
-        onChange={handleProfileImageUpload} 
-      />
-    </div>
-      
-    <div className={styles.form}>
-      <div className={styles.formGrid}>
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="username">
-            Nombre de Usuario
-          </label>
-          <input
-            id="username"
-            type="text"
-            value={personalInfoData.username}
-            onChange={(e) => setPersonalInfoData({ ...personalInfoData, username: e.target.value })}
-            className={styles.input}
-          />
+    <div className={styles.formSection}>
+      <div className={styles.sectionHeader}>
+        <div className={styles.iconContainer}>
+          <User className={styles.sectionIcon} />
         </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="email">
-            Correo Electrónico
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={personalInfoData.email}
-            onChange={(e) => setPersonalInfoData({ ...personalInfoData, email: e.target.value })}
-            className={styles.input}
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="first-name">
-            Nombre
-          </label>
-          <input
-            id="first-name"
-            type="text"
-            value={personalInfoData.first_name}
-            onChange={(e) => setPersonalInfoData({ ...personalInfoData, first_name: e.target.value })}
-            className={styles.input}
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="last-name">
-            Apellido
-          </label>
-          <input
-            id="last-name"
-            type="text"
-            value={personalInfoData.last_name}
-            onChange={(e) => setPersonalInfoData({ ...personalInfoData, last_name: e.target.value })}
-            className={styles.input}
-          />
-        </div>
+        <h3 className={styles.sectionTitle}>Datos Personales</h3>
       </div>
 
-      <button 
-        type="button" 
-        onClick={handlePersonalInfoSubmit} 
-        className={styles.primaryButton}
-      >
-        Guardar Información Personal
-      </button>
-    </div>
-  </div>
-);
+      <div className={styles.profileImageContainer}>
+        <img 
+          src={selectedFile ? URL.createObjectURL(selectedFile) : getProfileImage(profileData?.image_name)} 
+          alt="Foto de perfil" 
+          className={styles.profileImage} 
+          onError={(e) => e.target.src = '/default-profile.png'}
+        />
+        <button 
+          className={styles.editImageButton} 
+          onClick={() => document.getElementById('profile-image-upload').click()}
+        >
+          Editar Foto
+        </button>
+        <input 
+          type="file" 
+          id="profile-image-upload" 
+          style={{ display: 'none' }} 
+          accept="image/*" 
+          onChange={handleProfileImageUpload} 
+        />
+      </div>
+        
+      <div className={styles.form}>
+        <div className={styles.formGrid}>
+          <div className={styles.formGroup}>
+            <label className={styles.label} htmlFor="username">
+              Nombre de Usuario
+            </label>
+            <input
+              id="username"
+              type="text"
+              value={personalInfoData.username}
+              onChange={(e) => setPersonalInfoData({ ...personalInfoData, username: e.target.value })}
+              className={styles.input}
+            />
+          </div>
 
-  
+          <div className={styles.formGroup}>
+            <label className={styles.label} htmlFor="email">
+              Correo Electrónico
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={personalInfoData.email}
+              onChange={(e) => setPersonalInfoData({ ...personalInfoData, email: e.target.value })}
+              className={styles.input}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label} htmlFor="first-name">
+              Nombre
+            </label>
+            <input
+              id="first-name"
+              type="text"
+              value={personalInfoData.first_name}
+              onChange={(e) => setPersonalInfoData({ ...personalInfoData, first_name: e.target.value })}
+              className={styles.input}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label} htmlFor="last-name">
+              Apellido
+            </label>
+            <input
+              id="last-name"
+              type="text"
+              value={personalInfoData.last_name}
+              onChange={(e) => setPersonalInfoData({ ...personalInfoData, last_name: e.target.value })}
+              className={styles.input}
+            />
+          </div>
+        </div>
+
+        <button 
+          type="button" 
+          onClick={handlePersonalInfoSubmit} 
+          className={styles.primaryButton}
+        >
+          Guardar Información Personal
+        </button>
+      </div>
+    </div>
+  );
+
   const renderAboutForm = () => (
     <div className={styles.formSection}>
       <div className={styles.sectionHeader}>
@@ -291,29 +282,32 @@ function ChangeProfileForm() {
         </div>
         <h3 className={styles.sectionTitle}>Acerca de mi</h3>
       </div>
-      
+
       <div className={styles.form}>
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="about">
-            Cuéntanos sobre ti
-          </label>
+        <div className={styles.aboutFormContainer}>
+          <div className={styles.aboutHeader}>
+            <label className={styles.label} htmlFor="about">
+              Cuéntanos sobre ti
+            </label>
+            <span className={styles.aboutHint}>Comparte tus intereses, experiencia y lo que te hace único</span>
+          </div>
+
           <textarea
             id="about"
             value={aboutData.about}
             onChange={(e) => setAboutData({ ...aboutData, about: e.target.value })}
             className={styles.aboutTextarea}
-            placeholder="Comparte información sobre ti, tus intereses, experiencia..."
-            rows={10}
+            placeholder="Me apasiona la tecnología y el desarrollo web. En mi tiempo libre disfruto de..."
+            rows={15}
           />
+
+          <div className={styles.aboutFooter}>
+            <span className={styles.characterCount}>{aboutData.about ? aboutData.about.length : 0} caracteres</span>
+            <button type="button" onClick={handleAboutSubmit} className={styles.primaryButton}>
+              Guardar Acerca de mí
+            </button>
+          </div>
         </div>
-        
-        <button 
-          type="button" 
-          onClick={handleAboutSubmit} 
-          className={styles.primaryButton}
-        >
-          Guardar Acerca de mí
-        </button>
       </div>
     </div>
   );

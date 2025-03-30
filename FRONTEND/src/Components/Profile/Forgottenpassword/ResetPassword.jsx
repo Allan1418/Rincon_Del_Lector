@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { confirmResetPassword } from '../../services/ProfileService';
+import { useParams } from 'react-router-dom';
+import { confirmResetPassword } from '../../../services/ProfileService';
 import styles from './ResetPassword.module.css';
-import LoadingScreen from '../Hooks/LoadingScreen';
+import LoadingScreen from '../../Hooks/LoadingScreen';
 
 function ResetPassword() {
   const { uid, token } = useParams();

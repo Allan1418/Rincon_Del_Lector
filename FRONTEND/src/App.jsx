@@ -5,8 +5,10 @@ import AuthForm from './Components/AuthForm/AuthForm.jsx';
 import ProfileSection from './Components/Profile/ProfileSection.jsx';
 import Layout from './Components/Layout.jsx';
 import ChangePasswordForm from './Components/Profile/ChangesProfile/ChangeProfileForm.jsx';
-import ResetPassword from './Components/Profile/ResetPassword.jsx';
+import ResetPassword from './Components/Profile/Forgottenpassword/ResetPassword.jsx';
 import UserSearchResults from './Components/SearchResults/UserSearchResults.jsx';
+import EditBook from './Components/Library/ChangeBook/EditBook.jsx';
+import BookDetails from './Components/Library/BookDetails.jsx';
 
 function App() {
   
@@ -20,6 +22,8 @@ function App() {
           <Route path='/user/:username/changed' element={<ChangePasswordForm />} />
           <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
           <Route path="/search" element={<UserSearchResults />} />
+          <Route path="/edit-book/:bookId" element={<EditBook />} />
+          <Route path="/libros/:bookId" element={<BookDetails />} />
         </Routes>
       </Layout>
     </BrowserRouter>

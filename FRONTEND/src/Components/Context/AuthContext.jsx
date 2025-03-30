@@ -1,66 +1,62 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [token, setToken] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [username, setUsername] = useState(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem('Authorization');
-    const storedUsername = localStorage.getItem('username');
-    if (token) {
+    useEffect(() => {
+        const storedToken = localStorage.getItem("Authorization");
+        if (storedToken) {
+            setIsAuthenticated(true);
+            setToken(storedToken);
+        }
+    }, []);
+
+    const login = (newToken, loggedInUsername) => {
+      localStorage.setItem("Authorization", newToken);
+      setToken(newToken);
+      setUsername(loggedInUsername);
       setIsAuthenticated(true);
-      setUsername(storedUsername);
-    }
-  }, []);
-
-  const login = (token, username) => {
-    localStorage.setItem('Authorization', token);
-    localStorage.setItem('username', username);
-    setIsAuthenticated(true);
-    setUsername(username);
+      console.log("Logged in username:", loggedInUsername);
   };
 
-  const logout = async () => {
-    try {
-      const token = localStorage.getItem('Authorization');
-      if (token) await handleLogout(token);
-    } catch (error) {
-      console.error('Error en logout:', error);
-    } finally {
-      localStorage.removeItem('Authorization');
-      localStorage.removeItem('username');
-      setIsAuthenticated(false);
-      setUsername(null);
-    }
-  };
+    const logout = async () => {
+        try {
+            if (token) await handleLogout(token);
+        } catch (error) {
+            console.error("Error en logout:", error);
+        } finally {
+            localStorage.removeItem("Authorization");
+            setIsAuthenticated(false);
+            setUsername(null);
+            setToken(null);
+        }
+    };
 
-  const showLoading = () => {
-    setIsLoading(true);
-  };
+    const showLoading = () => setIsLoading(true);
+    const hideLoading = () => setIsLoading(false);
 
-  const hideLoading = () => {
-    setIsLoading(false);
-  };
+    const contextValue = {
+        isAuthenticated,
+        setIsAuthenticated,
+        login,
+        logout,
+        token,
+        isLoading,
+        showLoading,
+        hideLoading,
+        username,
+    };
 
-  const contextValue = {
-    isAuthenticated,
-    setIsAuthenticated,
-    login,
-    logout,
-    username,
-    isLoading,
-    showLoading,
-    hideLoading,
-  };
-
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+    return (
+        <AuthContext.Provider value={contextValue}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
 
 export const useAuth = () => React.useContext(AuthContext);

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useContext } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import styles from "./Navbar.module.css"
 import {
   FaShoppingCart,
@@ -26,9 +26,9 @@ function Navbar() {
   const { isAuthenticated, logout } = useContext(AuthContext)
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState("")
+  const [searchParams] = useSearchParams()
   const dropdownRef = useRef(null)
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -70,12 +70,9 @@ function Navbar() {
   }
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return
-
     try {
-      const results = await searchUsers(searchQuery)
-      navigate("/search", { state: { results } })
-      setIsMobileSearchOpen(false)
+      const queryParam = searchQuery.trim() ? searchQuery : ""
+      navigate(`/search/?q=${queryParam}&page=1`)
     } catch (error) {
       console.error("Error buscando usuarios:", error)
       alert("Error al realizar la búsqueda")
@@ -86,20 +83,16 @@ function Navbar() {
     <div className={styles.navbarContainer}>
       <div className={styles.navbarWrapper}>
         <nav className={styles.navbar}>
-          {/* Logo */}
           <a href="/" className={styles.navbarLogo}>
             Rincon Del Lector
           </a>
 
-          {/* Desktop Navigation */}
           <div className={styles.navbarMenu}>
             <button className={styles.menuItem}>Biblioteca</button>
             <button className={styles.menuItem}>Explorar libreria</button>
           </div>
 
-          {/* Actions (Search, Cart, Auth) */}
           <div className={styles.navbarActions}>
-            {/* Desktop Search */}
             <div className={styles.searchContainer}>
               <input
                 value={searchQuery}
@@ -113,19 +106,16 @@ function Navbar() {
               </button>
             </div>
 
-            {/* Mobile Search Button */}
             <button className={styles.mobileSearchButton} onClick={() => setIsMobileSearchOpen(true)}>
               <FaSearch size={20} />
             </button>
 
-            {/* Shopping Cart */}
             {isAuthenticated && (
               <a href="/MyCart" className={styles.cartLink}>
                 <FaShoppingCart size={20} />
               </a>
             )}
 
-            {/* Auth Buttons */}
             {!isAuthenticated ? (
               <a href="/AuthForm">
                 <button className={styles.registerButton}>Registrarse</button>
@@ -160,8 +150,6 @@ function Navbar() {
                 )}
               </div>
             )}
-
-            {/* Mobile Menu Button */}
             <button className={styles.mobileMenuButton} onClick={() => setIsMobileMenuOpen(true)}>
               <FaBars size={20} />
             </button>
@@ -169,27 +157,6 @@ function Navbar() {
         </nav>
       </div>
 
-      {/* Mobile Menu */}
-      <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.mobileMenuOpen : ""}`}>
-        <div className={styles.mobileMenuHeader}>
-          <a href="/" className={styles.navbarLogo}>
-            Rincon Del Lector
-          </a>
-          <button className={styles.mobileMenuClose} onClick={() => setIsMobileMenuOpen(false)}>
-            <FaTimes />
-          </button>
-        </div>
-        <div className={styles.mobileMenuItems}>
-          <button className={styles.menuItem} onClick={() => setIsMobileMenuOpen(false)}>
-            Biblioteca
-          </button>
-          <button className={styles.menuItem} onClick={() => setIsMobileMenuOpen(false)}>
-            Explorar libreria
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Search Overlay */}
       <div className={`${styles.mobileSearchOverlay} ${isMobileSearchOpen ? styles.mobileSearchOpen : ""}`}>
         <div className={styles.mobileMenuHeader}>
           <h2>Buscar</h2>
@@ -214,4 +181,3 @@ function Navbar() {
 }
 
 export default Navbar
-
