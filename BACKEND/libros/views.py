@@ -74,13 +74,25 @@ class LibroViewSet(viewsets.ModelViewSet):
             ),
             OpenApiParameter(
                 name='search',
-                description='Búsqueda por título o sinopsis (insensible a mayúsculas)',
+                description='Busqueda por titulo o sinopsis',
                 required=False,
                 type=str,
                 examples=[
                     OpenApiExample(
-                        'Búsqueda por palabra clave',
-                        value='fantasia'
+                        'Busqueda por palabra clave',
+                        value='The Witcher'
+                    ),
+                ]
+            ),
+            OpenApiParameter(
+                name='owner',
+                description='Busqueda por username',
+                required=False,
+                type=str,
+                examples=[
+                    OpenApiExample(
+                        'Busqueda por palabra clave',
+                        value='juanPerez22'
                     ),
                 ]
             ),
@@ -116,7 +128,7 @@ class LibroViewSet(viewsets.ModelViewSet):
                 'Ejemplo completo',
                 value={
                     "owned": "true",
-                    "search": "aventura",
+                    "search": "Wild Cards",
                     "ordering": "most_purchased"
                 },
                 description='Combina múltiples parámetros',
@@ -148,7 +160,12 @@ class LibroViewSet(viewsets.ModelViewSet):
                 models.Q(title__icontains=search_term)
                 |
                 models.Q(synopsis__icontains=search_term)
-    )
+            )
+        
+        # Busqueda por owner username
+        owner_username = request.query_params.get("owner")
+        if owner_username:
+            queryset = queryset.filter(owner__username__icontains=owner_username)
 
         # Ordenamiento
         ordering = request.query_params.get("ordering")

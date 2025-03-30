@@ -27,14 +27,12 @@ class Libro(models.Model):
         upload_to='books_images',
         blank=True,
         null=True)
-    #image_name = models.CharField(max_length=255)
     
     # Campos para el archivo
     file = models.FileField(
         upload_to='books_files',
         blank=True,
         null=True)
-    #file_name = models.CharField(max_length=255)
     
     # Relación de usuarios que compraron el libro
     purchased_by = models.ManyToManyField(
@@ -55,9 +53,16 @@ class Purchase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Libro, on_delete=models.CASCADE)
     purchase_date = models.DateTimeField(auto_now_add=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     class Meta:
         unique_together = ('user', 'book')
 
     def __str__(self):
         return f'{self.user} - {self.book}'
+    
+    def save(self, *args, **kwargs):
+        self.price = self.book.price
+        print("PRECIO ", self.price)
+        print("BOOK ", self.book)
+        super().save(*args, **kwargs)
