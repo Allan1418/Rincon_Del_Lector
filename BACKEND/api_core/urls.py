@@ -42,6 +42,9 @@ urlpatterns = [
     
     # Libros
     path('api/libros/', include('libros.urls')),
+    
+    # Carrito
+    path('api/business/', include('business.urls')),
 
 
 

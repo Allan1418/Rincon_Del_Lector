@@ -277,6 +277,103 @@ paths:
               schema:
                 $ref: '#/components/schemas/CustomUserDetails'
           description: ''
+  /api/business/cart/:
+    get:
+      operationId: business_cart_list
+      description: Obtener el carrito actual del usuario con lista de IDs de libros
+      tags:
+      - business
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: Carrito obtenido exitosamente
+  /api/business/cart/agregar/:
+    post:
+      operationId: business_cart_agregar_create
+      description: Agregar un libro al carrito de compras
+      tags:
+      - business
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartActionRequest'
+            examples:
+              EjemploSolicitud:
+                value:
+                  book_id: 123e4567-e89b-12d3-a456-426614174000
+                summary: Ejemplo solicitud
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CartActionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CartActionRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          description: Libro agregado exitosamente
+        '400':
+          description: Error en la solicitud
+        '404':
+          description: Libro no encontrado
+  /api/business/cart/comprar/:
+    post:
+      operationId: business_cart_comprar_create
+      description: Realizar compra de los libros en el carrito
+      tags:
+      - business
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: Compra realizada exitosamente
+        '400':
+          description: Error en la compra
+  /api/business/cart/quitar/:
+    delete:
+      operationId: business_cart_quitar_destroy
+      description: Remover un libro del carrito de compras
+      tags:
+      - business
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: Libro removido exitosamente
+        '404':
+          description: Libro no encontrado en el carrito
+  /api/business/owner-earnings/:
+    get:
+      operationId: business_owner_earnings_retrieve
+      tags:
+      - business
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OwnerEarnings'
+          description: ''
+  /api/business/purchase-history/:
+    get:
+      operationId: business_purchase_history_retrieve
+      tags:
+      - business
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseHistory'
+          description: ''
   /api/libros/:
     get:
       operationId: libros_list
@@ -317,6 +414,15 @@ paths:
           EjemploTrue:
             value: 'true'
             summary: Solo mis libros
+      - in: query
+        name: owner
+        schema:
+          type: string
+        description: Busqueda por username
+        examples:
+          BusquedaPorPalabraClave:
+            value: juanPerez22
+            summary: Busqueda por palabra clave
       - name: page
         required: false
         in: query
@@ -336,11 +442,11 @@ paths:
         name: search
         schema:
           type: string
-        description: Búsqueda por título o sinopsis (insensible a mayúsculas)
+        description: Busqueda por titulo o sinopsis
         examples:
-          BúsquedaPorPalabraClave:
-            value: fantasia
-            summary: Búsqueda por palabra clave
+          BusquedaPorPalabraClave:
+            value: The Witcher
+            summary: Busqueda por palabra clave
       tags:
       - libros
       security:
@@ -784,6 +890,14 @@ paths:
           description: ''
 components:
   schemas:
+    CartActionRequest:
+      type: object
+      properties:
+        book_id:
+          type: string
+          format: uuid
+      required:
+      - book_id
     CustomLoginRequest:
       type: object
       properties:
@@ -947,7 +1061,7 @@ components:
           readOnly: true
         is_owner:
           type: boolean
-          description: Verifica si el usuario actual es el dueño del libro
+          description: Verifica si el usuario actual es el owner del libro
           readOnly: true
         is_purchased:
           type: boolean
@@ -993,6 +1107,35 @@ components:
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
       required:
       - title
+    MonthlyEarning:
+      type: object
+      properties:
+        year:
+          type: integer
+        month:
+          type: integer
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - month
+      - total
+      - year
+    OwnerEarnings:
+      type: object
+      properties:
+        total_earnings:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        monthly_earnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthlyEarning'
+      required:
+      - monthly_earnings
+      - total_earnings
     PaginatedLibroList:
       type: object
       required:
@@ -1148,6 +1291,30 @@ components:
       - image_name
       - is_following
       - username
+    PurchaseHistory:
+      type: object
+      properties:
+        fecha:
+          type: string
+          format: date-time
+          readOnly: true
+        titulo_libro:
+          type: string
+          readOnly: true
+        id_libro:
+          type: string
+          format: uuid
+          readOnly: true
+        precio:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+      required:
+      - fecha
+      - id_libro
+      - precio
+      - titulo_libro
     RestAuthDetail:
       type: object
       properties:

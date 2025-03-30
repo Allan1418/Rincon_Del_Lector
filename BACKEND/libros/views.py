@@ -74,13 +74,25 @@ class LibroViewSet(viewsets.ModelViewSet):
             ),
             OpenApiParameter(
                 name='search',
-                description='Búsqueda por título o sinopsis (insensible a mayúsculas)',
+                description='Busqueda por titulo o sinopsis',
                 required=False,
                 type=str,
                 examples=[
                     OpenApiExample(
-                        'Búsqueda por palabra clave',
-                        value='fantasia'
+                        'Busqueda por palabra clave',
+                        value='The Witcher'
+                    ),
+                ]
+            ),
+            OpenApiParameter(
+                name='owner',
+                description='Busqueda por username',
+                required=False,
+                type=str,
+                examples=[
+                    OpenApiExample(
+                        'Busqueda por palabra clave',
+                        value='juanPerez22'
                     ),
                 ]
             ),
@@ -116,7 +128,7 @@ class LibroViewSet(viewsets.ModelViewSet):
                 'Ejemplo completo',
                 value={
                     "owned": "true",
-                    "search": "aventura",
+                    "search": "Wild Cards",
                     "ordering": "most_purchased"
                 },
                 description='Combina múltiples parámetros',
@@ -128,13 +140,18 @@ class LibroViewSet(viewsets.ModelViewSet):
         # Anotar compras desde el principio
         queryset = self.get_queryset().annotate(purchase_count=models.Count("purchased_by", distinct=True))
 
-        # Parametro para libros owned
-        if request.query_params.get("owned") == 'true' and request.user.is_authenticated:
-            queryset = queryset.filter(owner=request.user)
-    
-        # Parametro para libros comprados
-        if request.query_params.get('purchased') == 'true' and request.user.is_authenticated:
-            queryset = queryset.filter(purchased_by=request.user)
+        if request.user.is_authenticated:
+            # Parametro para libros owned
+            if request.query_params.get('owned') == 'true':
+                queryset = queryset.filter(owner=request.user)
+            elif request.query_params.get('owned') == 'false':
+                queryset = queryset.exclude(owner=request.user)
+        
+            # Parametro para libros comprados
+            if request.query_params.get('purchased') == 'true':
+                queryset = queryset.filter(purchased_by=request.user)
+            elif request.query_params.get('purchased') == 'false':
+                queryset = queryset.exclude(purchased_by=request.user)
 
         # Busqueda
         search_term = request.query_params.get("search")
@@ -143,7 +160,12 @@ class LibroViewSet(viewsets.ModelViewSet):
                 models.Q(title__icontains=search_term)
                 |
                 models.Q(synopsis__icontains=search_term)
-    )
+            )
+        
+        # Busqueda por owner username
+        owner_username = request.query_params.get("owner")
+        if owner_username:
+            queryset = queryset.filter(owner__username__icontains=owner_username)
 
         # Ordenamiento
         ordering = request.query_params.get("ordering")
@@ -168,7 +190,7 @@ class LibroViewSet(viewsets.ModelViewSet):
         else:
             queryset = queryset.order_by("-published_date")
 
-        print("\nSQL FINAL:", queryset.query)
+        # print("\nSQL FINAL: ", queryset.query)
 
         # Paginacion
         page = self.paginate_queryset(queryset)
