@@ -128,13 +128,18 @@ class LibroViewSet(viewsets.ModelViewSet):
         # Anotar compras desde el principio
         queryset = self.get_queryset().annotate(purchase_count=models.Count("purchased_by", distinct=True))
 
-        # Parametro para libros owned
-        if request.query_params.get("owned") == 'true' and request.user.is_authenticated:
-            queryset = queryset.filter(owner=request.user)
-    
-        # Parametro para libros comprados
-        if request.query_params.get('purchased') == 'true' and request.user.is_authenticated:
-            queryset = queryset.filter(purchased_by=request.user)
+        if request.user.is_authenticated:
+            # Parametro para libros owned
+            if request.query_params.get('owned') == 'true':
+                queryset = queryset.filter(owner=request.user)
+            elif request.query_params.get('owned') == 'false':
+                queryset = queryset.exclude(owner=request.user)
+        
+            # Parametro para libros comprados
+            if request.query_params.get('purchased') == 'true':
+                queryset = queryset.filter(purchased_by=request.user)
+            elif request.query_params.get('purchased') == 'false':
+                queryset = queryset.exclude(purchased_by=request.user)
 
         # Busqueda
         search_term = request.query_params.get("search")
@@ -168,7 +173,7 @@ class LibroViewSet(viewsets.ModelViewSet):
         else:
             queryset = queryset.order_by("-published_date")
 
-        print("\nSQL FINAL:", queryset.query)
+        # print("\nSQL FINAL: ", queryset.query)
 
         # Paginacion
         page = self.paginate_queryset(queryset)

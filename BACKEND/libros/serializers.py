@@ -13,7 +13,7 @@ class LibroSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'published_date', 'owner']
 
     def get_is_owner(self, obj) -> bool:
-        """Verifica si el usuario actual es el dueño del libro"""
+        """Verifica si el usuario actual es el owner del libro"""
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.owner == request.user
