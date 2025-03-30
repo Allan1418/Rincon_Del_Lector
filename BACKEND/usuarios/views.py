@@ -70,7 +70,7 @@ class UserSearchView(ListAPIView):
 
     def get_queryset(self):
         query = self.request.query_params.get("q", "")
-        return Usuario.objects.filter(username__icontains=query)
+        return Usuario.objects.filter(username__icontains=query).order_by('username')
 
 
 class UserRelationshipViewSet(GenericViewSet):

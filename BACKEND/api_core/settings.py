@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     "drf_spectacular",
     "libros",
-    "usuarios"
+    "usuarios",
+    "business"
 ]
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
