@@ -9,6 +9,7 @@ import ResetPassword from './Components/Profile/Forgottenpassword/ResetPassword.
 import UserSearchResults from './Components/SearchResults/SearchResults.jsx';
 import EditBook from './Components/Library/ChangeBook/EditBook.jsx';
 import BookDetails from './Components/Library/BookDetails.jsx';
+import LibrosGrid from './Components/Home/ExplorarLibros/LibrosGrid.jsx';
 
 function App() {
   
@@ -24,6 +25,7 @@ function App() {
           <Route path="/search" element={<UserSearchResults />} />
           <Route path="/edit-book/:bookId" element={<EditBook />} />
           <Route path="/libros/:bookId" element={<BookDetails />} />
+          <Route path="/explorar" element={<LibrosGrid />} />
         </Routes>
       </Layout>
     </BrowserRouter>

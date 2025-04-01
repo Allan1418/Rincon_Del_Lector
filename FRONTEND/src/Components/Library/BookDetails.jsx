@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import { getLibroById, getBookImageUrl, downloadBookEpub } from "../../services/ProfileService"
 import LoadingScreen from "../Hooks/LoadingScreen"
 import ErrorDisplay from "../Hooks/ErrorDisplay"
-import { Book, Calendar, BadgeCent , User, ArrowLeft, BookOpen, Download, Edit } from "lucide-react"
+import { Book, Calendar, BadgeCent, User, ArrowLeft, BookOpen, Download, Edit, ShoppingCart } from "lucide-react"
 import styles from "./BookDetails.module.css"
+import { AuthContext } from "../Context/AuthContext";
 
 const BookDetails = () => {
     const { bookId } = useParams()
@@ -16,52 +17,64 @@ const BookDetails = () => {
     const [error, setError] = useState(null)
     const [downloadLoading, setDownloadLoading] = useState(false)
     const [downloadError, setDownloadError] = useState(null)
+    const { userData, token } = useContext(AuthContext);
+
+    const isOwner = userData?.username === book?.owner;
+    const isPurchased = book?.has_purchased;
 
     useEffect(() => {
         const fetchBook = async () => {
             try {
-                const bookData = await getLibroById(bookId)
-                setBook(bookData)
+                const bookData = await getLibroById(bookId, token);
+                setBook(bookData);
             } catch (err) {
-                setError(err)
+                setError(err);
             } finally {
-                setIsLoading(false)
+                setIsLoading(false);
             }
-        }
+        };
 
-        fetchBook()
-    }, [bookId])
+        fetchBook();
+    }, [bookId, token]);
 
     const handleDownloadEpub = async () => {
-        setDownloadLoading(true)
-        setDownloadError(null)
+        setDownloadLoading(true);
+        setDownloadError(null);
 
         try {
-            const response = await downloadBookEpub(bookId, token)
+            const response = await downloadBookEpub(bookId, token);
 
-            const contentType = response.headers.get("content-type")
+            const contentType = response.headers.get("content-type");
             if (!contentType?.includes("epub")) {
-                throw new Error("El archivo no es un EPUB válido")
+                throw new Error("El archivo no es un EPUB válido");
             }
 
-            const blob = await response.blob()
-            const url = window.URL.createObjectURL(blob)
-            const a = document.createElement("a")
-            a.href = url
-            a.download = `${book.title.replace(/\s+/g, "_")}.epub`
-            document.body.appendChild(a)
-            a.click()
-            window.URL.revokeObjectURL(url)
-            document.body.removeChild(a)
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${book.title.replace(/\s+/g, "_")}.epub`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
         } catch (err) {
-            setDownloadError(err.message)
+            setDownloadError(err.message);
         } finally {
-            setDownloadLoading(false)
+            setDownloadLoading(false);
         }
-    }
+    };
 
-    if (isLoading) return <LoadingScreen />
-    if (error) return <ErrorDisplay error={error} />
+    const handlePurchase = () => {
+        // Logica para realizar la compra del libro, podria ser una llamada a la API
+        console.log("Comprando libro...");
+
+        // Aquí deberías realizar la lógica de compra y actualizar el estado `book`
+        // para que `has_purchased` sea `true` cuando la compra sea exitosa
+    };
+
+    if (isLoading) return <LoadingScreen />;
+    if (error) return <ErrorDisplay error={error} />;
 
     return (
         <div className={styles.bookDetailsContainer}>
@@ -114,30 +127,40 @@ const BookDetails = () => {
 
                     <div className={styles.actionRow}>
                         <div className={styles.priceBadge}>
-                            <BadgeCent  size={20} />
+                            <BadgeCent size={20} />
                             <span>{book.price}</span>
                         </div>
 
-                        <button className={styles.editButton} onClick={() => navigate(`/edit-book/${bookId}`)}>
-                            <Edit size={18} />
-                            <span>Editar</span>
-                        </button>
+                        {isOwner && (
+                            <button className={styles.editButton} onClick={() => navigate(`/edit-book/${bookId}`)}>
+                                <Edit size={18} />
+                                <span>Editar</span>
+                            </button>
+                        )}
                     </div>
 
                     <div className={styles.downloadSection}>
-                        <button className={styles.downloadButton} onClick={handleDownloadEpub} disabled={downloadLoading}>
-                            {downloadLoading ? (
-                                <>
-                                    <div className={styles.spinner} />
-                                    <span>Descargando...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Download size={20} />
-                                    <span>Descargar EPUB</span>
-                                </>
-                            )}
-                        </button>
+                         {!isPurchased && !isOwner &&(
+                            <button className={styles.downloadButton} onClick={handlePurchase}>
+                                <ShoppingCart size={20} />
+                                <span>Comprar</span>
+                            </button>
+                        )}
+                        {isPurchased && !isOwner && (
+                            <button className={styles.downloadButton} onClick={handleDownloadEpub} disabled={downloadLoading}>
+                                {downloadLoading ? (
+                                    <>
+                                        <div className={styles.spinner} />
+                                        <span>Descargando...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Download size={20} />
+                                        <span>Descargar EPUB</span>
+                                    </>
+                                )}
+                            </button>
+                        )}
                         {downloadError && (
                             <div className={styles.downloadError}>
                                 {downloadError}
@@ -160,7 +183,7 @@ const BookDetails = () => {
                 <p className={styles.synopsisText}>{book.synopsis || "Este libro no tiene sinopsis disponible."}</p>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default BookDetails
+export default BookDetails;

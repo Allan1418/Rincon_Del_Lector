@@ -1,33 +1,45 @@
 :root {
-  --primary-color: #c4d2a1;
-  --primary-light: #d4e0b9;
-  --primary-dark: #a6b585;
-  --secondary-color: #8a9a6f;
-  --secondary-light: #9dac85;
-  --secondary-dark: #778a5c;
-  --accent-color: #b38d6d;
-  --accent-light: #c9a98d;
-  --accent-dark: #9a7353;
+  /* Primary palette - Deep teal */
+  --primary-color: #2dd4bf; /* Teal */
+  --primary-light: #5eead4; /* Lighter teal */
+  --primary-dark: #14b8a6; /* Darker teal */
 
-  --bg-cream: #f5f0e8;
-  --bg-cream-light: #faf7f2;
-  --bg-cream-dark: #ebe5da;
+  /* Secondary palette - Rich purple */
+  --secondary-color: #a855f7; /* Purple */
+  --secondary-light: #c084fc; /* Lighter purple */
+  --secondary-dark: #9333ea; /* Darker purple */
 
-  --text-primary: #3c4a2a;
-  --text-secondary: #5a6b45;
-  --text-muted: #7d8a6c;
-  --text-light: #f5f0e8;
+  /* Accent - Amber */
+  --accent-color: #f59e0b; /* Amber */
+  --accent-light: #fbbf24; /* Lighter amber */
+  --accent-dark: #d97706; /* Darker amber */
 
-  --border-light: #e8e3d8;
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 8px rgba(60, 74, 42, 0.08);
-  --shadow-lg: 0 8px 16px rgba(60, 74, 42, 0.1);
-  --shadow-xl: 0 12px 24px rgba(60, 74, 42, 0.12);
+  /* Background palette - Dark slate */
+  --bg-cream: #1e1e2e; /* Dark slate */
+  --bg-cream-light: #27273a; /* Slightly lighter slate */
+  --bg-cream-dark: #181825; /* Darker slate */
+
+  /* Text colors */
+  --text-primary: #e2e8f0; /* Light gray for primary text */
+  --text-secondary: #cbd5e1; /* Medium gray for secondary text */
+  --text-muted: #000000; /* Muted gray for less important text */
+  --text-light: #f8fafc; /* Almost white for high contrast text */
+
+  /* UI elements */
+  --border-light: rgba(255, 255, 255, 0.1); /* Subtle border */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3); /* Soft shadow */
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3); /* Medium shadow */
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3); /* Large shadow */
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.3); /* Extra large shadow */
+
+  /* Radius */
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
+
+  /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;
@@ -36,7 +48,7 @@
 .profileContainer {
   max-width: 1200px;
   margin: 7rem auto 4rem;
-  background-color: var(--bg-cream-light);
+  background-color: var(--bg-cream);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
@@ -55,7 +67,7 @@
   left: 0;
   width: 100%;
   height: 200px;
-  background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+  background: linear-gradient(135deg, var(--primary-dark), var(--secondary-color)); /* Gradient with primary and secondary colors */
   z-index: 1;
 }
 
@@ -74,8 +86,8 @@
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  border: 4px solid var(--bg-cream-light);
-  background-color: var(--bg-cream-light);
+  border: 4px solid var(--bg-cream);
+  background-color: var(--bg-cream);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   position: relative;
@@ -129,15 +141,15 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  background: var(--secondary-color);
-  color: white;
+  background: var(--primary-color);
+  color: var(--bg-cream-dark);
   border-radius: 50%;
   font-size: 0.8rem;
 }
 
 .userRole {
   font-size: 1rem;
-  color: var(--text-muted);
+  color: #ffffff;
   margin: 0;
 }
 
@@ -146,8 +158,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #809165;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--bg-cream-dark);
   border: none;
   border-radius: var(--radius-lg);
   font-weight: 600;
@@ -158,17 +170,17 @@
 }
 
 .followButton:hover {
-  background-color: var(--secondary-dark);
+  background-color: var(--primary-light);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
 .followButton.following {
-  background-color: var(--accent-color);
+  background-color: var(--secondary-color);
 }
 
 .followButton.following:hover {
-  background-color: var(--accent-dark);
+  background-color: var(--secondary-light);
 }
 
 .buttonIcon {
@@ -180,7 +192,7 @@
 }
 
 .bioSection {
-  background-color: var(--bg-cream);
+  background-color: var(--bg-cream-dark);
   padding: 1.25rem;
   border-radius: var(--radius-lg);
   border-left: 4px solid var(--primary-color);
@@ -196,7 +208,7 @@
 .readMoreButton {
   background: none;
   border: none;
-  color: var(--secondary-color);
+  color: var(--primary-color);
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -206,7 +218,7 @@
 }
 
 .readMoreButton:hover {
-  color: var(--secondary-dark);
+  color: var(--primary-light);
   text-decoration: underline;
 }
 
@@ -236,7 +248,7 @@
 }
 
 .statCard {
-  background-color: var(--bg-cream);
+  background-color: var(--bg-cream-dark);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   text-align: center;
@@ -255,7 +267,7 @@
 .statValue {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--secondary-color);
+  color: var(--primary-color);
   margin-bottom: 0.5rem;
 }
 
@@ -288,7 +300,7 @@
 
 .tabsContainer {
   display: flex;
-  background-color: var(--bg-cream);
+  background-color: var(--bg-cream-dark);
   border-radius: var(--radius-lg);
   padding: 0.5rem;
   gap: 0.5rem;
@@ -315,12 +327,12 @@
 
 .tabButton:hover {
   color: var(--text-primary);
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .activeTab {
   background-color: var(--bg-cream-light);
-  color: var(--secondary-color);
+  color: var(--primary-color);
   box-shadow: var(--shadow-sm);
 }
 
@@ -338,7 +350,7 @@
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   background-color: var(--secondary-color);
-  color: white;
+  color: var(--text-light);
   border: none;
   border-radius: var(--radius-lg);
   font-weight: 600;
@@ -349,7 +361,7 @@
 }
 
 .createBookButton:hover {
-  background-color: var(--secondary-dark);
+  background-color: var(--secondary-light);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -409,15 +421,16 @@
   border-radius: var(--radius-md);
   font-size: 1rem;
   transition: all var(--transition-fast);
-  background-color: var(--bg-cream);
+  background-color: var(--bg-cream-dark);
+  color: var(--text-light);
 }
 
 .bookInput:focus,
 .bookTextarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(196, 210, 161, 0.2);
-  background-color: var(--bg-cream-light);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.2);
+  background-color: var(--bg-cream);
 }
 
 .bookTextarea {
@@ -432,7 +445,7 @@
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   background-color: var(--secondary-color);
-  color: white;
+  color: var(--text-light);
   border: none;
   border-radius: var(--radius-lg);
   font-weight: 600;
@@ -445,24 +458,24 @@
 }
 
 .bookButton:hover {
-  background-color: var(--secondary-dark);
+  background-color: var(--secondary-light);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
 .errorMessage {
-  color: #e05252;
-  background-color: #fde8e8;
-  border-left: 3px solid #e05252;
+  color: #f87171;
+  background-color: rgba(248, 113, 113, 0.1);
+  border-left: 3px solid #f87171;
   padding: 1rem;
   border-radius: var(--radius-md);
   margin-top: 1rem;
 }
 
 .successMessage {
-  color: #4d9e6a;
-  background-color: #e3f5eb;
-  border-left: 3px solid #4d9e6a;
+  color: #4ade80;
+  background-color: rgba(74, 222, 128, 0.1);
+  border-left: 3px solid #4ade80;
   padding: 1rem;
   border-radius: var(--radius-md);
   margin-top: 1rem;
@@ -526,7 +539,7 @@
   left: 0;
   width: 10px;
   height: 100%;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.1), transparent);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.2), transparent);
   z-index: 1;
 }
 
@@ -538,7 +551,7 @@
   left: 0;
   width: 100%;
   height: 20px;
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), transparent);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.3), transparent);
   z-index: 1;
 }
 
@@ -625,7 +638,7 @@
   top: 20px;
   right: -30px;
   background: var(--accent-color);
-  color: white;
+  color: var(--text-light);
   padding: 0.25rem 2rem;
   transform: rotate(45deg);
   font-size: 0.75rem;
@@ -666,7 +679,7 @@
   height: 60px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid var(--primary-light);
+  border: 2px solid var(--primary-color);
 }
 
 .userImage {
@@ -710,7 +723,7 @@
   justify-content: center;
   padding: 4rem 2rem;
   text-align: center;
-  background-color: var(--bg-cream);
+  background-color: var(--bg-cream-dark);
   border-radius: var(--radius-lg);
   border: 1px dashed var(--border-light);
 }
@@ -721,10 +734,10 @@
   justify-content: center;
   width: 80px;
   height: 80px;
-  background-color: rgba(196, 210, 161, 0.2);
+  background-color: rgba(45, 212, 191, 0.1);
   border-radius: 50%;
   margin-bottom: 1.5rem;
-  color: var(--secondary-color);
+  color: var(--primary-color);
 }
 
 .emptyStateTitle {
@@ -746,7 +759,7 @@
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   background-color: var(--secondary-color);
-  color: white;
+  color: var(--text-light);
   border: none;
   border-radius: var(--radius-lg);
   font-weight: 600;
@@ -757,7 +770,7 @@
 }
 
 .emptyStateButton:hover {
-  background-color: var(--secondary-dark);
+  background-color: var(--secondary-light);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }

@@ -1,8 +1,9 @@
-body{
-    background-color: #C4D2A1;
-  }
+body {
+  background-color: var(--bg-cream); 
+  color: var(--text-primary);
+}
 
-  footer {
-    display: grid;
-    justify-content: center;
-  }
+footer {
+  display: grid;
+  justify-content: center;
+}

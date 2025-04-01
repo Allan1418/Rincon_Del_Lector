@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
+import { getUserData } from "../../services/ProfileService"; // Asegúrate de la ruta correcta
 
 export const AuthContext = createContext();
 
@@ -7,22 +8,37 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [username, setUsername] = useState(null);
+    const [userData, setUserData] = useState(null);
 
     useEffect(() => {
         const storedToken = localStorage.getItem("Authorization");
         if (storedToken) {
             setIsAuthenticated(true);
             setToken(storedToken);
+            getUserData(storedToken)
+                .then(data => {
+                    setUserData(data);
+                })
+                .catch(error => {
+                    console.error("Error al obtener datos del usuario:", error);
+                });
         }
+          console.log("Estado inicial:", { isAuthenticated, token, username, userData });
     }, []);
 
     const login = (newToken, loggedInUsername) => {
-      localStorage.setItem("Authorization", newToken);
-      setToken(newToken);
-      setUsername(loggedInUsername);
-      setIsAuthenticated(true);
-      console.log("Logged in username:", loggedInUsername);
-  };
+        localStorage.setItem("Authorization", newToken);
+        setToken(newToken);
+        setUsername(loggedInUsername);
+        setIsAuthenticated(true);
+        getUserData(newToken)
+            .then(data => {
+                setUserData(data);
+            })
+            .catch(error => {
+                console.error("Error al obtener datos del usuario:", error);
+            });
+    };
 
     const logout = async () => {
         try {
@@ -34,6 +50,7 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(false);
             setUsername(null);
             setToken(null);
+            setUserData(null);
         }
     };
 
@@ -50,7 +67,9 @@ export const AuthProvider = ({ children }) => {
         showLoading,
         hideLoading,
         username,
+        userData,
     };
+    console.log("Valor del Contexto:", contextValue);
 
     return (
         <AuthContext.Provider value={contextValue}>

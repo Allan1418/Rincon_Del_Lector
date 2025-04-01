@@ -311,7 +311,7 @@ export const createBook = async (bookData, token) => {
   }
 };
 
-export const getLibros = async (token, username = null, ordering = null, owned = null, page = null, purchased = null, search = null) => {
+export const getLibros = async (token = null, username = null, ordering = null, owned = null, page = null, purchased = null, search = null) => {
   try {
       let url = `${API_LIBROS_URL}/libros/`;
       const queryParams = new URLSearchParams();
@@ -326,21 +326,27 @@ export const getLibros = async (token, username = null, ordering = null, owned =
       const queryString = queryParams.toString();
       if (queryString) url += `?${queryString}`;
 
+      const headers = {
+          'Content-Type': 'application/json',
+      };
+      if (token) {
+          headers.Authorization = `${token}`;
+      }
+
       const response = await fetch(url, {
-          headers: {
-              'Content-Type': 'application/json',
-              ...(token && { Authorization: `${token}` }),
-          },
+          headers: headers,
       });
 
       if (!response.ok) {
           const errorData = await response.json();
-          throw errorData;
+          console.error("Error en getLibros:", errorData);
+          return { results: [], error: errorData };
       }
 
       return response.json();
   } catch (error) {
-      throw error;
+      console.error("Error en getLibros:", error);
+      return { results: [], error: { message: error.message || "Error desconocido" } };
   }
 };
 

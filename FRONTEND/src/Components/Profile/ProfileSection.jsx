@@ -30,7 +30,7 @@ const defaultProfileImage = "/images/Avatar.png";
 
 const UserProfile = () => {
   const { username } = useParams();
-  const { isAuthenticated, user } = useContext(AuthContext);
+  const { userData, isAuthenticated, token } = useContext(AuthContext);
   const [profileState, setProfileState] = useState({
     data: null,
     imageUrl: defaultProfileImage,
@@ -41,12 +41,11 @@ const UserProfile = () => {
   const [bookData, setBookData] = useState({ title: "", synopsis: "", price: 0 });
   const [bookError, setBookError] = useState(null);
   const [bookSuccess, setBookSuccess] = useState(null);
-  const [activeTab, setActiveTab] = useState("published");
+  const [activeTab, setActiveTab] = useState("published"); // Establecer "published" como pestaña activa por defecto
   const [publishedBooks, setPublishedBooks] = useState([]);
   const [purchasedBooks, setPurchasedBooks] = useState([]);
   const [followersList, setFollowersList] = useState([]);
   const [followingList, setFollowingList] = useState([]);
-  const token = localStorage.getItem("Authorization");
   const [showFullBio, setShowFullBio] = useState(false);
   const [showBookForm, setShowBookForm] = useState(false);
   const navigate = useNavigate();
@@ -69,10 +68,31 @@ const UserProfile = () => {
 
   const fetchPublishedBooks = async () => {
     try {
-      const books = await getLibros(token, null, true);
-      if (books?.results) {
-        setPublishedBooks(books.results.filter((book) => book.owner === username));
+      let allBooks = [];
+      let currentPage = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const response = await getLibros(
+          token,
+          username,
+          "-published_date",
+          null,
+          currentPage,
+          null,
+          null
+        );
+
+        if (response.results) {
+          allBooks = [...allBooks, ...response.results];
+          hasMore = !!response.next;
+          currentPage++;
+        } else {
+          hasMore = false;
+        }
       }
+
+      setPublishedBooks(allBooks);
     } catch (err) {
       console.error("Error fetching published books:", err);
     }
@@ -331,6 +351,12 @@ const UserProfile = () => {
     );
   };
 
+  const isOwnProfile = userData?.username === profileState.data?.username;
+
+  console.log("UserData PK:", userData?.pk);
+console.log("Profile PK:", profileState.data?.pk);
+console.log("Es mi perfil?", isOwnProfile);
+  
   return (
     <div className={styles.profileContainer}>
       <div className={styles.profileHeader}>
@@ -355,7 +381,7 @@ const UserProfile = () => {
                 <p className={styles.userRole}>Autor</p>
               </div>
 
-              {isAuthenticated && (
+              {!isOwnProfile && (
                 <button
                   className={`${styles.followButton} ${profileState.data.is_following ? styles.following : ""}`}
                   onClick={handleFollow}
@@ -390,21 +416,23 @@ const UserProfile = () => {
       </div>
 
       <div className={styles.statsSection}>
-        <button className={styles.statCard} onClick={() => setActiveTab("followers")}>
-          <div className={styles.statValue}>{profileState.data?.follower_count || 0}</div>
-          <div className={styles.statLabel}>
-            <Users size={16} />
-            Seguidores
-          </div>
-        </button>
+          <button className={styles.statCard} onClick={() => setActiveTab("followers")}
+          disabled={!isOwnProfile} >
+            <div className={styles.statValue}>{profileState.data?.follower_count || 0}</div>
+            <div className={styles.statLabel}>
+              <Users size={16} />
+              Seguidores
+            </div>
+          </button>
 
-        <button className={styles.statCard} onClick={() => setActiveTab("following")}>
-          <div className={styles.statValue}>{profileState.data?.following_count || 0}</div>
-          <div className={styles.statLabel}>
-            <User size={16} />
-            Siguiendo
-          </div>
-        </button>
+          <button className={styles.statCard} onClick={() => setActiveTab("following")}
+          disabled={!isOwnProfile}>
+            <div className={styles.statValue}>{profileState.data?.following_count || 0}</div>
+            <div className={styles.statLabel}>
+              <User size={16} />
+              Siguiendo
+            </div>
+          </button>
 
         <button className={styles.statCard} onClick={() => setActiveTab("published")}>
           <div className={styles.statValue}>{publishedBooks.length}</div>
@@ -414,7 +442,8 @@ const UserProfile = () => {
           </div>
         </button>
 
-        <button className={styles.statCard} onClick={() => setActiveTab("purchased")}>
+        <button className={styles.statCard} onClick={() => setActiveTab("purchased")}
+        disabled={!isOwnProfile}>
           <div className={styles.statValue}>{purchasedBooks.length}</div>
           <div className={styles.statLabel}>
             <ShoppingCart size={16} />
@@ -425,10 +454,12 @@ const UserProfile = () => {
 
       <div className={styles.contentSection}>
         <div className={styles.contentHeader}>
-          <button className={styles.createBookButton} onClick={() => setShowBookForm(!showBookForm)}>
-            <PlusCircle size={18} />
-            {showBookForm ? "Cancelar" : "Publicar libro"}
-          </button>
+        {isOwnProfile && (
+            <button className={styles.createBookButton} onClick={() => setShowBookForm(!showBookForm)}>
+              <PlusCircle size={18} />
+              {showBookForm ? "Cancelar" : "Publicar libro"}
+            </button>
+              )}
         </div>
 
         {showBookForm && (
@@ -472,11 +503,11 @@ const UserProfile = () => {
                   className={styles.bookTextarea}
                 />
               </div>
-
-              <button type="submit" className={styles.bookButton}>
-                <Book size={18} />
-                Publicar libro
-              </button>
+              
+                <button type="submit" className={styles.bookButton}>
+                  <Book size={18} />
+                  Publicar libro
+                </button>
             </form>
             {bookError && <p className={styles.errorMessage}>{bookError}</p>}
             {bookSuccess && <p className={styles.successMessage}>{bookSuccess}</p>}

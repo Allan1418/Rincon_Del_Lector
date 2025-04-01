@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useContext } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate,Link } from "react-router-dom"
 import styles from "./Navbar.module.css"
 import {
     FaShoppingCart,
@@ -81,8 +81,8 @@ function Navbar() {
                     </a>
 
                     <div className={styles.navbarMenu}>
-                        <button className={styles.menuItem}>Biblioteca</button>
-                        <button className={styles.menuItem}>Explorar libreria</button>
+                        <Link to="/explorar" className={styles.menuItem}>Explorar</Link>
+                        <Link to={`/user/${profileData.username}`} className={styles.menuItem}>Mi libreria</Link>
                     </div>
 
                     <div className={styles.navbarActions}>

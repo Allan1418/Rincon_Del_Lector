@@ -2,29 +2,29 @@
   max-width: 1200px;
   margin: 7rem auto;
   padding: 2.5rem;
-  background: #f5f0e8; /* Beige claro como fondo */
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  background: var(--primary-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
 }
 
 .backButton {
-    background: none;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #5a7247;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    transition: background-color 0.2s ease;
-    margin-right: 1.5rem;
-  }
-  
-  .backButton:hover {
-    background-color: rgba(196, 210, 161, 0.2);
-  }
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+  margin-right: 1.5rem;
+}
+
+.backButton:hover {
+  background-color: rgba(45, 212, 191, 0.1);
+}
 
 .bookHeader {
   display: grid;
@@ -41,9 +41,9 @@
   width: 100%;
   height: 480px;
   object-fit: cover;
-  border-radius: 16px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--transition-normal);
 }
 
 .bookCover:hover {
@@ -60,7 +60,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: #1e293b;
+  color: var(--text-primary);
   font-size: 2.25rem;
   font-weight: 700;
   margin: 0;
@@ -68,7 +68,7 @@
 }
 
 .titleIcon {
-  color: #C4D2A1;
+  color: var(--primary-color);
   min-width: 32px;
   height: 32px;
 }
@@ -81,16 +81,16 @@
 }
 
 .metaCard {
-  background: #f9f7f4;
+  background: var(--bg-cream-dark);
   padding: 1.5rem;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .metaCard:hover {
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-md);
 }
 
 .metaItem {
@@ -100,20 +100,20 @@
 }
 
 .metaIcon {
-  color: #C4D2A1;
+  color: var(--primary-color);
   min-width: 22px;
   height: 22px;
   margin-top: 2px;
 }
 
 .metaLabel {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
 }
 
 .metaValue {
-  color: #1e293b;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 1.05rem;
 }
@@ -121,11 +121,11 @@
 .ownerLink {
   text-decoration: none;
   color: inherit;
-  transition: color 0.2s ease;
+  transition: color var(--transition-fast);
 }
 
 .ownerLink:hover .metaValue {
-  color: #C4D2A1;
+  color: var(--primary-color);
   text-decoration: underline;
 }
 
@@ -141,19 +141,19 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #C4D2A1, #8f9e77); 
-  color: white;
-  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--text-light);
+  border-radius: var(--radius-lg);
   width: fit-content;
   font-size: 1.25rem;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(196, 210, 161, 0.3);
-  transition: transform 0.2s ease;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast);
 }
 
 .priceBadge:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(196, 210, 161, 0.4);
+  box-shadow: var(--shadow-lg);
 }
 
 .editButton {
@@ -161,47 +161,47 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #e9ecef;
-  color: #475569;
+  background: var(--bg-cream-light);
+  color: var(--text-primary);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 .editButton:hover {
-  background: #dee2e6;
+  background: var(--bg-cream);
   transform: translateY(-2px);
 }
 
 .synopsisSection {
   margin-top: 2.5rem;
   padding: 2.5rem;
-  background: #f9f7f4;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-cream-dark);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
 }
 
 .sectionTitle {
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: #1e293b;
+  color: var(--text-primary);
   font-size: 1.5rem;
   margin-top: 0;
   margin-bottom: 1.5rem;
 }
 
 .sectionIcon {
-  color: #C4D2A1;
+  color: var(--primary-color);
   min-width: 24px;
   height: 24px;
 }
 
 .synopsisText {
-  color: #475569;
+  color: var(--text-secondary);
   line-height: 1.8;
   white-space: pre-wrap;
   font-size: 1.05rem;
@@ -215,32 +215,32 @@
 }
 
 .downloadButton {
-  background: linear-gradient(135deg, #C4D2A1, #8f9e77);
-  color: white;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--text-light);
   padding: 1rem 2.5rem;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(196, 210, 161, 0.3);
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-md);
   width: 100%;
   max-width: 300px;
   justify-content: center;
 }
 
 .downloadButton:hover:not(:disabled) {
-  background: linear-gradient(135deg, #8f9e77, #72815f); /* Degradado más oscuro al hacer hover */
+  background: linear-gradient(135deg, var(--primary-dark), #0f766e);
   transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(196, 210, 161, 0.4);
+  box-shadow: var(--shadow-lg);
 }
 
 .downloadButton:disabled {
-  background: linear-gradient(135deg, #94a3b8, #64748b);
+  background: linear-gradient(135deg, var(--text-muted), #6b7280);
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -250,7 +250,7 @@
   height: 20px;
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top-color: white;
+  border-top-color: var(--text-light);
   animation: spin 1s ease-in-out infinite;
 }
 
@@ -261,12 +261,12 @@
 }
 
 .downloadError {
-  color: #dc2626;
+  color: #f87171;
   margin-top: 1rem;
   padding: 1rem;
-  background: #fef2f2;
-  border-radius: 8px;
-  border-left: 4px solid #dc2626;
+  background: rgba(248, 113, 113, 0.1);
+  border-radius: var(--radius-md);
+  border-left: 4px solid #f87171;
   font-size: 0.95rem;
   width: 100%;
   max-width: 500px;
@@ -276,7 +276,7 @@
 .contactLink {
   display: block;
   margin-top: 0.5rem;
-  color: #2563eb;
+  color: var(--primary-color);
   font-weight: 500;
   text-decoration: underline;
 }
@@ -301,7 +301,7 @@
   .bookDetailsContainer {
     padding: 1.75rem;
     margin: 5rem 1rem 2rem;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
   }
 
   .bookTitle {
