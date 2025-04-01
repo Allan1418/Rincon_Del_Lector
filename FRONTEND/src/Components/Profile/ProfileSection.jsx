@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -10,13 +8,23 @@ import {
   createBook,
   getLibros,
   getBookImageUrl,
-  deleteLibro,
+  getFollowers,
+  getFollowing,
 } from "../../services/ProfileService";
 import styles from "./ProfileSection.module.css";
 import ErrorDisplay from "../Hooks/ErrorDisplay";
 import LoadingScreen from "../Hooks/LoadingScreen";
 import { AuthContext } from "../Context/AuthContext";
-import { Book, ShoppingCart, Bookmark, Eye, User, Users, Edit, PlusCircle, Calendar, Heart, Clock, BookOpen, Trash2Icon } from 'lucide-react';
+import {
+  Book,
+  ShoppingCart,
+  Users,
+  User,
+  PlusCircle,
+  Calendar,
+  Heart,
+  Clock,
+} from "lucide-react";
 
 const defaultProfileImage = "/images/Avatar.png";
 
@@ -36,33 +44,34 @@ const UserProfile = () => {
   const [activeTab, setActiveTab] = useState("published");
   const [publishedBooks, setPublishedBooks] = useState([]);
   const [purchasedBooks, setPurchasedBooks] = useState([]);
+  const [followersList, setFollowersList] = useState([]);
+  const [followingList, setFollowingList] = useState([]);
   const token = localStorage.getItem("Authorization");
   const [showFullBio, setShowFullBio] = useState(false);
   const [showBookForm, setShowBookForm] = useState(false);
   const navigate = useNavigate();
 
   const fetchUserProfile = async () => {
-    setProfileState((prevState) => ({ ...prevState, isLoading: true, error: null }));
+    setProfileState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
       const data = await getUserByUsername(username, token);
-      setProfileState((prevState) => ({
-        ...prevState,
+      setProfileState((prev) => ({
+        ...prev,
         data,
         imageUrl: data.image_name ? getProfileImage(data.image_name) : defaultProfileImage,
       }));
     } catch (err) {
-      setProfileState((prevState) => ({ ...prevState, error: err }));
+      setProfileState((prev) => ({ ...prev, error: err }));
     } finally {
-      setProfileState((prevState) => ({ ...prevState, isLoading: false }));
+      setProfileState((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
   const fetchPublishedBooks = async () => {
     try {
       const books = await getLibros(token, null, true);
-      if (books && books.results) {
-        const ownerBooks = books.results.filter((book) => book.owner === username);
-        setPublishedBooks(ownerBooks);
+      if (books?.results) {
+        setPublishedBooks(books.results.filter((book) => book.owner === username));
       }
     } catch (err) {
       console.error("Error fetching published books:", err);
@@ -72,11 +81,29 @@ const UserProfile = () => {
   const fetchPurchasedBooks = async () => {
     try {
       const books = await getLibros(token, null, null, null, true);
-      if (books && books.results) {
-        setPurchasedBooks(books.results);
-      }
+      setPurchasedBooks(books?.results || []);
     } catch (err) {
       console.error("Error fetching purchased books:", err);
+    }
+  };
+
+  const fetchFollowers = async () => {
+    setFollowersList([]);
+    try {
+      const response = await getFollowers(username, token);
+      setFollowersList(response.results || response || []);
+    } catch (err) {
+      setFollowersList([]);
+    }
+  };
+
+  const fetchFollowing = async () => {
+    setFollowingList([]);
+    try {
+      const response = await getFollowing(username, token);
+      setFollowingList(response.results || response || []);
+    } catch (err) {
+      setFollowingList([]);
     }
   };
 
@@ -86,7 +113,7 @@ const UserProfile = () => {
       return;
     }
 
-    setProfileState((prevState) => ({ ...prevState, isUpdating: true }));
+    setProfileState((prev) => ({ ...prev, isUpdating: true }));
     try {
       if (profileState.data.is_following) {
         await unfollowUser(username, token);
@@ -98,7 +125,7 @@ const UserProfile = () => {
       alert("❌ Error al procesar la solicitud.");
       console.error("💥 Error al seguir/dejar de seguir:", err);
     } finally {
-      setProfileState((prevState) => ({ ...prevState, isUpdating: false }));
+      setProfileState((prev) => ({ ...prev, isUpdating: false }));
     }
   };
 
@@ -121,9 +148,7 @@ const UserProfile = () => {
       const newBook = await createBook(bookData, token);
       setBookSuccess(`✅ Libro "${newBook.title}" agregado con éxito.`);
       setBookData({ title: "", price: "", synopsis: "" });
-      if (newBook.owner === username) {
-        fetchPublishedBooks();
-      }
+      if (newBook.owner === username) fetchPublishedBooks();
 
       setTimeout(() => {
         setShowBookForm(false);
@@ -136,57 +161,174 @@ const UserProfile = () => {
   };
 
   useEffect(() => {
-    fetchUserProfile();
-    fetchPublishedBooks();
-    fetchPurchasedBooks();
+    const fetchData = async () => {
+      await fetchUserProfile();
+      await fetchPublishedBooks();
+      await fetchPurchasedBooks();
+    };
+
+    fetchData();
+
+    return () => {
+      setProfileState({
+        data: null,
+        imageUrl: defaultProfileImage,
+        isLoading: true,
+        error: null,
+        isUpdating: false,
+      });
+      setPublishedBooks([]);
+      setPurchasedBooks([]);
+      setFollowersList([]);
+      setFollowingList([]);
+    };
   }, [username, token]);
+
+  useEffect(() => {
+    if (activeTab === "followers") fetchFollowers();
+    if (activeTab === "following") fetchFollowing();
+  }, [activeTab]);
 
   if (profileState.isLoading) return <LoadingScreen />;
   if (profileState.error) return <ErrorDisplay error={profileState.error} />;
 
   const truncateSynopsis = (synopsis, maxLength) => {
     if (!synopsis) return "";
-    if (synopsis.length <= maxLength) return synopsis;
-    return synopsis.substring(0, maxLength) + "...";
+    return synopsis.length <= maxLength ? synopsis : `${synopsis.substring(0, maxLength)}...`;
   };
 
-  const handleViewDetails = (bookId) => {
-    navigate(`/libros/${bookId}`);
-  };
-
-  const handleEditBook = (bookId) => {
-    navigate(`/edit-book/${bookId}`);
-  };
-
-  const toggleBookForm = () => {
-    setShowBookForm(!showBookForm);
-    if (!showBookForm) {
-      setBookData({ title: "", price: "", synopsis: "" });
-      setBookError(null);
-      setBookSuccess(null);
-    }
-  };
-
-  const handleDeleteBook = async (bookId) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este libro?")) {
-      try {
-        await deleteLibro(bookId, token);
-        fetchPublishedBooks(); 
-      } catch (err) {
-        console.error("Error al eliminar el libro:", err);
-        alert("❌ Error al eliminar el libro.");
-      }
-    }
-  };
+  const handleViewDetails = (bookId) => navigate(`/libros/${bookId}`);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return date.toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" });
+  };
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "published":
+        return renderBooks(publishedBooks, true);
+      case "purchased":
+        return renderBooks(purchasedBooks, false);
+      case "followers":
+        return renderUsers(followersList, "No hay seguidores", "Este usuario aún no tiene seguidores");
+      case "following":
+        return renderUsers(followingList, "No estás siguiendo a nadie", "Aún no sigues a otros usuarios");
+      default:
+        return null;
+    }
+  };
+
+  const renderUsers = (users, emptyTitle, emptyText) => {
+    if (users.length === 0) {
+      return (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyStateIcon}>
+            <Users size={48} />
+          </div>
+          <h3 className={styles.emptyStateTitle}>{emptyTitle}</h3>
+          <p className={styles.emptyStateText}>{emptyText}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.usersGrid}>
+        {users.map((user) => (
+          <UserCard key={user.username} user={user} navigate={navigate} />
+        ))}
+      </div>
+    );
+  };
+
+  const UserCard = ({ user, navigate }) => {
+    const imageUrl = user.image_name ? getProfileImage(user.image_name) : defaultProfileImage;
+
+    return (
+      <div className={styles.userCard} onClick={() => navigate(`/user/${user.username}`)}>
+        <div className={styles.userImageContainer}>
+          <img src={imageUrl || "/placeholder.svg"} alt={`Perfil de ${user.username}`} className={styles.userImage} />
+        </div>
+        <div className={styles.userInfo}>
+          <h4 className={styles.userName}>
+            {user.username}
+            {user.verified && <span className={styles.verifiedBadge}>✓</span>}
+          </h4>
+          <div className={styles.userStats}>
+            <span className={styles.userStat}>
+              <Users size={14} /> {user.follower_count}
+            </span>
+            <span className={styles.userStat}>
+              <Book size={14} /> {user.books_count}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderBooks = (books, isPublished) => {
+    if (books.length === 0) {
+      return (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyStateIcon}>
+            <Book size={48} />
+          </div>
+          <h3 className={styles.emptyStateTitle}>
+            {isPublished ? "No hay libros publicados" : "No hay libros comprados"}
+          </h3>
+          <p className={styles.emptyStateText}>
+            {isPublished ? "Este usuario aún no ha publicado ningún libro" : "Este usuario aún no ha comprado ningún libro"}
+          </p>
+          {isPublished && (
+            <button className={styles.emptyStateButton} onClick={() => setShowBookForm(true)}>
+              <PlusCircle size={18} />
+              Publicar mi primer libro
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.booksGrid}>
+        {books.map((book) => (
+          <div key={book.id} className={styles.bookCard} onClick={() => handleViewDetails(book.id)}>
+            <div className={styles.bookCoverWrapper}>
+              <img src={getBookImageUrl(book.id) || "/placeholder.svg"} alt={`Portada de ${book.title}`} className={styles.bookCover} />
+            </div>
+            <div className={styles.bookInfo}>
+              <h3 className={styles.bookTitle}>{book.title}</h3>
+              {isPublished ? (
+                <>
+                  <div className={styles.bookMeta}>
+                    <span className={styles.bookDate}>
+                      <Calendar size={14} />
+                      {formatDate(book.published_date)}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className={styles.bookAuthor}>
+                    <User size={14} />
+                    por {book.owner}
+                  </p>
+                  <p className={styles.bookSynopsis}>{truncateSynopsis(book.synopsis, 100)}</p>
+                  <div className={styles.bookMeta}>
+                    <span className={styles.purchaseDate}>
+                      <Clock size={14} />
+                      Comprado el {formatDate(book.published_date)}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -199,7 +341,7 @@ const UserProfile = () => {
               src={profileState.imageUrl || "/placeholder.svg"}
               alt={`Imagen de perfil de ${profileState.data?.username}`}
               className={styles.profileImage}
-              onError={() => setProfileState((prevState) => ({ ...prevState, imageUrl: defaultProfileImage }))}
+              onError={() => setProfileState((prev) => ({ ...prev, imageUrl: defaultProfileImage }))}
             />
           </div>
 
@@ -219,19 +361,14 @@ const UserProfile = () => {
                   onClick={handleFollow}
                   disabled={profileState.isUpdating}
                 >
-                  {profileState.isUpdating
-                    ? profileState.data.is_following ? "Dejando de seguir..." : "Siguiendo..."
-                    : profileState.data.is_following ? (
-                      <>
-                        <Heart size={16} className={styles.buttonIcon} />
-                        Siguiendo
-                      </>
-                    ) : (
-                      <>
-                        <Users size={16} className={styles.buttonIcon} />
-                        Seguir
-                      </>
-                    )}
+                  {profileState.isUpdating ? (
+                    profileState.data.is_following ? "Dejando de seguir..." : "Siguiendo..."
+                  ) : (
+                    <>
+                      {profileState.data.is_following ? <Heart size={16} /> : <Users size={16} />}
+                      {profileState.data.is_following ? "Siguiendo" : "Seguir"}
+                    </>
+                  )}
                 </button>
               )}
             </div>
@@ -241,10 +378,7 @@ const UserProfile = () => {
                 <p className={styles.bioText}>
                   {showFullBio ? profileState.data.about : truncateSynopsis(profileState.data.about, 200)}
                   {profileState.data.about.length > 200 && (
-                    <button
-                      className={styles.readMoreButton}
-                      onClick={() => setShowFullBio(!showFullBio)}
-                    >
+                    <button className={styles.readMoreButton} onClick={() => setShowFullBio(!showFullBio)}>
                       {showFullBio ? "Ver menos" : "Ver más"}
                     </button>
                   )}
@@ -256,63 +390,45 @@ const UserProfile = () => {
       </div>
 
       <div className={styles.statsSection}>
-        <div className={styles.statCard}>
+        <button className={styles.statCard} onClick={() => setActiveTab("followers")}>
           <div className={styles.statValue}>{profileState.data?.follower_count || 0}</div>
           <div className={styles.statLabel}>
-            <Users size={16} className={styles.statIcon} />
+            <Users size={16} />
             Seguidores
           </div>
-        </div>
-        <div className={styles.statCard}>
+        </button>
+
+        <button className={styles.statCard} onClick={() => setActiveTab("following")}>
           <div className={styles.statValue}>{profileState.data?.following_count || 0}</div>
           <div className={styles.statLabel}>
-            <User size={16} className={styles.statIcon} />
+            <User size={16} />
             Siguiendo
           </div>
-        </div>
-        <div className={styles.statCard}>
+        </button>
+
+        <button className={styles.statCard} onClick={() => setActiveTab("published")}>
           <div className={styles.statValue}>{publishedBooks.length}</div>
           <div className={styles.statLabel}>
-            <Book size={16} className={styles.statIcon} />
+            <Book size={16} />
             Mis Libros
           </div>
-        </div>
-        <div className={styles.statCard}>
+        </button>
+
+        <button className={styles.statCard} onClick={() => setActiveTab("purchased")}>
           <div className={styles.statValue}>{purchasedBooks.length}</div>
           <div className={styles.statLabel}>
-            <ShoppingCart size={16} className={styles.statIcon} />
+            <ShoppingCart size={16} />
             Comprados
           </div>
-        </div>
+        </button>
       </div>
 
       <div className={styles.contentSection}>
         <div className={styles.contentHeader}>
-          <div className={styles.tabsContainer}>
-            <button
-              className={`${styles.tabButton} ${activeTab === "published" ? styles.activeTab : ""}`}
-              onClick={() => setActiveTab("published")}
-            >
-              <BookOpen size={18} className={styles.tabIcon} />
-              Publicaciones
-            </button>
-
-              <button
-                className={`${styles.tabButton} ${activeTab === "purchased" ? styles.activeTab : ""}`}
-                onClick={() => setActiveTab("purchased")}
-              >
-                <ShoppingCart size={18} className={styles.tabIcon} />
-                Biblioteca
-              </button>
-          </div>
-
-            <button
-              className={styles.createBookButton}
-              onClick={toggleBookForm}
-            >
-              <PlusCircle size={18} className={styles.buttonIcon} />
-              {showBookForm ? "Cancelar" : "Publicar libro"}
-            </button>
+          <button className={styles.createBookButton} onClick={() => setShowBookForm(!showBookForm)}>
+            <PlusCircle size={18} />
+            {showBookForm ? "Cancelar" : "Publicar libro"}
+          </button>
         </div>
 
         {showBookForm && (
@@ -358,7 +474,7 @@ const UserProfile = () => {
               </div>
 
               <button type="submit" className={styles.bookButton}>
-                <Book size={18} className={styles.buttonIcon} />
+                <Book size={18} />
                 Publicar libro
               </button>
             </form>
@@ -367,125 +483,7 @@ const UserProfile = () => {
           </div>
         )}
 
-        <div className={styles.booksContainer}>
-          {activeTab === "published" ? (
-            <>
-              {publishedBooks.length > 0 ? (
-                <div className={styles.booksGrid}>
-                  {publishedBooks.map((book) => (
-                    <div key={book.id} className={styles.bookCard}>
-                      <div className={styles.bookCoverWrapper}>
-                        <img src={getBookImageUrl(book.id) || "/placeholder.svg"}
-                          alt={`Portada de ${book.title}`}
-                          className={styles.bookCover} />
-                        <div className={styles.bookOverlay}>
-                          <div className={styles.bookActions}>
-
-                            <button
-                              className={styles.bookActionButton}
-                              onClick={() => handleViewDetails(book.id)}>
-                              <Eye size={16} />
-                              Ver
-                            </button>
-
-                            <button
-                              className={`${styles.bookActionButton} ${styles.editButton}`}
-                              onClick={() => handleEditBook(book.id)}>
-                              <Edit size={18} className={styles.actionIcon} />
-                              <span>Editar</span>
-                            </button>
-
-                            <button
-                              className={`${styles.bookActionButton} ${styles.deleteButton}`}
-                              onClick={() => handleDeleteBook(book.id)}>
-                              <Trash2Icon size={18} className={styles.actionIcon} />
-                              <span>Eliminar</span>
-                            </button>
-
-                          </div>
-                        </div>
-                      </div>
-                      <div className={styles.bookInfo}>
-                        <h3 className={styles.bookTitle}>{book.title}</h3>
-                        <div className={styles.bookPrice}>${book.price}</div>
-                        <div className={styles.bookMeta}>
-                          <span className={styles.bookDate}>
-                            <Calendar size={14} />
-                            {formatDate(book.published_date)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.emptyState}>
-                  <div className={styles.emptyStateIcon}>
-                    <Book size={48} />
-                  </div>
-                  <h3 className={styles.emptyStateTitle}>No hay libros publicados</h3>
-                  <p className={styles.emptyStateText}>Este usuario aún no ha publicado ningún libro</p>
-                    <button
-                      className={styles.emptyStateButton}
-                      onClick={toggleBookForm}
-                    >
-                      <PlusCircle size={18} />
-                      Publicar mi primer libro
-                    </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              {purchasedBooks.length > 0 ? (
-                <div className={styles.booksGrid}>
-                  {purchasedBooks.map((book) => (
-                    <div key={book.id} className={styles.bookCard}>
-                      <div className={styles.bookCoverWrapper}>
-                        <img src={getBookImageUrl(book.id) || "/placeholder.svg"} alt={`Portada de ${book.title}`} className={styles.bookCover} />
-                        <div className={styles.bookOverlay}>
-                          <div className={styles.bookActions}>
-                            <button
-                              className={styles.bookActionButton}
-                              onClick={() => handleViewDetails(book.id)}
-                            >
-                              <Bookmark size={16} />
-                              Leer
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div className={styles.bookInfo}>
-                        <h3 className={styles.bookTitle}>{book.title}</h3>
-                        <p className={styles.bookAuthor}>
-                          <User size={14} />
-                          por {book.owner}
-                        </p>
-                        <p className={styles.bookSynopsis}>
-                          {truncateSynopsis(book.synopsis, 100)}
-                        </p>
-                        <div className={styles.bookMeta}>
-                          <span className={styles.purchaseDate}>
-                            <Clock size={14} />
-                            Comprado el {formatDate(book.published_date)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.emptyState}>
-                  <div className={styles.emptyStateIcon}>
-                    <ShoppingCart size={48} />
-                  </div>
-                  <h3 className={styles.emptyStateTitle}>No hay libros comprados</h3>
-                  <p className={styles.emptyStateText}>Este usuario aún no ha comprado ningún libro</p>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+        <div className={styles.booksContainer}>{renderContent()}</div>
       </div>
     </div>
   );

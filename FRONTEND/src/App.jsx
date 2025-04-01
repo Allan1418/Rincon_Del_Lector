@@ -6,7 +6,7 @@ import ProfileSection from './Components/Profile/ProfileSection.jsx';
 import Layout from './Components/Layout.jsx';
 import ChangePasswordForm from './Components/Profile/ChangesProfile/ChangeProfileForm.jsx';
 import ResetPassword from './Components/Profile/Forgottenpassword/ResetPassword.jsx';
-import UserSearchResults from './Components/SearchResults/UserSearchResults.jsx';
+import UserSearchResults from './Components/SearchResults/SearchResults.jsx';
 import EditBook from './Components/Library/ChangeBook/EditBook.jsx';
 import BookDetails from './Components/Library/BookDetails.jsx';
 

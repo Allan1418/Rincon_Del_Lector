@@ -1,139 +1,147 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
-import { FiUploadCloud, FiCamera, FiBookOpen } from 'react-icons/fi';
+import { useState, useEffect, useContext } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { FiUploadCloud, FiCamera, FiBookOpen } from "react-icons/fi"
+import { ArrowLeft } from "lucide-react"
 import {
   getLibros,
   updateLibro,
   uploadBookImage,
   getBookImageUrl,
   uploadBookEpub,
-} from '../../../services/ProfileService';
-import LoadingScreen from '../../Hooks/LoadingScreen';
-import ErrorDisplay from '../../Hooks/ErrorDisplay';
-import { AuthContext } from '../../Context/AuthContext';
-import styles from './EditBook.module.css';
+} from "../../../services/ProfileService"
+import LoadingScreen from "../../Hooks/LoadingScreen"
+import ErrorDisplay from "../../Hooks/ErrorDisplay"
+import { AuthContext } from "../../Context/AuthContext"
+import styles from "./EditBook.module.css"
 
 const EditBook = () => {
-  const { bookId } = useParams();
-  const { token } = useContext(AuthContext);
-  
-  const [book, setBook] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [imageFile, setImageFile] = useState(null);
-  const [previewImageUrl, setPreviewImageUrl] = useState(null);
-  const [epubFile, setEpubFile] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const { bookId } = useParams()
+  const { token } = useContext(AuthContext)
+  const navigate = useNavigate()
+
+  const [book, setBook] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [successMessage, setSuccessMessage] = useState("")
+  const [imageFile, setImageFile] = useState(null)
+  const [previewImageUrl, setPreviewImageUrl] = useState(null)
+  const [epubFile, setEpubFile] = useState(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const books = await getLibros(token);
-        const bookData = books?.results?.find(book => book.id === bookId);
-        
-        if (!bookData) throw new Error('Libro no encontrado');
-        
+        const books = await getLibros(token)
+        const bookData = books?.results?.find((book) => book.id === bookId)
+
+        if (!bookData) throw new Error("Libro no encontrado")
+
         setBook({
           ...bookData,
-          synopsis: bookData.synopsis || ''
-        });
-        
-        if (bookData.image) {
-          setPreviewImageUrl(getBookImageUrl(bookId));
-        }
-        
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+          synopsis: bookData.synopsis || "",
+        })
 
-    fetchBook();
-  }, [bookId, token]);
+        if (bookData.image) {
+          setPreviewImageUrl(getBookImageUrl(bookId))
+        }
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchBook()
+  }, [bookId, token])
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      setImageFile(file);
-      setPreviewImageUrl(URL.createObjectURL(file));
+    const file = e.target.files[0]
+    if (file && file.type.startsWith("image/")) {
+      setImageFile(file)
+      setPreviewImageUrl(URL.createObjectURL(file))
     } else {
-      setError('Por favor selecciona un archivo de imagen válido');
+      setError("Por favor selecciona un archivo de imagen válido")
     }
-  };
+  }
 
   const handleEpubChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.name.endsWith('.epub')) {
-      setEpubFile(file);
+    const file = e.target.files[0]
+    if (file && file.name.endsWith(".epub")) {
+      setEpubFile(file)
     } else {
-      setError('Por favor selecciona un archivo EPUB válido');
+      setError("Por favor selecciona un archivo EPUB válido")
     }
-  };
+  }
 
   const handleDragOver = (e, type) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = 'copy';
-  };
+    e.preventDefault()
+    e.stopPropagation()
+    e.dataTransfer.dropEffect = "copy"
+  }
 
   const handleDrop = (e, type) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (type === 'image') {
-      handleImageChange({ target: { files: [file] } });
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    if (type === "image") {
+      handleImageChange({ target: { files: [file] } })
     } else {
-      handleEpubChange({ target: { files: [file] } });
+      handleEpubChange({ target: { files: [file] } })
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+    e.preventDefault()
+    setIsLoading(true)
+    setError(null)
 
     try {
-      const uploadPromises = [];
-      
+      const uploadPromises = []
+
       if (epubFile) {
         uploadPromises.push(
           uploadBookEpub(bookId, epubFile, token, (progress) => {
-            setUploadProgress(progress);
-          })
-        );
+            setUploadProgress(progress)
+          }),
+        )
       }
 
       if (imageFile) {
         uploadPromises.push(
           uploadBookImage(bookId, imageFile, token, (progress) => {
-            setUploadProgress(progress);
-          })
-        );
+            setUploadProgress(progress)
+          }),
+        )
       }
 
-      await Promise.all(uploadPromises);
-      await updateLibro(bookId, book, token);
+      await Promise.all(uploadPromises)
+      await updateLibro(bookId, book, token)
 
-      setSuccessMessage('¡Libro actualizado correctamente!');
-      setTimeout(() => setSuccessMessage(''), 3000);
-
+      setSuccessMessage("¡Libro actualizado correctamente!")
+      setTimeout(() => setSuccessMessage(""), 3000)
     } catch (error) {
-      setError(error.message || 'Error al guardar cambios');
+      setError(error.message || "Error al guardar cambios")
     } finally {
-      setIsLoading(false);
-      setUploadProgress(0);
+      setIsLoading(false)
+      setUploadProgress(0)
     }
-  };
+  }
 
-  if (isLoading) return <LoadingScreen />;
-  if (error) return <ErrorDisplay error={error} />;
-  if (!book) return <div className={styles.error}>Libro no encontrado</div>;
+  if (isLoading) return <LoadingScreen />
+  if (error) return <ErrorDisplay error={error} />
+  if (!book) return <div className={styles.error}>Libro no encontrado</div>
 
   return (
     <div className={styles.editBookContainer}>
-      <h1 className={styles.title}>Editar Libro</h1>
-      
+      <div className={styles.headerContainer}>
+
+        <button className={styles.backButton} onClick={() => navigate(-1)}>
+          <ArrowLeft size={20} />
+          <span>Volver</span>
+        </button>
+        
+        <h1 className={styles.title}>Editar Libro</h1>
+      </div>
+
       {successMessage && (
         <div className={styles.successMessage}>
           <div className={styles.checkmark}>✓</div>
@@ -168,7 +176,7 @@ const EditBook = () => {
 
             <div className={styles.formGroup}>
               <label className={styles.label}>Precio</label>
-              <div className={styles.priceInput}> 
+              <div className={styles.priceInput}>
                 <span className={styles.currency}></span>
                 <input
                   type="number"
@@ -186,28 +194,23 @@ const EditBook = () => {
           <div className={styles.filesSection}>
             <div className={styles.formGroup}>
               <label className={styles.label}>Portada del Libro</label>
-              <div 
+              <div
                 className={styles.imageUpload}
-                onDragOver={(e) => handleDragOver(e, 'image')}
-                onDrop={(e) => handleDrop(e, 'image')}
+                onDragOver={(e) => handleDragOver(e, "image")}
+                onDrop={(e) => handleDrop(e, "image")}
               >
                 <div className={styles.imagePreview}>
                   <img
                     src={previewImageUrl || getBookImageUrl(bookId)}
                     alt="Preview"
-                    className={styles.bookImage}
+                    className={`${styles.bookImage} ${styles.verticalImage}`}
                     onError={(e) => {
-                      e.target.src = '/placeholder-book-cover.jpg';
+                      e.target.src = "/placeholder-book-cover.jpg"
                     }}
                   />
                   <label className={styles.editOverlay}>
                     <FiCamera className={styles.uploadIcon} />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      hidden
-                    />
+                    <input type="file" accept="image/*" onChange={handleImageChange} hidden />
                   </label>
                 </div>
                 <p className={styles.uploadHint}>Arrastra una imagen o haz clic para subir</p>
@@ -216,10 +219,10 @@ const EditBook = () => {
 
             <div className={styles.formGroup}>
               <label className={styles.label}>Archivo EPUB</label>
-              <div 
+              <div
                 className={styles.fileUpload}
-                onDragOver={(e) => handleDragOver(e, 'epub')}
-                onDrop={(e) => handleDrop(e, 'epub')}
+                onDragOver={(e) => handleDragOver(e, "epub")}
+                onDrop={(e) => handleDrop(e, "epub")}
               >
                 <label htmlFor="epubInput" className={styles.fileLabel}>
                   <FiUploadCloud className={styles.uploadIcon} />
@@ -247,23 +250,20 @@ const EditBook = () => {
           </div>
         </div>
 
-        <button
-          type="submit"
-          className={styles.button}
-          disabled={isLoading}
-        >
+        <button type="submit" className={styles.button} disabled={isLoading}>
           {isLoading ? (
             <>
               <div className={styles.spinner} />
               Guardando... {uploadProgress > 0 && `${uploadProgress}%`}
             </>
           ) : (
-            'Guardar Cambios'
+            "Guardar Cambios"
           )}
         </button>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default EditBook;
+export default EditBook
+

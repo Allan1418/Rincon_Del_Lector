@@ -137,16 +137,53 @@ export const confirmResetPassword = async (uid, token, newPassword1, newPassword
   }
 };
 
-export const getFollowing = async (token) => {
+export const getFollowing = async (username, token) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/following/`, {
-      headers: { Authorization: `${token}` },
+    const response = await fetch(`${API_USERS_URL}/following/`, {
+      headers: { 
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `${token}` }) 
+      },
     });
+
     if (!response.ok) {
       const errorData = await response.json();
       throw errorData;
     }
-    return response.json();
+    
+    const data = await response.json();
+    
+    return data.map(user => ({
+      username: user.username,
+      image_name: user.image_name,
+    }));
+    
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getFollowers = async (username, token) => {
+  try {
+    const response = await fetch(`${API_USERS_URL}/followers/`, {
+      headers: { 
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `${token}` }) 
+      },
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw errorData;
+    }
+    
+    const data = await response.json();
+    
+    return data.map(user => ({
+      username: user.username,
+      image_name: user.image_name,
+    }));
+    
   } catch (error) {
     throw error;
   }
@@ -179,21 +216,6 @@ export const unfollowUser = async (username, token) => {
       throw errorData;
     }
     return response.status;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const getFollowers = async (token) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/followers/`, {
-      headers: { Authorization: `${token}` },
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw errorData;
-    }
-    return response.json();
   } catch (error) {
     throw error;
   }
@@ -294,7 +316,7 @@ export const getLibros = async (token, username = null, ordering = null, owned =
       let url = `${API_LIBROS_URL}/libros/`;
       const queryParams = new URLSearchParams();
 
-      if (username) queryParams.append('username', username);
+      if (username) queryParams.append('owner', username);
       if (ordering) queryParams.append('ordering', ordering);
       if (owned !== null) queryParams.append('owned', owned);
       if (page) queryParams.append('page', page);
@@ -322,12 +344,11 @@ export const getLibros = async (token, username = null, ordering = null, owned =
   }
 };
 
-export const getLibroById = async (bookId, token) => {
+export const getLibroById = async (bookId) => {
   try {
     const response = await fetch(`${API_LIBROS_URL}/libros/${bookId}/`, {
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `${token}`,
+        'Content-Type': 'application/json'
       },
     });
 

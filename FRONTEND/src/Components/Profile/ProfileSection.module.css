@@ -1,21 +1,28 @@
-
 :root {
-  --primary-color: #4f46e5;
-  --primary-light: #6366f1;
-  --primary-dark: #4338ca;
-  --secondary-color: #10b981;
-  --secondary-light: #34d399;
-  --secondary-dark: #059669;
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --bg-light: #e4e4eb;
-  --bg-white: #f8f8fa;
-  --border-light: #e2e8f0;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --primary-color: #c4d2a1;
+  --primary-light: #d4e0b9;
+  --primary-dark: #a6b585;
+  --secondary-color: #8a9a6f;
+  --secondary-light: #9dac85;
+  --secondary-dark: #778a5c;
+  --accent-color: #b38d6d;
+  --accent-light: #c9a98d;
+  --accent-dark: #9a7353;
+
+  --bg-cream: #f5f0e8;
+  --bg-cream-light: #faf7f2;
+  --bg-cream-dark: #ebe5da;
+
+  --text-primary: #3c4a2a;
+  --text-secondary: #5a6b45;
+  --text-muted: #7d8a6c;
+  --text-light: #f5f0e8;
+
+  --border-light: #e8e3d8;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(60, 74, 42, 0.08);
+  --shadow-lg: 0 8px 16px rgba(60, 74, 42, 0.1);
+  --shadow-xl: 0 12px 24px rgba(60, 74, 42, 0.12);
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -29,10 +36,11 @@
 .profileContainer {
   max-width: 1200px;
   margin: 7rem auto 4rem;
-  background-color: var(--bg-white);
+  background-color: var(--bg-cream-light);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
+  border: 1px solid var(--border-light);
 }
 
 .profileHeader {
@@ -47,7 +55,7 @@
   left: 0;
   width: 100%;
   height: 200px;
-  background: linear-gradient(135deg, #b1f3cc,#c45375 );
+  background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
   z-index: 1;
 }
 
@@ -66,8 +74,8 @@
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  border: 4px solid var(--bg-white);
-  background-color: var(--bg-white);
+  border: 4px solid var(--bg-cream-light);
+  background-color: var(--bg-cream-light);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   position: relative;
@@ -121,7 +129,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  background: var(--primary-color);
+  background: var(--secondary-color);
   color: white;
   border-radius: 50%;
   font-size: 0.8rem;
@@ -138,7 +146,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: var(--primary-color);
+  background-color: #809165;
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -150,17 +158,17 @@
 }
 
 .followButton:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--secondary-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
 .followButton.following {
-  background-color: var(--secondary-color);
+  background-color: var(--accent-color);
 }
 
 .followButton.following:hover {
-  background-color: var(--secondary-dark);
+  background-color: var(--accent-dark);
 }
 
 .buttonIcon {
@@ -172,10 +180,10 @@
 }
 
 .bioSection {
-  background-color: var(--bg-light);
+  background-color: var(--bg-cream);
   padding: 1.25rem;
   border-radius: var(--radius-lg);
-  border-left: 4px solid var(--primary-light);
+  border-left: 4px solid var(--primary-color);
 }
 
 .bioText {
@@ -188,7 +196,7 @@
 .readMoreButton {
   background: none;
   border: none;
-  color: var(--primary-color);
+  color: var(--secondary-color);
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -198,7 +206,7 @@
 }
 
 .readMoreButton:hover {
-  color: var(--primary-dark);
+  color: var(--secondary-dark);
   text-decoration: underline;
 }
 
@@ -217,10 +225,9 @@
 }
 
 .metaIcon {
-  color: var(--primary-light);
+  color: var(--primary-color);
 }
 
-/* Stats Section */
 .statsSection {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -229,25 +236,26 @@
 }
 
 .statCard {
-  background-color: var(--bg-light);
+  background-color: var(--bg-cream);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   text-align: center;
   transition: all var(--transition-normal);
   border: 1px solid var(--border-light);
+  cursor: pointer;
 }
 
 .statCard:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-md);
-  background-color: var(--bg-white);
-  border-color: var(--primary-light);
+  background-color: var(--bg-cream-light);
+  border-color: var(--primary-color);
 }
 
 .statValue {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--primary-color);
+  color: var(--secondary-color);
   margin-bottom: 0.5rem;
 }
 
@@ -262,10 +270,9 @@
 }
 
 .statIcon {
-  color: var(--primary-light);
+  color: var(--primary-color);
 }
 
-/* Content Section */
 .contentSection {
   padding: 0 2rem 2rem;
 }
@@ -281,7 +288,7 @@
 
 .tabsContainer {
   display: flex;
-  background-color: var(--bg-light);
+  background-color: var(--bg-cream);
   border-radius: var(--radius-lg);
   padding: 0.5rem;
   gap: 0.5rem;
@@ -312,8 +319,8 @@
 }
 
 .activeTab {
-  background-color: var(--bg-white);
-  color: var(--primary-color);
+  background-color: var(--bg-cream-light);
+  color: var(--secondary-color);
   box-shadow: var(--shadow-sm);
 }
 
@@ -330,7 +337,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: var(--primary-color);
+  background-color: var(--secondary-color);
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -342,14 +349,14 @@
 }
 
 .createBookButton:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--secondary-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
 /* Book Form */
 .bookFormContainer {
-  background-color: var(--bg-white);
+  background-color: var(--bg-cream-light);
   border-radius: var(--radius-lg);
   padding: 2rem;
   margin-bottom: 2rem;
@@ -402,15 +409,15 @@
   border-radius: var(--radius-md);
   font-size: 1rem;
   transition: all var(--transition-fast);
-  background-color: var(--bg-light);
+  background-color: var(--bg-cream);
 }
 
 .bookInput:focus,
 .bookTextarea:focus {
   outline: none;
-  border-color: var(--primary-light);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-  background-color: var(--bg-white);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(196, 210, 161, 0.2);
+  background-color: var(--bg-cream-light);
 }
 
 .bookTextarea {
@@ -424,7 +431,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: var(--primary-color);
+  background-color: var(--secondary-color);
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -438,42 +445,42 @@
 }
 
 .bookButton:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--secondary-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
 .errorMessage {
-  color: #ef4444;
-  background-color: #fee2e2;
-  border-left: 3px solid #ef4444;
+  color: #e05252;
+  background-color: #fde8e8;
+  border-left: 3px solid #e05252;
   padding: 1rem;
   border-radius: var(--radius-md);
   margin-top: 1rem;
 }
 
 .successMessage {
-  color: #10b981;
-  background-color: #d1fae5;
-  border-left: 3px solid #10b981;
+  color: #4d9e6a;
+  background-color: #e3f5eb;
+  border-left: 3px solid #4d9e6a;
   padding: 1rem;
   border-radius: var(--radius-md);
   margin-top: 1rem;
 }
 
-/* Books Container */
 .booksContainer {
   width: 100%;
 }
 
+/* Updated book grid for vertical library-style layout */
 .booksGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 2rem;
 }
 
 .bookCard {
-  background-color: var(--bg-white);
+  background-color: var(--bg-cream-light);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
@@ -482,18 +489,22 @@
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-light);
+  cursor: pointer;
+  position: relative;
 }
 
 .bookCard:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-lg);
-  border-color: var(--primary-light);
+  border-color: var(--primary-color);
 }
 
+/* Updated book cover for vertical format */
 .bookCoverWrapper {
   position: relative;
-  height: 200px;
+  height: 260px;
   overflow: hidden;
+  background-color: var(--bg-cream-dark);
 }
 
 .bookCover {
@@ -504,101 +515,91 @@
 }
 
 .bookCard:hover .bookCover {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
-.bookOverlay {
+/* Book spine effect */
+.bookCoverWrapper::before {
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 10px;
   height: 100%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  opacity: 0;
-  transition: opacity var(--transition-normal);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 1rem;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.1), transparent);
+  z-index: 1;
 }
 
-.bookCard:hover .bookOverlay {
-  opacity: 1;
-}
-
-.bookActions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.bookActionButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: white;
-  color: var(--text-primary);
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-}
-
-.bookActionButton:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  background-color: var(--primary-color);
-  color: white;
+/* Book shadow effect */
+.bookCoverWrapper::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), transparent);
+  z-index: 1;
 }
 
 .bookInfo {
-  padding: 1.5rem;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex: 1;
+  background-color: var(--bg-cream-light);
+  position: relative;
 }
 
 .bookTitle {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: center;
 }
 
 .bookPrice {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--secondary-color);
+  color: var(--accent-color);
+  text-align: center;
+  margin-top: 0.25rem;
 }
 
 .bookAuthor {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   font-size: 0.9rem;
   color: var(--text-muted);
   margin: 0;
+  text-align: center;
 }
 
 .bookSynopsis {
   font-size: 0.9rem;
   color: var(--text-secondary);
   line-height: 1.6;
-  margin: 0;
+  margin: 0.5rem 0 0;
   flex-grow: 1;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-align: center;
 }
 
 .bookMeta {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-top: auto;
   padding-top: 0.75rem;
@@ -609,7 +610,94 @@
 .purchaseDate {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  width: 100%;
+  text-align: center;
+}
+
+/* Book ribbon effect */
+.bookCard.featured::before {
+  content: "Destacado";
+  position: absolute;
+  top: 20px;
+  right: -30px;
+  background: var(--accent-color);
+  color: white;
+  padding: 0.25rem 2rem;
+  transform: rotate(45deg);
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 10;
+  box-shadow: var(--shadow-md);
+}
+
+/* Users Grid */
+.usersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.userCard {
+  background-color: var(--bg-cream-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.userCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+}
+
+.userImageContainer {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--primary-light);
+}
+
+.userImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.userName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.userStats {
+  display: flex;
+  gap: 1rem;
+}
+
+.userStat {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   font-size: 0.8rem;
   color: var(--text-muted);
 }
@@ -622,7 +710,7 @@
   justify-content: center;
   padding: 4rem 2rem;
   text-align: center;
-  background-color: var(--bg-light);
+  background-color: var(--bg-cream);
   border-radius: var(--radius-lg);
   border: 1px dashed var(--border-light);
 }
@@ -633,10 +721,10 @@
   justify-content: center;
   width: 80px;
   height: 80px;
-  background-color: rgba(79, 70, 229, 0.1);
+  background-color: rgba(196, 210, 161, 0.2);
   border-radius: 50%;
   margin-bottom: 1.5rem;
-  color: var(--primary-color);
+  color: var(--secondary-color);
 }
 
 .emptyStateTitle {
@@ -657,7 +745,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: var(--primary-color);
+  background-color: var(--secondary-color);
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -669,7 +757,7 @@
 }
 
 .emptyStateButton:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--secondary-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -677,6 +765,10 @@
 @media (max-width: 992px) {
   .statsSection {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .booksGrid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
 }
 
@@ -713,6 +805,11 @@
   .bookButton {
     margin: 0 auto;
   }
+
+  .booksGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1.5rem;
+  }
 }
 
 @media (max-width: 576px) {
@@ -734,7 +831,8 @@
   }
 
   .booksGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
 
   .profileHeader {
@@ -754,4 +852,24 @@
   .username {
     font-size: 1.5rem;
   }
+
+  .bookCoverWrapper {
+    height: 200px;
+  }
 }
+
+@media (max-width: 400px) {
+  .booksGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .bookCoverWrapper {
+    height: 180px;
+  }
+
+  .bookInfo {
+    padding: 0.75rem;
+  }
+}
+
