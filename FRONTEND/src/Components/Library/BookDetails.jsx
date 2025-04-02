@@ -1,8 +1,6 @@
-"use client"
-
 import { useState, useEffect, useContext } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
-import { getLibroById, getBookImageUrl, downloadBookEpub } from "../../services/ProfileService"
+import { getLibroById, getBookImageUrl, downloadBookEpub, addToCart, getCarrito } from "../../services/ProfileService"
 import LoadingScreen from "../Hooks/LoadingScreen"
 import ErrorDisplay from "../Hooks/ErrorDisplay"
 import { Book, Calendar, BadgeCent, User, ArrowLeft, BookOpen, Download, Edit, ShoppingCart } from "lucide-react"
@@ -17,24 +15,38 @@ const BookDetails = () => {
     const [error, setError] = useState(null)
     const [downloadLoading, setDownloadLoading] = useState(false)
     const [downloadError, setDownloadError] = useState(null)
+    const [isAddingToCart, setIsAddingToCart] = useState(false)
+    const [cartItems, setCartItems] = useState([])
+    const [cartLoading, setCartLoading] = useState(false)
     const { userData, token } = useContext(AuthContext);
 
     const isOwner = userData?.username === book?.owner;
     const isPurchased = book?.has_purchased;
+    const isInCart = cartItems.includes(bookId);
 
     useEffect(() => {
-        const fetchBook = async () => {
+        const fetchData = async () => {
             try {
+                // Obtener datos del libro
                 const bookData = await getLibroById(bookId, token);
                 setBook(bookData);
+
+                // Obtener carrito si está autenticado
+                if (token) {
+                    setCartLoading(true);
+                    const cartData = await getCarrito(token);
+                    const cartBookIds = cartData.libros.map(libro => libro.id.toString());
+                    setCartItems(cartBookIds);
+                }
             } catch (err) {
                 setError(err);
             } finally {
                 setIsLoading(false);
+                setCartLoading(false);
             }
         };
 
-        fetchBook();
+        fetchData();
     }, [bookId, token]);
 
     const handleDownloadEpub = async () => {
@@ -43,12 +55,6 @@ const BookDetails = () => {
 
         try {
             const response = await downloadBookEpub(bookId, token);
-
-            const contentType = response.headers.get("content-type");
-            if (!contentType?.includes("epub")) {
-                throw new Error("El archivo no es un EPUB válido");
-            }
-
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -65,15 +71,28 @@ const BookDetails = () => {
         }
     };
 
-    const handlePurchase = () => {
-        // Logica para realizar la compra del libro, podria ser una llamada a la API
-        console.log("Comprando libro...");
+    const handleAddToCart = async () => {
+        if (!token) {
+            alert('Debes iniciar sesión para agregar al carrito');
+            navigate('/login');
+            return;
+        }
 
-        // Aquí deberías realizar la lógica de compra y actualizar el estado `book`
-        // para que `has_purchased` sea `true` cuando la compra sea exitosa
+        setIsAddingToCart(true);
+        try {
+            await addToCart(bookId, token);
+            const cartData = await getCarrito(token);
+            const updatedCartItems = cartData.libros.map(libro => libro.id.toString());
+            setCartItems(updatedCartItems);
+            alert('¡Libro agregado al carrito exitosamente!');
+        } catch (error) {
+            alert(`Error: ${error.detail || 'No se pudo agregar al carrito'}`);
+        } finally {
+            setIsAddingToCart(false);
+        }
     };
 
-    if (isLoading) return <LoadingScreen />;
+    if (isLoading || cartLoading) return <LoadingScreen />;
     if (error) return <ErrorDisplay error={error} />;
 
     return (
@@ -140,27 +159,55 @@ const BookDetails = () => {
                     </div>
 
                     <div className={styles.downloadSection}>
-                         {!isPurchased && !isOwner &&(
-                            <button className={styles.downloadButton} onClick={handlePurchase}>
-                                <ShoppingCart size={20} />
-                                <span>Comprar</span>
-                            </button>
-                        )}
-                        {isPurchased && !isOwner && (
-                            <button className={styles.downloadButton} onClick={handleDownloadEpub} disabled={downloadLoading}>
-                                {downloadLoading ? (
-                                    <>
-                                        <div className={styles.spinner} />
-                                        <span>Descargando...</span>
-                                    </>
+                        {!isOwner && (
+                            <>
+                                {isPurchased ? (
+                                    <button
+                                        className={styles.downloadButton}
+                                        onClick={handleDownloadEpub}
+                                        disabled={downloadLoading}
+                                    >
+                                        {downloadLoading ? (
+                                            <>
+                                                <div className={styles.spinner} />
+                                                <span>Preparando...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <BookOpen size={20} />
+                                                <span>Leer</span>
+                                            </>
+                                        )}
+                                    </button>
                                 ) : (
-                                    <>
-                                        <Download size={20} />
-                                        <span>Descargar EPUB</span>
-                                    </>
+                                    !isOwner && (
+                                        <button
+                                            className={styles.downloadButton}
+                                            onClick={handleAddToCart}
+                                            disabled={isAddingToCart || isInCart}
+                                        >
+                                            {isAddingToCart ? (
+                                                <>
+                                                    <div className={styles.spinner} />
+                                                    <span>Agregando...</span>
+                                                </>
+                                            ) : isInCart ? (
+                                                <>
+                                                    <ShoppingCart size={20} />
+                                                    <span>Agregado</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <ShoppingCart size={20} />
+                                                    <span>Agregar al Carrito</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    )
                                 )}
-                            </button>
+                            </>
                         )}
+
                         {downloadError && (
                             <div className={styles.downloadError}>
                                 {downloadError}

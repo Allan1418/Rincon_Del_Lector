@@ -1,6 +1,7 @@
 const API_BASE_URL = 'http://127.0.0.1:8000/api/auth';
 const API_USERS_URL = 'http://127.0.0.1:8000/api/users';
 const API_LIBROS_URL = 'http://localhost:8000/api';
+const API_BUSINESS_URL = 'http://localhost:8000/api/business';
 
 export const handleLogin = async (loginEmail, loginPassword) => {
   try {
@@ -474,4 +475,163 @@ export const downloadBookEpub = async (bookId, token) => {
   }
 
   return response;
+};
+
+export const addToCart = async (bookId, token) => {
+  try {
+    const response = await fetch(`${API_BUSINESS_URL}/cart/agregar/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${token}`,
+      },
+      body: JSON.stringify({ book_id: bookId }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw errorData;
+    }
+    
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getCarrito = async (token) => {
+  try {
+    const response = await fetch(`${API_BUSINESS_URL}/cart/`, {
+      headers: {
+        Authorization: `${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw errorData;
+    }
+
+    const data = await response.json();
+
+    const librosDetallados = await Promise.all(
+      data.libros.map(async (libroId) => {
+        const libro = await getLibroById(libroId);
+        return libro;
+      })
+    );
+
+    return { total: data.total, libros: librosDetallados };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeFromCart = async (token, libroId) => {
+  try {
+      const formData = new URLSearchParams();
+      formData.append("book_id", libroId);
+
+      const response = await fetch(`${API_BUSINESS_URL}/cart/quitar/`, {
+          method: 'DELETE',
+          headers: {
+              Authorization: `${token}`,
+              'Content-Type': 'application/x-www-form-urlencoded' 
+          },
+          body: formData.toString()
+      });
+
+      if (!response.ok) {
+          let errorMessage = "Error al eliminar el libro del carrito.";
+          try {
+              const errorData = await response.json();
+              if (errorData && errorData.detail) {
+                  errorMessage = errorData.detail;
+              } else if (typeof errorData === 'string') {
+                  errorMessage = errorData;
+              }
+          } catch (jsonError) {
+              if (response.status === 404) {
+                  errorMessage = "Libro no encontrado en el carrito";
+              } else {
+                  errorMessage = `Error ${response.status}: ${response.statusText}`;
+              }
+          }
+          throw new Error(errorMessage);
+      }
+      return response.status;
+  } catch (error) {
+      console.error("Error en removeFromCart:", error);
+      throw error;
+  }
+};
+
+export const purchaseCart = async (token) => {
+  try {
+    const response = await fetch(`${API_BUSINESS_URL}/cart/comprar/`, {
+      method: 'POST',
+      headers: {
+        Authorization: `${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw errorData;
+    }
+
+    return response.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+// ProfileSection.js
+export const getPurchaseHistory = async (token) => {
+  if (!token) {
+    console.error('Token is undefined. Cannot make request.');
+    return null;
+  }
+  try {
+    const response = await fetch(`${API_BUSINESS_URL}/purchase-history/`, {
+      headers: {
+        'Authorization': `${token}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.error('Error fetching purchase history:', error);
+    return null;
+  }
+}
+
+export const getOwnerEarnings = async (token) => {
+  try {
+    const response = await fetch(`${API_BUSINESS_URL}/owner-earnings/`, {
+      headers: {
+        'Authorization': `${token}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching owner earnings:', error);
+    return null;
+  }
 };

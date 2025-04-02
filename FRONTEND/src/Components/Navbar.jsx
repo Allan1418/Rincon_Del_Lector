@@ -11,6 +11,8 @@ import {
     FaQuestionCircle,
     FaSignOutAlt,
     FaEdit,
+    FaRegMoneyBillAlt,
+    FaHistory,
 } from "react-icons/fa"
 import { AuthContext } from "./Context/AuthContext"
 import { handleLogout } from "../services/ProfileService"
@@ -66,6 +68,16 @@ function Navbar() {
         setIsMenuOpen(false)
     }
 
+    const handleGananciasClick = () => {
+        navigate(`/ganancias`)
+        setIsMenuOpen(false)
+    }
+
+    const handleComprasClick = () => {
+        navigate(`/historial`)
+        setIsMenuOpen(false)
+    }
+
     const handleSearch = () => {
         const queryParam = searchQuery.trim() ? searchQuery : "";
         navigate(`/search/?q=${encodeURIComponent(queryParam)}&page=1&tab=books`);
@@ -104,13 +116,13 @@ function Navbar() {
                         </button>
 
                         {isAuthenticated && (
-                            <a href="/MyCart" className={styles.cartLink}>
+                            <a href="/cart" className={styles.cartLink}>
                                 <FaShoppingCart size={20} />
                             </a>
                         )}
 
                         {!isAuthenticated ? (
-                            <a href="/AuthForm">
+                            <a href="/authForm">
                                 <button className={styles.registerButton}>Registrarse</button>
                             </a>
                         ) : (
@@ -129,6 +141,14 @@ function Navbar() {
                                         <button className={styles.menuDropdownItem} onClick={handleEditProfileClick}>
                                             <FaEdit size={14} />
                                             Editar perfil
+                                        </button>
+                                        <button className={styles.menuDropdownItem} onClick={handleGananciasClick}>
+                                            <FaRegMoneyBillAlt size={14} />
+                                            Mis ganancias
+                                        </button>
+                                        <button className={styles.menuDropdownItem} onClick={handleComprasClick}>
+                                            <FaHistory size={14} />
+                                            Historial Compras
                                         </button>
                                         <button className={styles.menuDropdownItem}>
                                             <FaQuestionCircle size={14} />

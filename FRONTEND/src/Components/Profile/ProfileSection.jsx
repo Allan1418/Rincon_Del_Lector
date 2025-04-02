@@ -100,8 +100,23 @@ const UserProfile = () => {
 
   const fetchPurchasedBooks = async () => {
     try {
-      const books = await getLibros(token, null, null, null, true);
-      setPurchasedBooks(books?.results || []);
+      let allPurchasedBooks = [];
+      let currentPage = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const response = await getLibros(token, null, null, null, currentPage, true, null);
+
+        if (response.results) {
+          allPurchasedBooks = [...allPurchasedBooks, ...response.results];
+          hasMore = !!response.next;
+          currentPage++;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      setPurchasedBooks(allPurchasedBooks);
     } catch (err) {
       console.error("Error fetching purchased books:", err);
     }
@@ -354,9 +369,9 @@ const UserProfile = () => {
   const isOwnProfile = userData?.username === profileState.data?.username;
 
   console.log("UserData PK:", userData?.pk);
-console.log("Profile PK:", profileState.data?.pk);
-console.log("Es mi perfil?", isOwnProfile);
-  
+  console.log("Profile PK:", profileState.data?.pk);
+  console.log("Es mi perfil?", isOwnProfile);
+
   return (
     <div className={styles.profileContainer}>
       <div className={styles.profileHeader}>
@@ -416,23 +431,21 @@ console.log("Es mi perfil?", isOwnProfile);
       </div>
 
       <div className={styles.statsSection}>
-          <button className={styles.statCard} onClick={() => setActiveTab("followers")}
-          disabled={!isOwnProfile} >
-            <div className={styles.statValue}>{profileState.data?.follower_count || 0}</div>
-            <div className={styles.statLabel}>
-              <Users size={16} />
-              Seguidores
-            </div>
-          </button>
+        <button className={styles.statCard} onClick={() => setActiveTab("followers")} disabled={!isOwnProfile}>
+          <div className={styles.statValue}>{profileState.data?.follower_count || 0}</div>
+          <div className={styles.statLabel}>
+            <Users size={16} />
+            Seguidores
+          </div>
+        </button>
 
-          <button className={styles.statCard} onClick={() => setActiveTab("following")}
-          disabled={!isOwnProfile}>
-            <div className={styles.statValue}>{profileState.data?.following_count || 0}</div>
-            <div className={styles.statLabel}>
-              <User size={16} />
-              Siguiendo
-            </div>
-          </button>
+        <button className={styles.statCard} onClick={() => setActiveTab("following")} disabled={!isOwnProfile}>
+          <div className={styles.statValue}>{profileState.data?.following_count || 0}</div>
+          <div className={styles.statLabel}>
+            <User size={16} />
+            Siguiendo
+          </div>
+        </button>
 
         <button className={styles.statCard} onClick={() => setActiveTab("published")}>
           <div className={styles.statValue}>{publishedBooks.length}</div>
@@ -441,25 +454,25 @@ console.log("Es mi perfil?", isOwnProfile);
             Mis Libros
           </div>
         </button>
-
-        <button className={styles.statCard} onClick={() => setActiveTab("purchased")}
-        disabled={!isOwnProfile}>
+        {isOwnProfile && (
+        <button className={styles.statCard} onClick={() => setActiveTab("purchased")} disabled={!isOwnProfile}>
           <div className={styles.statValue}>{purchasedBooks.length}</div>
           <div className={styles.statLabel}>
             <ShoppingCart size={16} />
             Comprados
           </div>
         </button>
+        )}
       </div>
 
       <div className={styles.contentSection}>
         <div className={styles.contentHeader}>
-        {isOwnProfile && (
+          {isOwnProfile && (
             <button className={styles.createBookButton} onClick={() => setShowBookForm(!showBookForm)}>
               <PlusCircle size={18} />
               {showBookForm ? "Cancelar" : "Publicar libro"}
             </button>
-              )}
+          )}
         </div>
 
         {showBookForm && (
@@ -503,11 +516,11 @@ console.log("Es mi perfil?", isOwnProfile);
                   className={styles.bookTextarea}
                 />
               </div>
-              
-                <button type="submit" className={styles.bookButton}>
-                  <Book size={18} />
-                  Publicar libro
-                </button>
+
+              <button type="submit" className={styles.bookButton}>
+                <Book size={18} />
+                Publicar libro
+              </button>
             </form>
             {bookError && <p className={styles.errorMessage}>{bookError}</p>}
             {bookSuccess && <p className={styles.successMessage}>{bookSuccess}</p>}

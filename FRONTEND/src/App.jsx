@@ -10,6 +10,9 @@ import UserSearchResults from './Components/SearchResults/SearchResults.jsx';
 import EditBook from './Components/Library/ChangeBook/EditBook.jsx';
 import BookDetails from './Components/Library/BookDetails.jsx';
 import LibrosGrid from './Components/Home/ExplorarLibros/LibrosGrid.jsx';
+import Cart from './Components/Cart/Cart.jsx';
+import PurchaseHistory from './Components/Cart/Owner/PurchaseHistory.jsx';
+import OwnerEarnings from './Components/Cart/Owner/OwnerEarnings.jsx';
 
 function App() {
   
@@ -18,7 +21,7 @@ function App() {
       <Layout>
         <Routes>
           <Route path="" element={<HomePage />} />
-          <Route path="/AuthForm" element={<AuthForm />} />
+          <Route path="/authForm" element={<AuthForm />} />
           <Route path="/user/:username" element={<ProfileSection />} />
           <Route path='/user/:username/changed' element={<ChangePasswordForm />} />
           <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
@@ -26,6 +29,9 @@ function App() {
           <Route path="/edit-book/:bookId" element={<EditBook />} />
           <Route path="/libros/:bookId" element={<BookDetails />} />
           <Route path="/explorar" element={<LibrosGrid />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/historial" element={<PurchaseHistory />} />
+          <Route path="/ganancias" element={<OwnerEarnings />} />
         </Routes>
       </Layout>
     </BrowserRouter>

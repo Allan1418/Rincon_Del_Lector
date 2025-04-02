@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }) => {
                     console.error("Error al obtener datos del usuario:", error);
                 });
         }
-          console.log("Estado inicial:", { isAuthenticated, token, username, userData });
     }, []);
 
     const login = (newToken, loggedInUsername) => {
@@ -69,7 +68,6 @@ export const AuthProvider = ({ children }) => {
         username,
         userData,
     };
-    console.log("Valor del Contexto:", contextValue);
 
     return (
         <AuthContext.Provider value={contextValue}>
