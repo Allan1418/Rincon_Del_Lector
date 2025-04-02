@@ -103,7 +103,7 @@ class CartViewSet(viewsets.GenericViewSet):
         serializer = serializers.CartActionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         book_id = serializer.validated_data['book_id']
-        cart = self.get_object()
+        cart, created = Cart.objects.get_or_create(user=request.user)
         
         if not book_id:
             return Response({'error': 'Se requiere book_id'}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,89 +1,95 @@
-import styles from "./Libreria.module.css"
+import React, { useState, useEffect, useCallback } from "react";
+import styles from "./Libreria.module.css";
+import { getLibros, getBookImageUrl } from "../../services/ProfileService";
+import { Link } from "react-router-dom";
 
 function Libreria() {
-  return (
-    <div className={styles.libreriaContainer}>
-      
-      {/* Encabezado */}
-      <div className={styles.libreriaHeader}>
-        <span className={styles.headerIcon}>📚</span>
-        <h3 className={styles.headerText}>Libros destacados</h3>
-      </div>
+    const [otherUsersMostSoldBooks, setOtherUsersMostSoldBooks] = useState([]);
 
-      {/* Título principal */}
-      <h1 className={styles.libreriaTitle}>Descubre mundos a través de las páginas</h1>
+    const fetchOtherUsersMostSoldBooks = useCallback(async () => {
+        try {
+            const response = await getLibros(null, null, "most_purchased", null, null, null, null);
 
-      {/* Descripción */}
-      <p className={styles.libreriaDescription}>
-        Explora nuestra colección cuidadosamente seleccionada de obras que han cautivado a lectores de todo el mundo.
-      </p>
+            if (response.error) {
+                console.error(`Error al cargar los libros: ${response.error.message || "Error desconocido"}`);
+            } else if (response.results && response.results.length > 0) {
+                const books = response.results.slice(0, 3);
+                setOtherUsersMostSoldBooks(books);
+            } else {
+                setOtherUsersMostSoldBooks([]);
+            }
+        } catch (err) {
+            console.error(`Error al cargar los libros: ${err.message}`);
+        }
+    }, []);
 
-      {/* Grid de libros */}
-      <div className={styles.booksGrid}>
-        {/* Libro 1 */}
-        <div className={styles.bookItem}>
-          <div className={styles.bookImageContainer}>
-            <div className={styles.bookImage}></div>
-            <button className={styles.bookButtonLeft}>←</button>
-            <button className={styles.bookButtonRight}>☰</button>
+    useEffect(() => {
+        fetchOtherUsersMostSoldBooks();
+    }, [fetchOtherUsersMostSoldBooks]);
+
+    return (
+        <div className={styles.libreriaContainer}>
+          <div className={styles.libreriaHeader}>
+            <span className={styles.headerIcon} aria-hidden="true">
+              📚
+            </span>
+            <h2 className={styles.headerText}>Libros más vendidos de otros usuarios</h2>
           </div>
-          <div className={styles.bookContent}>
-            <p className={styles.bookGenre}>Género 1</p>
-            <h3 className={styles.bookTitle}>Título del libro 1</h3>
-            <p className={styles.bookAuthor}>Autor del libro 1</p>
-            <p className={styles.bookDescription}>Descripción breve del libro 1.</p>
-            <a href="#" className={styles.readMore}>
-              Leer más <span className={styles.arrowIcon}>→</span>
-            </a>
-          </div>
+
+          <h1 className={styles.libreriaTitle}>Descubre los libros más populares de nuestra comunidad</h1>
+          <p className={styles.libreriaDescription}>
+            Explora los libros más vendidos por otros miembros de nuestra comunidad.
+          </p>
+
+          {otherUsersMostSoldBooks.length === 0 ? (
+            <div className={styles.noBooks}>
+              <span className={styles.noBooksIcon} aria-hidden="true">
+                📖
+              </span>
+              <p>No se encontraron libros disponibles en este momento</p>
+            </div>
+          ) : (
+            <>
+              <div className={styles.booksGrid}>
+                {otherUsersMostSoldBooks.map((book) => (
+                  <Link
+                    to={`/libros/${book.id}`}
+                    key={book.id}
+                    className={styles.bookLink}
+                    aria-label={`Ver detalles de ${book.title || "Libro sin título"}`}
+                  >
+                    <article className={styles.bookItem}>
+                      {book.is_bestseller && <span className={styles.bookBadge}>Más vendido</span>}
+                      <div className={styles.bookCover}>
+                        <img
+                          src={getBookImageUrl(book.id) || "/placeholder.svg"}
+                          alt={`Portada de ${book.title || "Libro sin título"}`}
+                          className={styles.bookImage}
+                          loading="lazy"
+                        />
+                        {book.price && <div className={styles.priceTag}>{book.price} €</div>}
+                      </div>
+                      <div className={styles.bookContent}>
+                        <h3 className={styles.cardTitle}>{book.title || "Título no disponible"}</h3>
+                        <p className={styles.cardAuthor}>Creador: {book.owner || "Desconocido"}</p>
+                      </div>
+                    </article>
+                  </Link>
+                ))}
+              </div>
+
+              <div className={styles.exploreButtonContainer}>
+                <Link to="/search" className={styles.exploreButton}>
+                  Explorar biblioteca completa
+                  <span className={styles.bookIcon} aria-hidden="true">
+                    📚
+                  </span>
+                </Link>
+              </div>
+            </>
+          )}
         </div>
-
-        {/* Libro 2 */}
-        <div className={styles.bookItem}>
-          <div className={styles.bookImageContainer}>
-            <div className={styles.bookImage}></div>
-            <button className={styles.bookButtonLeft}>←</button>
-            <button className={styles.bookButtonRight}>☰</button>
-          </div>
-          <div className={styles.bookContent}>
-            <p className={styles.bookGenre}>Género 2</p>
-            <h3 className={styles.bookTitle}>Título del libro 2</h3>
-            <p className={styles.bookAuthor}>Autor del libro 2</p>
-            <p className={styles.bookDescription}>Descripción breve del libro 2.</p>
-            <a href="#" className={styles.readMore}>
-              Leer más <span className={styles.arrowIcon}>→</span>
-            </a>
-          </div>
-        </div>
-
-        {/* Libro 3 */}
-        <div className={styles.bookItem}>
-          <div className={styles.bookImageContainer}>
-            <div className={styles.bookImage}></div>
-            <button className={styles.bookButtonLeft}>←</button>
-            <button className={styles.bookButtonRight}>☰</button>
-          </div>
-          <div className={styles.bookContent}>
-            <p className={styles.bookGenre}>Género 3</p>
-            <h3 className={styles.bookTitle}>Título del libro 3</h3>
-            <p className={styles.bookAuthor}>Autor del libro 3</p>
-            <p className={styles.bookDescription}>Descripción breve del libro 3.</p>
-            <a href="#" className={styles.readMore}>
-              Leer más <span className={styles.arrowIcon}>→</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Botón de explorar */}
-      <div className={styles.exploreButtonContainer}>
-        <button className={styles.exploreButton}>
-          Explorar biblioteca completa <span className={styles.bookIcon}>📚</span>
-        </button>
-      </div>
-    </div>
-  )
+    );
 }
 
-export default Libreria
-
+export default Libreria;

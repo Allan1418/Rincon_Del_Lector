@@ -31,6 +31,11 @@ class LibroViewSet(viewsets.ModelViewSet):
     queryset = Libro.objects.all()
     serializer_class = LibroSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly & IsOwner]
+    
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return [permissions.AllowAny()]
+        return super().get_permissions()
 
     def get_serializer_context(self):
         """el request en el contexto del serializer"""
