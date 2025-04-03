@@ -228,10 +228,10 @@ class LibroViewSet(viewsets.ModelViewSet):
     def upload_image(self, request, pk=None):
         libro = self.get_object()
         
-        # Verificar que el usuario es el dueño
+        # Verificar que el usuario es el owner
         if libro.owner != request.user:
             return Response(
-                {"detail": "Solo el dueño puede subir imágenes"},
+                {"detail": "Solo el owner puede subir imagenes"},
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -239,7 +239,7 @@ class LibroViewSet(viewsets.ModelViewSet):
         
         # Validar archivo
         if not uploaded_file:
-            return Response({"error": "No se envió ninguna imagen"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "No se envio ninguna imagen"}, status=status.HTTP_400_BAD_REQUEST)
         
         if not uploaded_file.content_type.startswith('image/'):
             return Response({"error": "El archivo no es una imagen"}, status=status.HTTP_400_BAD_REQUEST)

@@ -1101,6 +1101,14 @@ components:
         owner:
           type: string
           readOnly: true
+        has_file:
+          type: boolean
+          description: Verifica si el libro tiene un archivo EPUB asociado
+          readOnly: true
+        has_image:
+          type: boolean
+          description: Verifica si el libro tiene una imagen de portada
+          readOnly: true
         title:
           type: string
           maxLength: 200
@@ -1116,6 +1124,8 @@ components:
           format: date
           readOnly: true
       required:
+      - has_file
+      - has_image
       - id
       - is_owner
       - is_purchased
