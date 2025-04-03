@@ -498,6 +498,7 @@ paths:
       - libros
       security:
       - tokenAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -709,6 +710,36 @@ paths:
           description: Error en la imagen
         '404':
           description: Libro no encontrado
+  /api/libros/owner/{username}/:
+    get:
+      operationId: libros_owner_retrieve
+      description: Obtiene libros de un usuario por username especifico
+      summary: Libros por usuario exacto
+      parameters:
+      - in: path
+        name: username
+        schema:
+          type: string
+        description: username de usuario EXACTO
+        required: true
+        examples:
+          EjemploUsuarioExacto:
+            value: juan27
+            summary: Ejemplo usuario exacto
+      tags:
+      - libros
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLibroList'
+          description: ''
+        '404':
+          description: Usuario no encontrado
   /api/users/{username}/:
     get:
       operationId: users_retrieve
@@ -1070,6 +1101,14 @@ components:
         owner:
           type: string
           readOnly: true
+        has_file:
+          type: boolean
+          description: Verifica si el libro tiene un archivo EPUB asociado
+          readOnly: true
+        has_image:
+          type: boolean
+          description: Verifica si el libro tiene una imagen de portada
+          readOnly: true
         title:
           type: string
           maxLength: 200
@@ -1085,6 +1124,8 @@ components:
           format: date
           readOnly: true
       required:
+      - has_file
+      - has_image
       - id
       - is_owner
       - is_purchased
