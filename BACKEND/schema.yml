@@ -498,6 +498,7 @@ paths:
       - libros
       security:
       - tokenAuth: []
+      - {}
       responses:
         '200':
           content:
@@ -709,6 +710,36 @@ paths:
           description: Error en la imagen
         '404':
           description: Libro no encontrado
+  /api/libros/owner/{username}/:
+    get:
+      operationId: libros_owner_retrieve
+      description: Obtiene libros de un usuario por username especifico
+      summary: Libros por usuario exacto
+      parameters:
+      - in: path
+        name: username
+        schema:
+          type: string
+        description: username de usuario EXACTO
+        required: true
+        examples:
+          EjemploUsuarioExacto:
+            value: juan27
+            summary: Ejemplo usuario exacto
+      tags:
+      - libros
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLibroList'
+          description: ''
+        '404':
+          description: Usuario no encontrado
   /api/users/{username}/:
     get:
       operationId: users_retrieve

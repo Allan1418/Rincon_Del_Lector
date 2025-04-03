@@ -432,3 +432,56 @@ class LibroViewSet(viewsets.ModelViewSet):
             filename=f"{libro.title}.epub",
             content_type='application/epub+zip'
         )
+
+    @extend_schema(
+    summary="Libros por usuario exacto",
+    description="Obtiene libros de un usuario por username especifico",
+    parameters=[
+        OpenApiParameter(
+            name='username',
+            description='username de usuario EXACTO',
+            required=True,
+            type=str,
+            location=OpenApiParameter.PATH,
+            examples=[
+                OpenApiExample(
+                    'Ejemplo usuario exacto',
+                    value='juan27'
+                ),
+            ]
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(response=LibroSerializer(many=True)),
+        404: OpenApiResponse(description="Usuario no encontrado")
+    }
+    )
+    @action(
+        detail=False,
+        methods=['GET'],
+        url_path='owner/(?P<username>[^/.]+)',
+        permission_classes=[permissions.AllowAny]
+    )
+    def list_by_exact_owner(self, request, username=None):
+        
+        # Endpoint: /api/libros/owner/<username>/
+        
+        try:
+            user = User.objects.get(username__iexact=username)
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "Usuario no encontrado"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        queryset = self.get_queryset().filter(owner=user)
+        queryset = self.filter_queryset(queryset)
+        queryset = queryset.order_by("-published_date")
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
