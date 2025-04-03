@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { getUserData } from "../../services/ProfileService"; // Asegúrate de la ruta correcta
+import { getUserData } from "../../services/ProfileService";
 
 export const AuthContext = createContext();
 

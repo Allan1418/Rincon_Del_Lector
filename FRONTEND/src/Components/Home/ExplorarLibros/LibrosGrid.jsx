@@ -26,14 +26,9 @@ const LibrosGrid = ({ token }) => {
       key: 'newest'
     },
     {
-      title: "Ofertas",
+      title: "Gratis",
       ordering: 'price',
       key: 'cheapest'
-    },
-    {
-      title: "Populares",
-      ordering: '-title',
-      key: 'popular'
     }
   ];
 

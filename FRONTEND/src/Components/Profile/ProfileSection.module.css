@@ -1,45 +1,38 @@
 :root {
-  /* Primary palette - Deep teal */
-  --primary-color: #2dd4bf; /* Teal */
-  --primary-light: #5eead4; /* Lighter teal */
-  --primary-dark: #14b8a6; /* Darker teal */
+  --primary-color: #2dd4bf;
+  --primary-light: #5eead4;
+  --primary-dark: #14b8a6;
 
-  /* Secondary palette - Rich purple */
-  --secondary-color: #a855f7; /* Purple */
-  --secondary-light: #c084fc; /* Lighter purple */
-  --secondary-dark: #9333ea; /* Darker purple */
+  --secondary-color: #a855f7;
+  --secondary-light: #c084fc;
+  --secondary-dark: #9333ea;
 
-  /* Accent - Amber */
-  --accent-color: #f59e0b; /* Amber */
-  --accent-light: #fbbf24; /* Lighter amber */
-  --accent-dark: #d97706; /* Darker amber */
+  --accent-color: #f59e0b;
+  --accent-light: #fbbf24;
+  --accent-dark: #ff0000;
 
-  /* Background palette - Dark slate */
-  --bg-cream: #1e1e2e; /* Dark slate */
-  --bg-cream-light: #27273a; /* Slightly lighter slate */
-  --bg-cream-dark: #181825; /* Darker slate */
+  --bg-color: #ffffff;
+  --bg-light: #f8fafc;
+  --bg-dark: #f1f5f9;
+  --bg-card: #ffffff;
 
-  /* Text colors */
-  --text-primary: #e2e8f0; /* Light gray for primary text */
-  --text-secondary: #cbd5e1; /* Medium gray for secondary text */
-  --text-muted: #000000; /* Muted gray for less important text */
-  --text-light: #f8fafc; /* Almost white for high contrast text */
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-light: #ffffff;
 
-  /* UI elements */
-  --border-light: rgba(255, 255, 255, 0.1); /* Subtle border */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3); /* Soft shadow */
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3); /* Medium shadow */
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3); /* Large shadow */
-  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.3); /* Extra large shadow */
+  --border-light: rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.12);
 
-  /* Radius */
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
 
-  /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;
@@ -48,7 +41,6 @@
 .profileContainer {
   max-width: 1200px;
   margin: 7rem auto 4rem;
-  background-color: var(--bg-cream);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
@@ -67,7 +59,7 @@
   left: 0;
   width: 100%;
   height: 200px;
-  background: linear-gradient(135deg, var(--primary-dark), var(--secondary-color)); /* Gradient with primary and secondary colors */
+  background: linear-gradient(135deg, var(--primary-dark), var(--secondary-color));
   z-index: 1;
 }
 
@@ -86,8 +78,8 @@
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  border: 4px solid var(--bg-cream);
-  background-color: var(--bg-cream);
+  border: 4px solid var(--bg-color);
+  background-color: var(--bg-color);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   position: relative;
@@ -142,15 +134,16 @@
   width: 20px;
   height: 20px;
   background: var(--primary-color);
-  color: var(--bg-cream-dark);
+  color: var(--bg-color);
   border-radius: 50%;
   font-size: 0.8rem;
 }
 
 .userRole {
   font-size: 1rem;
-  color: #ffffff;
+  color: var(--text-secondary);
   margin: 0;
+  font-weight: 500;
 }
 
 .followButton {
@@ -159,7 +152,7 @@
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   background-color: var(--primary-color);
-  color: var(--bg-cream-dark);
+  color: var(--text-light);
   border: none;
   border-radius: var(--radius-lg);
   font-weight: 600;
@@ -192,7 +185,7 @@
 }
 
 .bioSection {
-  background-color: var(--bg-cream-dark);
+  background-color: var(--bg-light);
   padding: 1.25rem;
   border-radius: var(--radius-lg);
   border-left: 4px solid var(--primary-color);
@@ -260,7 +253,7 @@
 .statCard:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-md);
-  background-color: var(--bg-cream-light);
+  background-color: var(--bg-card);
   border-color: var(--primary-color);
 }
 
@@ -300,7 +293,7 @@
 
 .tabsContainer {
   display: flex;
-  background-color: var(--bg-cream-dark);
+  background-color: var(--bg-light);
   border-radius: var(--radius-lg);
   padding: 0.5rem;
   gap: 0.5rem;
@@ -327,11 +320,11 @@
 
 .tabButton:hover {
   color: var(--text-primary);
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .activeTab {
-  background-color: var(--bg-cream-light);
+  background-color: var(--bg-card);
   color: var(--primary-color);
   box-shadow: var(--shadow-sm);
 }
@@ -368,7 +361,7 @@
 
 /* Book Form */
 .bookFormContainer {
-  background-color: var(--bg-cream-light);
+  background-color: var(--bg-light);
   border-radius: var(--radius-lg);
   padding: 2rem;
   margin-bottom: 2rem;
@@ -421,8 +414,8 @@
   border-radius: var(--radius-md);
   font-size: 1rem;
   transition: all var(--transition-fast);
-  background-color: var(--bg-cream-dark);
-  color: var(--text-light);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
 }
 
 .bookInput:focus,
@@ -430,7 +423,6 @@
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.2);
-  background-color: var(--bg-cream);
 }
 
 .bookTextarea {
@@ -464,18 +456,18 @@
 }
 
 .errorMessage {
-  color: #f87171;
-  background-color: rgba(248, 113, 113, 0.1);
-  border-left: 3px solid #f87171;
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+  border-left: 3px solid #ef4444;
   padding: 1rem;
   border-radius: var(--radius-md);
   margin-top: 1rem;
 }
 
 .successMessage {
-  color: #4ade80;
-  background-color: rgba(74, 222, 128, 0.1);
-  border-left: 3px solid #4ade80;
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+  border-left: 3px solid #10b981;
   padding: 1rem;
   border-radius: var(--radius-md);
   margin-top: 1rem;
@@ -493,7 +485,7 @@
 }
 
 .bookCard {
-  background-color: var(--bg-cream-light);
+  background-color: var(--bg-card);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
@@ -517,7 +509,7 @@
   position: relative;
   height: 260px;
   overflow: hidden;
-  background-color: var(--bg-cream-dark);
+  background-color: var(--bg-light);
 }
 
 .bookCover {
@@ -539,7 +531,7 @@
   left: 0;
   width: 10px;
   height: 100%;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.2), transparent);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.1), transparent);
   z-index: 1;
 }
 
@@ -551,7 +543,7 @@
   left: 0;
   width: 100%;
   height: 20px;
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.3), transparent);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.1), transparent);
   z-index: 1;
 }
 
@@ -561,7 +553,7 @@
   flex-direction: column;
   gap: 0.5rem;
   flex: 1;
-  background-color: var(--bg-cream-light);
+  background-color: var(--text-light);
   position: relative;
 }
 
@@ -655,7 +647,7 @@
 }
 
 .userCard {
-  background-color: var(--bg-cream-light);
+  background-color: var(--bg-cream-dark);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
@@ -674,18 +666,12 @@
   border-color: var(--primary-color);
 }
 
-.userImageContainer {
+.userImage {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid var(--primary-color);
-}
-
-.userImage {
-  width: 100%;
-  height: 100%;
   object-fit: cover;
+  border: 2px solid var(--primary-color);
 }
 
 .userInfo {
@@ -695,7 +681,7 @@
 .userName {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-light);
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -723,7 +709,7 @@
   justify-content: center;
   padding: 4rem 2rem;
   text-align: center;
-  background-color: var(--bg-cream-dark);
+  background-color: var(--bg-light);
   border-radius: var(--radius-lg);
   border: 1px dashed var(--border-light);
 }
@@ -775,6 +761,64 @@
   box-shadow: var(--shadow-lg);
 }
 
+.menuAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.avatarFallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  position: relative;
+  transition: all var(--transition-normal);
+  overflow: hidden;
+}
+
+.userCard .avatarFallback {
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--primary-color);
+}
+
+.userCard:hover .avatarFallback {
+  transform: scale(1.05) rotate(3deg);
+}
+
+.fallbackIcon {
+  font-size: 2.5rem;
+  position: absolute;
+  opacity: 0.3;
+}
+
+.userCard .fallbackIcon {
+  font-size: 1.8rem;
+}
+
+.avatarInitial {
+  font-size: 3.5rem;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.userCard .avatarInitial {
+  font-size: 1.2rem;
+}
+
+/* Responsive styles */
 @media (max-width: 992px) {
   .statsSection {
     grid-template-columns: repeat(2, 1fr);
