@@ -44,6 +44,7 @@ call deactivate
 rem configuracion React
 
 pushd FRONTEND
+
 echo Verificando version de npm...
 call npm -v
 
@@ -64,10 +65,15 @@ call npm i react-icons
 
 echo Instalando Bootstrap 5.3.3 en FRONTEND...
 call npm install bootstrap@5.3.3
-popd
 
 echo Dependencias y Bootstrap instalados correctamente.
 call npm install lucide-react
+
+echo Biblioteca chart.js instalados correctamente.
+call npm install chart.js
+
+popd
+
 pause
 
 rem creacion archivos de configuracion para conexiones

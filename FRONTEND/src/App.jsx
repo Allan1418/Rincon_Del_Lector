@@ -11,8 +11,10 @@ import EditBook from './Components/Library/ChangeBook/EditBook.jsx';
 import BookDetails from './Components/Library/BookDetails.jsx';
 import LibrosGrid from './Components/Home/ExplorarLibros/LibrosGrid.jsx';
 import Cart from './Components/Cart/Cart.jsx';
-import PurchaseHistory from './Components/Cart/Owner/PurchaseHistory.jsx';
+import PurchaseHistory from './Components/Cart/Purchased/PurchaseHistory.jsx';
 import OwnerEarnings from './Components/Cart/Owner/OwnerEarnings.jsx';
+import CreateBookForm from './Components/Library/CreateBook/CreateBookForm.jsx';
+import ReadEpub from './Components/readEpub/ReadEpub.jsx'
 
 function App() {
   
@@ -26,12 +28,14 @@ function App() {
           <Route path='/user/:username/changed' element={<ChangePasswordForm />} />
           <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
           <Route path="/search" element={<UserSearchResults />} />
-          <Route path="/edit-book/:bookId" element={<EditBook />} />
+          <Route path="/edit/:bookId" element={<EditBook />} />
+          <Route path="/user/:username/crearLibro" element={<CreateBookForm />} />
           <Route path="/libros/:bookId" element={<BookDetails />} />
           <Route path="/explorar" element={<LibrosGrid />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/historial" element={<PurchaseHistory />} />
           <Route path="/ganancias" element={<OwnerEarnings />} />
+          <Route path="/lector/:bookId" element={<ReadEpub />} />
         </Routes>
       </Layout>
     </BrowserRouter>

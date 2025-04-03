@@ -293,21 +293,28 @@ export const uploadProfileImage = async (imageFile, token) => {
 
 export const createBook = async (bookData, token) => {
   try {
-    const response = await fetch(`${API_LIBROS_URL}/libros/`, {
+    const response = await fetch('http://localhost:8000/api/libros/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `${token}`,
       },
-      body: JSON.stringify(bookData),
+      body: JSON.stringify({
+        title: bookData.title,
+        synopsis: bookData.synopsis,
+        index: bookData.index 
+      }),
     });
 
-    const data = await response.json();
     if (!response.ok) {
-      throw data;
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
+      throw new Error(`Error ${response.status}: ${errorText}`);
     }
-    return data;
+
+    return await response.json();
   } catch (error) {
+    console.error('Error en createBook:', error);
     throw error;
   }
 };
@@ -351,22 +358,22 @@ export const getLibros = async (token = null, username = null, ordering = null, 
   }
 };
 
-export const getLibroById = async (bookId) => {
+export const getLibroById = async (bookId, token) => {
   try {
-    const response = await fetch(`${API_LIBROS_URL}/libros/${bookId}/`, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    });
+      const response = await fetch(`${API_LIBROS_URL}/libros/${bookId}/`, {
+          headers: {
+              Authorization: `${token}`,
+          },
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw errorData;
-    }
+      if (!response.ok) {
+          const errorData = await response.json();
+          throw errorData;
+      }
 
-    return response.json();
+      return response.json();
   } catch (error) {
-    throw error;
+      throw error;
   }
 };
 
@@ -390,7 +397,6 @@ export const updateLibro = async (bookId, bookData, token) => {
   } catch (error) {
     throw error;
   }
-  
 };
 
 export const uploadBookImage = async (bookId, imageFile, token) => {
@@ -461,20 +467,23 @@ export const uploadBookEpub = async (bookId, epubFile, token) => {
 };
 
 export const downloadBookEpub = async (bookId, token) => {
-  const response = await fetch(`${API_LIBROS_URL}/libros/${bookId}/get_file/`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `${token}`,
-      'Accept': 'application/epub+zip, application/json'
-    }
-  });
-  
-  const contentType = response.headers.get('content-type');
-  if (!contentType?.includes('epub')) {
-    throw new Error('El archivo no es un EPUB válido');
-  }
+  try {
+    const response = await fetch(`${API_LIBROS_URL}/libros/${bookId}/get_file/`, {
+      method: "GET",
+      headers: {
+        Authorization: `${token}`,
+        Accept: "application/epub+zip, application/octet-stream",
+      },
+    });
 
-  return response;
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.blob();
+  } catch (error) {
+    throw new Error(`Error al descargar EPUB: ${error.message}`);
+  }
 };
 
 export const addToCart = async (bookId, token) => {
@@ -588,7 +597,6 @@ export const purchaseCart = async (token) => {
   }
 };
 
-// ProfileSection.js
 export const getPurchaseHistory = async (token) => {
   if (!token) {
     console.error('Token is undefined. Cannot make request.');
