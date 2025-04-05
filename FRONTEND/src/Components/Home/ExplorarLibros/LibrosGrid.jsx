@@ -95,9 +95,9 @@ const LibrosGrid = ({ token }) => {
               >
                 <div className={styles.imageContainer}>
                   <img
-                    src={getBookImageUrl(book.id) || "/placeholder.svg"}
+                    src={book.has_image ? getBookImageUrl(book.id) : null}
                     alt={book.title}
-                    className={styles.image}
+                    className={`${styles.image} ${!book.has_image ? styles.noImage : ''}`}
                     loading="lazy"
                   />
                   <div className={styles.overlay}>

@@ -34,7 +34,7 @@ const BookDetails = () => {
   const [cartItems, setCartItems] = useState([]);
   const [cartLoading, setCartLoading] = useState(false);
   const { userData, token } = useContext(AuthContext);
-
+  const hasFile = book?.has_file;
   const isOwner = userData?.username === book?.owner;
   const isPurchased = book?.is_purchased;
   const isInCart = cartItems.includes(bookId);
@@ -72,7 +72,6 @@ const BookDetails = () => {
     setSuccessMessage(null);
 
     try {
-      //AQUI, SI downloadBookEpub no existe, crea una funcion de dummy.
       const response = await (async () => {
         return {
           headers: {
@@ -89,7 +88,7 @@ const BookDetails = () => {
         throw new Error("El formato del libro no es compatible");
       }
 
-      navigate(`/lector/${bookId}`);
+      navigate(`/lector/${bookId}/ver`);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -101,6 +100,11 @@ const BookDetails = () => {
     if (!token) {
       setError("Debes iniciar sesión para agregar al carrito");
       navigate("/authForm");
+      return;
+    }
+
+    if (!hasFile) {
+      setError("El creador no ha subido un archivo al libro");
       return;
     }
 
@@ -119,12 +123,12 @@ const BookDetails = () => {
       setIsAddingToCart(false);
     }
   };
-    const handleEdit = () => {
-        console.log("Book ID before navigation:", bookId);
-        console.log("Book Object:", book);
-        console.log("User Data:", userData);
-        navigate(`/edit/${bookId}`);
-    };
+  const handleEdit = () => {
+    console.log("Book ID before navigation:", bookId);
+    console.log("Book Object:", book);
+    console.log("User Data:", userData);
+    navigate(`/edit/${bookId}`);
+  };
 
   if (isLoading || cartLoading) return <LoadingScreen />;
   if (error) return <ErrorDisplay error={error} />;
@@ -138,11 +142,16 @@ const BookDetails = () => {
 
       <div className={styles.bookHeader}>
         <div className={styles.coverContainer}>
-          <img
-            src={getBookImageUrl(bookId) || "/placeholder.svg"}
-            alt={`Portada de ${book.title}`}
-            className={styles.bookCover}
-          />
+          {book && book.has_image ? (
+            <img
+              src={getBookImageUrl(bookId) || "/placeholder.svg"}
+              alt={`Portada de ${book.title}`}
+              className={styles.bookCover}
+            />
+          ) : (
+            <div className={`${styles.bookCover} ${styles.noImage}`}>
+            </div>
+          )}
         </div>
 
         <div className={styles.mainContent}>
@@ -204,7 +213,7 @@ const BookDetails = () => {
                   <button
                     className={styles.downloadButton}
                     onClick={handleReadBook}
-                    disabled={loadingLeer}
+                    disabled={loadingLeer || !hasFile}
                   >
                     {loadingLeer ? (
                       <>
@@ -215,32 +224,44 @@ const BookDetails = () => {
                       <>
                         <BookOpen size={20} />
                         <span>Leer ahora</span>
+                        {!hasFile && (
+                          <div className={styles.errorMessage}>
+                            Archivo no disponible
+                          </div>
+                        )}
                       </>
                     )}
                   </button>
                 ) : (
-                  <button
-                    className={styles.downloadButton}
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart || isInCart}
-                  >
-                    {isAddingToCart ? (
-                      <>
-                        <div className={styles.spinner} />
-                        <span>Agregando...</span>
-                      </>
-                    ) : isInCart ? (
-                      <>
-                        <ShoppingCart size={20} />
-                        <span>En el carrito</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingCart size={20} />
-                        <span>Agregar al carrito</span>
-                      </>
+                  <div className={styles.purchaseSection}>
+                    <button
+                      className={styles.downloadButton}
+                      onClick={handleAddToCart}
+                      disabled={isAddingToCart || isInCart || !hasFile}
+                    >
+                      {isAddingToCart ? (
+                        <>
+                          <div className={styles.spinner} />
+                          <span>Agregando...</span>
+                        </>
+                      ) : isInCart ? (
+                        <>
+                          <ShoppingCart size={20} />
+                          <span>En el carrito</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart size={20} />
+                          <span>Agregar al carrito</span>
+                        </>
+                      )}
+                    </button>
+                    {!hasFile && (
+                      <div className={styles.errorMessage}>
+                        El creador no ha subido un archivo al libro
+                      </div>
                     )}
-                  </button>
+                  </div>
                 )}
               </>
             )}

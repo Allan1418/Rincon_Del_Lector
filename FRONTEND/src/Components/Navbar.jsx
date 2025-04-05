@@ -124,6 +124,12 @@ function Navbar() {
                 <span>Mi libreria</span>
               </Link>
             )}
+            {isAuthenticated && (
+              <Link to="/cart" className={styles.menuItem}>
+                <FaShoppingCart className={styles.menuIcon} />
+                <span>Mi carrito</span>
+              </Link>
+            )}
           </div>
 
           <div className={styles.navbarActions}>
@@ -147,13 +153,7 @@ function Navbar() {
             >
               <FaSearch />
             </button>
-
-            {isAuthenticated && (
-              <Link to="/cart" className={styles.cartLink} aria-label="Carrito">
-                <FaShoppingCart />
-              </Link>
-            )}
-
+            
             {!isAuthenticated ? (
               <Link to="/authForm" className={styles.authLink}>
                 <button className={styles.registerButton}>Registrarse</button>

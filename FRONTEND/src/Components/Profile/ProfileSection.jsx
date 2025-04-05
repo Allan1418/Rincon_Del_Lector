@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+"use client";
+
+import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   getUserByUsername,
@@ -24,7 +26,7 @@ import {
   Heart,
   Clock,
 } from "lucide-react";
-import { FaUserCircle } from 'react-icons/fa'; // Import the user circle icon
+import { FaUserCircle } from "react-icons/fa";
 
 const UserProfile = () => {
   const { username } = useParams();
@@ -52,10 +54,10 @@ const UserProfile = () => {
       setProfileState((prev) => ({
         ...prev,
         data,
-        imageUrl: data.image_name ? getProfileImage(data.image_name) : null, // No default image
+        imageUrl: data.image_name ? getProfileImage(data.image_name) : null,
       }));
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name !== "AbortError") {
         setProfileState((prev) => ({ ...prev, error: err }));
       }
     } finally {
@@ -65,25 +67,11 @@ const UserProfile = () => {
 
   const fetchPublishedBooks = async (page = 1, signal) => {
     try {
-      const response = await getLibros(
-        token,
-        username,
-        "-published_date",
-        null,
-        page,
-        null,
-        null,
-        { signal }
-      );
-
-      setPublishedBooks(prev => page === 1
-        ? response.results || []
-        : [...prev, ...(response.results || [])]
-      );
-
+      const response = await getLibros(token, username, "-published_date", null, page, null, null, { signal });
+      setPublishedBooks((prev) => (page === 1 ? response.results || [] : [...prev, ...(response.results || [])]));
       return response.next;
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name !== "AbortError") {
         console.error("Error fetching published books:", err);
       }
       return false;
@@ -92,25 +80,11 @@ const UserProfile = () => {
 
   const fetchPurchasedBooks = async (page = 1, signal) => {
     try {
-      const response = await getLibros(
-        token,
-        null,
-        null,
-        null,
-        page,
-        true,
-        null,
-        { signal }
-      );
-
-      setPurchasedBooks(prev => page === 1
-        ? response.results || []
-        : [...prev, ...(response.results || [])]
-      );
-
+      const response = await getLibros(token, null, null, null, page, true, null, { signal });
+      setPurchasedBooks((prev) => (page === 1 ? response.results || [] : [...prev, ...(response.results || [])]));
       return response.next;
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name !== "AbortError") {
         console.error("Error fetching purchased books:", err);
       }
       return false;
@@ -164,25 +138,25 @@ const UserProfile = () => {
     const { signal } = abortController;
 
     const loadData = async () => {
-        try {
-            await fetchUserProfile(signal);
-            await fetchPublishedBooks(1, signal);
-            if (userData?.username === username) {
-                await fetchPurchasedBooks(1, signal);
-            }
-        } catch (err) {
-            if (err.name !== 'AbortError') {
-                console.error("Error loading data:", err);
-            }
+      try {
+        await fetchUserProfile(signal);
+        await fetchPublishedBooks(1, signal);
+        if (userData?.username === username) {
+          await fetchPurchasedBooks(1, signal);
         }
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error("Error loading data:", err);
+        }
+      }
     };
 
     loadData();
 
     return () => {
-        abortController.abort();
+      abortController.abort();
     };
-}, [username, token, userData?.username]);
+  }, [username, token, userData?.username]);
 
   useEffect(() => {
     if (activeTab === "followers") fetchFollowers();
@@ -248,18 +222,13 @@ const UserProfile = () => {
     return (
       <div className={styles.userCard} onClick={() => navigate(`/user/${user.username}`)}>
         {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={`Perfil de ${user.username}`}
-            className={styles.userImage}
-          />
+          <img src={imageUrl} alt={`Perfil de ${user.username}`} className={styles.userImage} />
         ) : (
           <div className={styles.avatarFallback}>
             <FaUserCircle className={styles.fallbackIcon} />
             <span className={styles.avatarInitial}>{user.username.charAt(0).toUpperCase()}</span>
           </div>
         )}
-
         <div className={styles.userInfo}>
           <h4 className={styles.userName}>
             {user.username}
@@ -289,7 +258,9 @@ const UserProfile = () => {
             {isPublished ? "No hay libros publicados" : "No hay libros comprados"}
           </h3>
           <p className={styles.emptyStateText}>
-            {isPublished ? "Este usuario aún no ha publicado ningún libro" : "Este usuario aún no ha comprado ningún libro"}
+            {isPublished
+              ? "Este usuario aún no ha publicado ningún libro"
+              : "Este usuario aún no ha comprado ningún libro"}
           </p>
         </div>
       );
@@ -300,7 +271,16 @@ const UserProfile = () => {
         {books.map((book) => (
           <div key={book.id} className={styles.bookCard} onClick={() => handleViewDetails(book.id)}>
             <div className={styles.bookCoverWrapper}>
-              <img src={getBookImageUrl(book.id) || "/placeholder.svg"} alt={`Portada de ${book.title}`} className={styles.bookCover} />
+              {book.has_image ? (
+                <img
+                  src={getBookImageUrl(book.id)}
+                  alt={`Portada de ${book.title}`}
+                  className={styles.bookCover}
+                />
+              ) : (
+                <div className={`${styles.bookCoverFallback} ${styles.noImage}`}>
+                </div>
+              )}
             </div>
             <div className={styles.bookInfo}>
               <h3 className={styles.bookTitle}>{book.title}</h3>
@@ -342,7 +322,6 @@ const UserProfile = () => {
         <div className={styles.headerBackground}></div>
         <div className={styles.profileContent}>
           <div className={styles.profileImageWrapper}>
-            {/* Lógica para la imagen grande */}
             {profileState.imageUrl ? (
               <img
                 src={profileState.imageUrl}
@@ -373,14 +352,8 @@ const UserProfile = () => {
                   onClick={handleFollow}
                   disabled={profileState.isUpdating}
                 >
-                  {profileState.isUpdating ? (
-                    profileState.data.is_following ? "Dejando de seguir..." : "Siguiendo..."
-                  ) : (
-                    <>
-                      {profileState.data.is_following ? <Heart size={16} /> : <Users size={16} />}
-                      {profileState.data.is_following ? "Siguiendo" : "Seguir"}
-                    </>
-                  )}
+                  {profileState.data.is_following ? <Heart size={16} /> : <Users size={16} />}
+                  {profileState.data.is_following ? "Dejar de seguir" : "Seguir"}
                 </button>
               )}
             </div>
@@ -402,7 +375,7 @@ const UserProfile = () => {
       </div>
 
       <div className={styles.statsSection}>
-        <button className={styles.statCard} onClick={() => setActiveTab("followers")} disabled={!isOwnProfile}>
+        <button className={styles.statCard} onClick={isOwnProfile ? () => setActiveTab("followers") : undefined}>
           <div className={styles.statValue}>{profileState.data?.follower_count || 0}</div>
           <div className={styles.statLabel}>
             <Users size={16} />
@@ -410,7 +383,7 @@ const UserProfile = () => {
           </div>
         </button>
 
-        <button className={styles.statCard} onClick={() => setActiveTab("following")} disabled={!isOwnProfile}>
+        <button className={styles.statCard} onClick={isOwnProfile ? () => setActiveTab("following") : undefined}>
           <div className={styles.statValue}>{profileState.data?.following_count || 0}</div>
           <div className={styles.statLabel}>
             <User size={16} />
@@ -426,7 +399,7 @@ const UserProfile = () => {
           </div>
         </button>
         {isOwnProfile && (
-          <button className={styles.statCard} onClick={() => setActiveTab("purchased")} disabled={!isOwnProfile}>
+          <button className={styles.statCard} onClick={() => setActiveTab("purchased")}>
             <div className={styles.statValue}>{purchasedBooks.length}</div>
             <div className={styles.statLabel}>
               <ShoppingCart size={16} />
@@ -439,7 +412,10 @@ const UserProfile = () => {
       <div className={styles.contentSection}>
         <div className={styles.contentHeader}>
           {isOwnProfile && (
-            <button className={styles.createBookButton} onClick={() => navigate(`/user/${profileState.data?.username}/crearLibro`)}>
+            <button
+              className={styles.createBookButton}
+              onClick={() => navigate(`/user/${profileState.data?.username}/crearLibro`)}
+            >
               <PlusCircle size={18} />
               Publicar libro
             </button>

@@ -238,14 +238,17 @@ function ChangeProfileForm() {
             src={selectedFile ? URL.createObjectURL(selectedFile) : getProfileImage(profileData?.image_name)}
             alt="Foto de perfil"
             className={styles.profileImage}
-            onError={(e) => (e.target.src = "/default-profile.png")}
+            onError={(e) => {
+              console.log("Error loading profile image, using default")
+              e.target.src = "/default-profile.png"
+            }}
           />
           <button
             className={styles.editImageOverlay}
             onClick={() => document.getElementById("profile-image-upload").click()}
             aria-label="Cambiar foto de perfil"
           >
-            <Camera size={24} />
+            <Camera size={28} />
             <span>Cambiar foto</span>
           </button>
         </div>
@@ -345,7 +348,10 @@ function ChangeProfileForm() {
               <Edit size={16} className={styles.inputIcon} />
               Cuéntanos sobre ti
             </label>
-            <span className={styles.aboutHint}>Comparte tus intereses, experiencia y lo que te hace único</span>
+            <span className={styles.aboutHint}>
+              Comparte tus intereses, experiencia y lo que te hace único. Esta información será visible en tu perfil
+              público.
+            </span>
           </div>
 
           <textarea

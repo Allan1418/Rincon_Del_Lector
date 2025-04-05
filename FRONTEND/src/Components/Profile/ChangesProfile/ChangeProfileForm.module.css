@@ -389,11 +389,13 @@
   transition: opacity var(--transition-fast);
   cursor: pointer;
   gap: 0.5rem;
+  z-index: 10;
 }
 
 .editImageOverlay span {
   font-size: 0.875rem;
   font-weight: 500;
+  z-index: 11;
 }
 
 .profileImageWrapper:hover .editImageOverlay {
@@ -404,7 +406,6 @@
   transform: scale(1.05);
 }
 
-/* Estilos para la sección "Acerca de mi" */
 .aboutFormContainer {
   display: flex;
   flex-direction: column;
@@ -456,3 +457,59 @@
   }
 }
 
+.menuAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.avatarFallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  position: relative;
+  transition: all var(--transition-normal);
+  overflow: hidden;
+}
+
+.userCard .avatarFallback {
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--primary-color);
+}
+
+.userCard:hover .avatarFallback {
+  transform: scale(1.05) rotate(3deg);
+}
+
+.fallbackIcon {
+  font-size: 2.5rem;
+  position: absolute;
+  opacity: 0.3;
+}
+
+.userCard .fallbackIcon {
+  font-size: 1.8rem;
+}
+
+.avatarInitial {
+  font-size: 3.5rem;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.userCard .avatarInitial {
+  font-size: 1.2rem;
+}

@@ -864,6 +864,189 @@
   z-index: 1;
 }
 
+.noImage {
+  background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  color: #ccc;
+  position: relative;
+  overflow: hidden;
+}
+
+.noImage::before {
+  content: "🖼️";
+  position: relative;
+  z-index: 1;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.noImage::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  opacity: 0.6;
+  animation: rotate 10s linear infinite;
+}
+
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem 1rem;
+    margin: 5rem auto;
+  }
+
+  .searchHeader {
+    padding: 1.5rem;
+  }
+
+  .searchBar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .searchInput {
+    border-radius: 0.75rem;
+    width: 100%;
+  }
+
+  .searchButton {
+    border-radius: 0.75rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tabButton {
+    width: 100%;
+  }
+
+  .filters {
+    padding: 1.5rem;
+  }
+
+  .booksGrid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  .bookCard {
+    max-width: 100%;
+  }
+
+  .bookDetails {
+    padding: 1rem;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .pageButton {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .searchQuery {
+    font-size: 1rem;
+  }
+
+  .booksGrid,
+  .usersGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .userCard {
+    padding: 1rem;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .avatar {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .filterGroup {
+    width: 100%;
+  }
+
+  .filterInput,
+  .filterSelect {
+    font-size: 0.875rem;
+  }
+
+  .bookTitle {
+    font-size: 1.1rem;
+  }
+
+  .bookSynopsis {
+    font-size: 0.875rem;
+  }
+
+  .pagination {
+    gap: 0.25rem;
+  }
+
+  .pageButton {
+    min-width: 2rem;
+    height: 2rem;
+    font-size: 0.875rem;
+    padding: 0 0.5rem;
+  }
+
+  /* Estado vacío */
+  .emptyState {
+    padding: 3rem 1rem;
+  }
+
+  .emptyTitle {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+
+  .searchHeader {
+    padding: 1rem;
+  }
+
+  .searchInput {
+    padding: 0.875rem 1rem;
+  }
+
+  .bookPrice {
+    font-size: 1.1rem;
+  }
+
+  .viewDetails span {
+    display: none;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -941,4 +1124,3 @@
     gap: 1rem;
   }
 }
-

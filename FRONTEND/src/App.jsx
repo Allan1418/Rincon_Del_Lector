@@ -35,7 +35,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/historial" element={<PurchaseHistory />} />
           <Route path="/ganancias" element={<OwnerEarnings />} />
-          <Route path="/lector/:bookId" element={<ReadEpub />} />
+          <Route path="/lector/:bookId/ver" element={<ReadEpub />} />
         </Routes>
       </Layout>
     </BrowserRouter>

@@ -33,7 +33,7 @@ const EditBook = () => {
             try {
                 console.log("Book ID in EditBook:", bookId);
                 console.log("Token in EditBook:", token);
-                const bookData = await getLibroById(bookId, token); // Usa la nueva funcion
+                const bookData = await getLibroById(bookId, token); 
                 console.log("Book from getLibroById:", bookData);
 
                 if (!bookData) throw new Error("Libro no encontrado");
@@ -69,17 +69,13 @@ const EditBook = () => {
     const handleEpubChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.type !== 'application/epub+zip' && !file.name.endsWith('.epub')) {
-                setError('El archivo debe ser un EPUB válido');
-                return;
-            }
-            if (file.size > 20 * 1024 * 1024) {
-                setError('El archivo EPUB no puede exceder 20MB');
-                return;
-            }
-            setEpubFile(file);
+          if (!file.name.toLowerCase().endsWith('.epub')) {
+            setError('El archivo debe tener extensión .epub');
+            return;
+          }
+          setEpubFile(file);
         }
-    };
+      };
 
     const handleDragOver = (e, type) => {
         e.preventDefault();
@@ -101,31 +97,28 @@ const EditBook = () => {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
-
+      
         try {
-            const uploadPromises = [];
-
-            if (epubFile) {
-                uploadPromises.push(uploadBookEpub(bookId, epubFile, token));
-            }
-
-            if (imageFile) {
-                uploadPromises.push(uploadBookImage(bookId, imageFile, token));
-            }
-
-            await Promise.all(uploadPromises);
-
-            await updateLibro(bookId, book, token);
-
-            setSuccessMessage("¡Libro actualizado correctamente!");
-            setTimeout(() => navigate(`/book/${bookId}`), 2000);
+          await updateLibro(bookId, book, token); 
+      
+          const uploadPromises = [];
+          if (epubFile) {
+            uploadPromises.push(uploadBookEpub(bookId, epubFile, token));
+          }
+          if (imageFile) {
+            uploadPromises.push(uploadBookImage(bookId, imageFile, token));
+          }
+      
+          await Promise.all(uploadPromises);
+      
+          setSuccessMessage("¡Libro actualizado correctamente!");
+          setTimeout(() => navigate(`/libros/${bookId}`), 1000);
         } catch (error) {
-            setError(error.message);
+          setError(error.message || "Error al guardar cambios");
         } finally {
-            setIsLoading(false);
+          setIsLoading(false);
         }
-    };
-
+      };
     if (isLoading) return <LoadingScreen />;
     if (error) return <ErrorDisplay error={error} />;
     if (!book) return <div className={styles.error}>Libro no encontrado</div>;

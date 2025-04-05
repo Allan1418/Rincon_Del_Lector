@@ -547,3 +547,79 @@
     margin-bottom: 1.5rem;
   }
 }
+
+.purchaseSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.errorMessage {
+  color: #dc3545;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  background: #f8d7da;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ... tus estilos existentes ... */
+
+.noImage {
+  background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  color: #ccc;
+  position: relative;
+  overflow: hidden;
+}
+
+.noImage::before {
+  content: "🖼️";
+  position: relative;
+  z-index: 1;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.noImage::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  opacity: 0.6;
+  animation: rotate 10s linear infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
