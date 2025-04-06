@@ -17,6 +17,11 @@ const ReadEpub = () => {
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
 
+  // Book structure information
+  const [chapters, setChapters] = useState([])
+  const [currentChapter, setCurrentChapter] = useState(null)
+  const [showChapters, setShowChapters] = useState(false)
+
   const bookInstance = useRef(null)
   const renditionInstance = useRef(null)
   const isMounted = useRef(true)
@@ -30,6 +35,12 @@ const ReadEpub = () => {
   const [textMenuPosition, setTextMenuPosition] = useState({ x: 0, y: 0 })
   const [currentNote, setCurrentNote] = useState("")
   const [editingAnnotation, setEditingAnnotation] = useState(null)
+
+  // New state for notes
+  const [notes, setNotes] = useState([])
+  const [showNoteInput, setShowNoteInput] = useState(false)
+  const [newNote, setNewNote] = useState("")
+  const [showNotesPanel, setShowNotesPanel] = useState(false)
 
   const applySettings = () => {
     if (!renditionInstance.current) return
@@ -160,6 +171,31 @@ const ReadEpub = () => {
     renditionInstance.current.annotations.remove(`hl-${id}`)
   }
 
+  // New function to add a general note (not tied to text selection)
+  const addGeneralNote = () => {
+    if (!newNote.trim()) return
+
+    const newNoteObj = {
+      id: Date.now().toString(),
+      text: newNote.trim(),
+      timestamp: new Date().toISOString(),
+      location: currentPage,
+      chapter: currentChapter?.label || "Unknown chapter",
+    }
+
+    setNotes((prev) => [...prev, newNoteObj])
+    setNewNote("")
+    setShowNoteInput(false)
+  }
+
+  // Function to navigate to a specific chapter
+  const navigateToChapter = (chapter) => {
+    if (!renditionInstance.current || !chapter.href) return
+
+    renditionInstance.current.display(chapter.href)
+    setShowChapters(false)
+  }
+
   useEffect(() => {
     isMounted.current = true
 
@@ -190,12 +226,40 @@ const ReadEpub = () => {
           flow: "paginated",
         })
 
+        // Get book chapters/spine
+        const spine = bookInstance.current.spine
+        const toc = await bookInstance.current.loaded.navigation
+
+        if (toc && toc.toc) {
+          setChapters(
+            toc.toc.map((item) => ({
+              id: item.id,
+              label: item.label,
+              href: item.href,
+            })),
+          )
+        }
+
         // Configurar eventos
         renditionInstance.current.on("selected", handleTextSelection)
         renditionInstance.current.on("relocated", (location) => {
           if (isMounted.current) {
             setCurrentPage(location.start.displayed.page)
             setTotalPages(location.total)
+
+            // Update current chapter
+            const currentHref = location.start.href
+            const chapter =
+              toc?.toc.find((item) => item.href === currentHref) ||
+              toc?.toc.find((item) => currentHref.includes(item.href))
+
+            if (chapter) {
+              setCurrentChapter({
+                id: chapter.id,
+                label: chapter.label,
+                href: chapter.href,
+              })
+            }
           }
         })
 
@@ -205,6 +269,7 @@ const ReadEpub = () => {
         // Cargar anotaciones guardadas
         const storedAnnotations = JSON.parse(localStorage.getItem(`annotations-${bookId}`)) || []
         const storedHighlights = JSON.parse(localStorage.getItem(`highlights-${bookId}`)) || []
+        const storedNotes = JSON.parse(localStorage.getItem(`notes-${bookId}`)) || []
 
         storedHighlights.forEach((h) => {
           renditionInstance.current.annotations.highlight(h.cfi, {}, null, `hl-${h.id}`, {
@@ -229,6 +294,7 @@ const ReadEpub = () => {
 
         setAnnotations(storedAnnotations)
         setHighlights(storedHighlights)
+        setNotes(storedNotes)
         setLoading(false)
       } catch (err) {
         if (isMounted.current) {
@@ -250,7 +316,8 @@ const ReadEpub = () => {
   useEffect(() => {
     localStorage.setItem(`annotations-${bookId}`, JSON.stringify(annotations))
     localStorage.setItem(`highlights-${bookId}`, JSON.stringify(highlights))
-  }, [annotations, highlights, bookId])
+    localStorage.setItem(`notes-${bookId}`, JSON.stringify(notes))
+  }, [annotations, highlights, notes, bookId])
 
   useEffect(() => applySettings(), [fontSize, theme])
 
@@ -383,6 +450,37 @@ const ReadEpub = () => {
                 </svg>
                 {annotations.length > 0 && <span className={styles.notesCount}>{annotations.length}</span>}
               </button>
+              {/* New button for general notes */}
+              <button onClick={() => setShowNotesPanel(true)} className={notes.length > 0 ? styles.hasNotes : ""}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                {notes.length > 0 && <span className={styles.notesCount}>{notes.length}</span>}
+              </button>
+              {/* Chapter navigation button */}
+              <button onClick={() => setShowChapters(true)}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -407,7 +505,7 @@ const ReadEpub = () => {
             <div className={styles.pageInfo}>
               {currentPage > 0 ? (
                 <span>
-                  Página {currentPage} de {totalPages}
+                  Página {currentPage} de {totalPages} | {currentChapter?.label || ""}
                 </span>
               ) : (
                 <span>Cargando...</span>
@@ -572,6 +670,223 @@ const ReadEpub = () => {
                   )}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Panel de notas generales */}
+        {showNotesPanel && (
+          <div className={styles.annotationOverlay} onClick={() => setShowNotesPanel(false)}>
+            <div className={styles.annotationPanel} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.panelHeader}>
+                <h3>Mis notas</h3>
+                <button onClick={() => setShowNotesPanel(false)}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+
+              <div className={styles.annotationList}>
+                {notes.length === 0 ? (
+                  <div className={styles.emptyState}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    <p>No hay notas todavía</p>
+                    <button className={styles.addNoteButton} onClick={() => setShowNoteInput(true)}>
+                      Agregar nota
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className={styles.notesHeader}>
+                      <h4>Notas ({notes.length})</h4>
+                      <button className={styles.addNoteButton} onClick={() => setShowNoteInput(true)}>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Nueva nota
+                      </button>
+                    </div>
+
+                    {notes.map((note) => (
+                      <div key={note.id} className={styles.noteItem}>
+                        <div className={styles.noteText}>{note.text}</div>
+                        <div className={styles.noteMetadata}>
+                          <span>Página {note.location}</span>
+                          <span>{note.chapter}</span>
+                          <span>{new Date(note.timestamp).toLocaleDateString()}</span>
+                        </div>
+                        <div className={styles.itemActions}>
+                          <button
+                            onClick={() => {
+                              setNewNote(note.text)
+                              setShowNoteInput(true)
+                              // Set up for editing instead of creating new
+                              setEditingAnnotation({ ...note, isGeneralNote: true })
+                            }}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => {
+                              setNotes((prev) => prev.filter((n) => n.id !== note.id))
+                            }}
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {showNoteInput && (
+                  <div className={styles.noteInputContainer}>
+                    <textarea
+                      value={newNote}
+                      onChange={(e) => setNewNote(e.target.value)}
+                      placeholder="Escribe tu nota aquí..."
+                      className={styles.noteInput}
+                    />
+                    <div className={styles.noteInputActions}>
+                      <button
+                        onClick={() => {
+                          setShowNoteInput(false)
+                          setNewNote("")
+                          setEditingAnnotation(null)
+                        }}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (editingAnnotation?.isGeneralNote) {
+                            // Update existing note
+                            setNotes((prev) =>
+                              prev.map((note) =>
+                                note.id === editingAnnotation.id
+                                  ? { ...note, text: newNote, timestamp: new Date().toISOString() }
+                                  : note,
+                              ),
+                            )
+                            setEditingAnnotation(null)
+                          } else {
+                            // Add new note
+                            addGeneralNote()
+                          }
+                        }}
+                      >
+                        Guardar
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Panel de capítulos */}
+        {showChapters && (
+          <div className={styles.annotationOverlay} onClick={() => setShowChapters(false)}>
+            <div className={styles.annotationPanel} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.panelHeader}>
+                <h3>Capítulos</h3>
+                <button onClick={() => setShowChapters(false)}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+
+              <div className={styles.chapterList}>
+                {chapters.length === 0 ? (
+                  <div className={styles.emptyState}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    <p>No se encontraron capítulos</p>
+                  </div>
+                ) : (
+                  <div className={styles.chaptersContainer}>
+                    <div className={styles.chapterInfo}>
+                      <p>Total de capítulos: {chapters.length}</p>
+                      <p>Capítulo actual: {currentChapter?.label || "Desconocido"}</p>
+                    </div>
+
+                    {chapters.map((chapter) => (
+                      <div
+                        key={chapter.id}
+                        className={`${styles.chapterItem} ${currentChapter?.id === chapter.id ? styles.activeChapter : ""}`}
+                        onClick={() => navigateToChapter(chapter)}
+                      >
+                        <span>{chapter.label}</span>
+                        {currentChapter?.id === chapter.id && (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={styles.currentIcon}
+                          >
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

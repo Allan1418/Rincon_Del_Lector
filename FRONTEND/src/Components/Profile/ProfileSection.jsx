@@ -207,6 +207,10 @@ const UserProfile = () => {
       );
     }
 
+    if (profileState.isLoading) {
+      return null;
+    }
+
     return (
       <div className={styles.usersGrid}>
         {users.map((user) => (

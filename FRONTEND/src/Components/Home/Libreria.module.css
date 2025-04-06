@@ -320,6 +320,7 @@
   max-width: 500px;
   margin: 0 auto;
   border: 1px solid var(--border-color-light);
+  color: var(--primary-color-light);
 }
 
 .loadingIcon,

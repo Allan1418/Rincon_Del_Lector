@@ -1,13 +1,10 @@
-import { useState, useEffect, useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-  getLibroById,
-  getBookImageUrl,
-  addToCart,
-  getCarrito,
-} from "../../services/ProfileService";
-import LoadingScreen from "../Hooks/LoadingScreen";
-import ErrorDisplay from "../Hooks/ErrorDisplay";
+"use client"
+
+import { useState, useEffect, useContext } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { getLibroById, getBookImageUrl, addToCart, getCarrito } from "../../services/ProfileService"
+import LoadingScreen from "../Hooks/LoadingScreen"
+import ErrorDisplay from "../Hooks/ErrorDisplay"
 import {
   Book,
   Calendar,
@@ -18,120 +15,156 @@ import {
   Edit,
   ShoppingCart,
   CheckCircle,
-} from "lucide-react";
-import styles from "./BookDetails.module.css";
-import { AuthContext } from "../Context/AuthContext";
+  AlertCircle,
+  Heart,
+  Share2,
+  BookMarked,
+  FileX,
+} from "lucide-react"
+import styles from "./BookDetails.module.css"
+import { AuthContext } from "../Context/AuthContext"
 
 const BookDetails = () => {
-  const { bookId } = useParams();
-  const navigate = useNavigate();
-  const [book, setBook] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [loadingLeer, setLoadingLeer] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  const [cartLoading, setCartLoading] = useState(false);
-  const { userData, token } = useContext(AuthContext);
-  const hasFile = book?.has_file;
-  const isOwner = userData?.username === book?.owner;
-  const isPurchased = book?.is_purchased;
-  const isInCart = cartItems.includes(bookId);
+  const { bookId } = useParams()
+  const navigate = useNavigate()
+  const [book, setBook] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [loadingLeer, setLoadingLeer] = useState(false)
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const [cartItems, setCartItems] = useState([])
+  const [cartLoading, setCartLoading] = useState(false)
+  const { userData, token } = useContext(AuthContext)
+  const hasFile = book?.has_file
+  const isOwner = userData?.username === book?.owner
+  const isPurchased = book?.is_purchased
+  const isInCart = cartItems.includes(bookId)
+  const [isLiked, setIsLiked] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const bookData = await getLibroById(bookId, token);
-        setBook(bookData);
+        const bookData = await getLibroById(bookId, token)
+        setBook(bookData)
 
         if (token) {
-          setCartLoading(true);
-          const cartData = await getCarrito(token);
+          setCartLoading(true)
+          const cartData = await getCarrito(token)
 
           if (cartData && Array.isArray(cartData.libros)) {
-            const cartBookIds = cartData.libros.map((libro) => libro.id.toString());
-            setCartItems(cartBookIds);
+            const cartBookIds = cartData.libros.map((libro) => libro.id.toString())
+            setCartItems(cartBookIds)
           } else {
-            setCartItems([]);
+            setCartItems([])
           }
         }
       } catch (err) {
-        setError(err);
+        setError(err)
       } finally {
-        setIsLoading(false);
-        setCartLoading(false);
+        setIsLoading(false)
+        setCartLoading(false)
       }
-    };
+    }
 
-    fetchData();
-  }, [bookId, token]);
+    fetchData()
+  }, [bookId, token])
 
   const handleReadBook = async () => {
-    setLoadingLeer(true);
-    setSuccessMessage(null);
+    setLoadingLeer(true)
+    setSuccessMessage(null)
 
     try {
       const response = await (async () => {
         return {
           headers: {
             get: () => {
-              return "application/epub+zip";
+              return "application/epub+zip"
             },
           },
-        };
-      })();
+        }
+      })()
 
-      const contentType = response.headers.get("content-type");
+      const contentType = response.headers.get("content-type")
 
       if (!contentType?.includes("epub")) {
-        throw new Error("El formato del libro no es compatible");
+        throw new Error("El formato del libro no es compatible")
       }
 
-      navigate(`/lector/${bookId}/ver`);
+      navigate(`/lector/${bookId}/ver`)
     } catch (err) {
-      setError(err.message);
+      setError(err.message)
     } finally {
-      setLoadingLeer(false);
+      setLoadingLeer(false)
     }
-  };
+  }
 
   const handleAddToCart = async () => {
     if (!token) {
-      setError("Debes iniciar sesión para agregar al carrito");
-      navigate("/authForm");
-      return;
+      setError("Debes iniciar sesión para agregar al carrito")
+      navigate("/authForm")
+      return
     }
 
     if (!hasFile) {
-      setError("El creador no ha subido un archivo al libro");
-      return;
+      setError("El creador no ha subido un archivo al libro")
+      return
     }
 
-    setIsAddingToCart(true);
+    setIsAddingToCart(true)
     try {
-      await addToCart(bookId, token);
-      const cartData = await getCarrito(token);
+      await addToCart(bookId, token)
+      const cartData = await getCarrito(token)
       if (typeof cartData === "object" && cartData !== null && Array.isArray(cartData.libros)) {
-        const updatedCartItems = cartData.libros.map((libro) => libro.id.toString());
-        setCartItems(updatedCartItems);
+        const updatedCartItems = cartData.libros.map((libro) => libro.id.toString())
+        setCartItems(updatedCartItems)
       }
-      setSuccessMessage("¡Libro agregado al carrito exitosamente!");
-    } catch (error) {
-      setError(error.detail || "Error al agregar al carrito");
-    } finally {
-      setIsAddingToCart(false);
-    }
-  };
-  const handleEdit = () => {
-    console.log("Book ID before navigation:", bookId);
-    console.log("Book Object:", book);
-    console.log("User Data:", userData);
-    navigate(`/edit/${bookId}`);
-  };
+      setSuccessMessage("¡Libro agregado al carrito exitosamente!")
 
-  if (isLoading || cartLoading) return <LoadingScreen />;
-  if (error) return <ErrorDisplay error={error} />;
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage(null)
+      }, 3000)
+    } catch (error) {
+      setError(error.detail || "Error al agregar al carrito")
+
+      // Auto-hide error message after 3 seconds
+      setTimeout(() => {
+        setError(null)
+      }, 3000)
+    } finally {
+      setIsAddingToCart(false)
+    }
+  }
+
+  const handleEdit = () => {
+    navigate(`/edit/${bookId}`)
+  }
+
+  const handleLike = () => {
+    setIsLiked(!isLiked)
+  }
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator
+        .share({
+          title: book?.title,
+          text: `Mira este libro: ${book?.title}`,
+          url: window.location.href,
+        })
+        .catch((error) => console.log("Error sharing", error))
+    } else {
+      navigator.clipboard.writeText(window.location.href)
+      setSuccessMessage("¡Enlace copiado al portapapeles!")
+      setTimeout(() => {
+        setSuccessMessage(null)
+      }, 3000)
+    }
+  }
+
+  if (isLoading || cartLoading) return <LoadingScreen />
+  if (error && !successMessage) return <ErrorDisplay error={error} />
 
   return (
     <div className={styles.bookDetailsContainer}>
@@ -150,21 +183,27 @@ const BookDetails = () => {
             />
           ) : (
             <div className={`${styles.bookCover} ${styles.noImage}`}>
+              <BookMarked size={64} />
             </div>
           )}
         </div>
 
         <div className={styles.mainContent}>
-          <h1 className={styles.bookTitle}>
-            <BookOpen className={styles.titleIcon} />
-            <span>{book.title}</span>
-          </h1>
+          <div className={styles.titleContainer}>
+            <h1 className={styles.bookTitle}>
+              <BookOpen className={styles.titleIcon} />
+              <span>{book.title}</span>
+            </h1>
+            {isPurchased && (
+              <div className={styles.purchasedBadge}>
+                <CheckCircle size={16} />
+                <span>Comprado</span>
+              </div>
+            )}
+          </div>
 
           <div className={styles.metaGrid}>
-            <button
-              onClick={() => navigate(`/user/${book.owner}`)}
-              className={styles.metaCard}
-            >
+            <button onClick={() => navigate(`/user/${book.owner}`)} className={styles.metaCard}>
               <div className={styles.metaItem}>
                 <User className={styles.metaIcon} />
                 <div>
@@ -181,9 +220,7 @@ const BookDetails = () => {
                 <Calendar className={styles.metaIcon} />
                 <div>
                   <div className={styles.metaLabel}>Fecha de publicación</div>
-                  <div className={styles.metaValue}>
-                    {new Date(book.published_date).toLocaleDateString()}
-                  </div>
+                  <div className={styles.metaValue}>{new Date(book.published_date).toLocaleDateString()}</div>
                 </div>
               </div>
             </div>
@@ -196,10 +233,7 @@ const BookDetails = () => {
             </div>
 
             {isOwner && (
-              <button
-                className={styles.editButton}
-                onClick={handleEdit}
-              >
+              <button className={styles.editButton} onClick={handleEdit}>
                 <Edit size={18} />
                 <span>Editar</span>
               </button>
@@ -211,7 +245,7 @@ const BookDetails = () => {
               <>
                 {isPurchased ? (
                   <button
-                    className={styles.downloadButton}
+                    className={`${styles.downloadButton} ${!hasFile ? styles.disabledButton : ""}`}
                     onClick={handleReadBook}
                     disabled={loadingLeer || !hasFile}
                   >
@@ -220,46 +254,44 @@ const BookDetails = () => {
                         <div className={styles.spinner} />
                         <span>Cargando libro...</span>
                       </>
+                    ) : !hasFile ? (
+                      <>
+                        <FileX size={20} />
+                        <span>ArchivoEpub no accesible</span>
+                      </>
                     ) : (
                       <>
                         <BookOpen size={20} />
                         <span>Leer ahora</span>
-                        {!hasFile && (
-                          <div className={styles.errorMessage}>
-                            Archivo no disponible
-                          </div>
-                        )}
                       </>
                     )}
                   </button>
                 ) : (
                   <div className={styles.purchaseSection}>
-                    <button
-                      className={styles.downloadButton}
-                      onClick={handleAddToCart}
-                      disabled={isAddingToCart || isInCart || !hasFile}
-                    >
-                      {isAddingToCart ? (
-                        <>
-                          <div className={styles.spinner} />
-                          <span>Agregando...</span>
-                        </>
-                      ) : isInCart ? (
-                        <>
-                          <ShoppingCart size={20} />
-                          <span>En el carrito</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingCart size={20} />
-                          <span>Agregar al carrito</span>
-                        </>
-                      )}
-                    </button>
-                    {!hasFile && (
-                      <div className={styles.errorMessage}>
-                        El creador no ha subido un archivo al libro
-                      </div>
+                    {!hasFile ? (
+                      <button className={`${styles.downloadButton} ${styles.disabledButton}`} disabled={true}>
+                        <FileX size={20} />
+                        <span>ArchivoEpub no accesible</span>
+                      </button>
+                    ) : isInCart ? (
+                      <button className={`${styles.downloadButton} ${styles.inCartButton}`} disabled={true}>
+                        <CheckCircle size={20} />
+                        <span>En el carrito</span>
+                      </button>
+                    ) : (
+                      <button className={styles.downloadButton} onClick={handleAddToCart} disabled={isAddingToCart}>
+                        {isAddingToCart ? (
+                          <>
+                            <div className={styles.spinner} />
+                            <span>Agregando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart size={20} />
+                            <span>Agregar al carrito</span>
+                          </>
+                        )}
+                      </button>
                     )}
                   </div>
                 )}
@@ -272,6 +304,13 @@ const BookDetails = () => {
                 {successMessage}
               </div>
             )}
+
+            {error && (
+              <div className={styles.errorMessage}>
+                <AlertCircle size={16} />
+                <span>{error}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -281,12 +320,11 @@ const BookDetails = () => {
           <Book className={styles.sectionIcon} />
           <span>Sinopsis</span>
         </h2>
-        <p className={styles.synopsisText}>
-          {book.synopsis || "Este libro no tiene sinopsis disponible."}
-        </p>
+        <p className={styles.synopsisText}>{book.synopsis || "Este libro no tiene sinopsis disponible."}</p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BookDetails;
+export default BookDetails
+

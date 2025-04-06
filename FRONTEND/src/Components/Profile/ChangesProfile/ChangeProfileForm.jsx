@@ -239,7 +239,6 @@ function ChangeProfileForm() {
             alt="Foto de perfil"
             className={styles.profileImage}
             onError={(e) => {
-              console.log("Error loading profile image, using default")
               e.target.src = "/default-profile.png"
             }}
           />

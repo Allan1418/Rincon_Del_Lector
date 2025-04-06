@@ -16,18 +16,14 @@ const OwnerEarningsView = () => {
   useEffect(() => {
     const fetchEarnings = async () => {
       if (!token) {
-        console.log("Token aún no disponible.")
         return
       }
 
       setLoading(true)
       setError(null)
-      console.log("Token obtenido del contexto:", token)
-      console.log("Token que se envía:", token)
 
       try {
         const response = await getOwnerEarnings(token)
-        console.log("Respuesta cruda de la API:", response)
         setEarnings(response)
       } catch (err) {
         setError(err.message || "Error al obtener las ganancias del propietario.")
@@ -103,11 +99,12 @@ const OwnerEarningsView = () => {
         <div className={styles.emptyIcon}>📊</div>
         <h3>Sin datos disponibles</h3>
         <p>No hay información de ganancias para mostrar en este momento.</p>
+        <button className={styles.refreshButton} onClick={() => window.location.reload()}>
+          Refrescar
+        </button>
       </div>
     )
   }
-
-  console.log("Datos de ganancias para mostrar:", earnings)
 
   const earningsByYear = {}
   if (earnings?.monthly_earnings) {
@@ -186,23 +183,27 @@ const OwnerEarningsView = () => {
 
       {activeTab === "monthly" && (
         <div className={styles.monthlySection}>
-          {Object.keys(earningsByYear)
-            .sort((a, b) => b - a)
-            .map((year) => (
-              <div key={year} className={styles.yearSection}>
-                <h2 className={styles.yearTitle}>{year}</h2>
-                <div className={styles.monthsGrid}>
-                  {earningsByYear[year]
-                    .sort((a, b) => b.month - a.month)
-                    .map((item, index) => (
-                      <div key={index} className={styles.monthCard}>
-                        <div className={styles.monthName}>{getMonthName(item.month)}</div>
-                        <div className={styles.monthAmount}>{formatCurrency(item.total)}</div>
-                      </div>
-                    ))}
+          <div className={styles.noEarningsMessage}>
+            <h2>No tienes ninguna ganancia en los últimos meses</h2>
+          </div>
+          {Object.keys(earningsByYear).length > 0 &&
+            Object.keys(earningsByYear)
+              .sort((a, b) => b - a)
+              .map((year) => (
+                <div key={year} className={styles.yearSection}>
+                  <h2 className={styles.yearTitle}>{year}</h2>
+                  <div className={styles.monthsGrid}>
+                    {earningsByYear[year]
+                      .sort((a, b) => b.month - a.month)
+                      .map((item, index) => (
+                        <div key={index} className={styles.monthCard}>
+                          <div className={styles.monthName}>{getMonthName(item.month)}</div>
+                          <div className={styles.monthAmount}>{formatCurrency(item.total)}</div>
+                        </div>
+                      ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
         </div>
       )}
 
@@ -212,7 +213,7 @@ const OwnerEarningsView = () => {
             <div className={styles.chartHeader}>
               <h2>Evolución de Ganancias Mensuales</h2>
             </div>
-            <div className={styles.chartContent}>
+            <div className={styles.chartContent}>¿
               <EarningsChart earningsData={earnings} />
             </div>
           </div>

@@ -23,7 +23,6 @@ const Cart = () => {
     setError(null)
     try {
       const data = await getCarrito(token)
-      console.log("Datos del carrito:", data)
       setCarrito(data)
 
       // Initialize animation states for each item

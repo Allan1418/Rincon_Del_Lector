@@ -31,10 +31,7 @@ const EditBook = () => {
     useEffect(() => {
         const fetchBook = async () => {
             try {
-                console.log("Book ID in EditBook:", bookId);
-                console.log("Token in EditBook:", token);
                 const bookData = await getLibroById(bookId, token); 
-                console.log("Book from getLibroById:", bookData);
 
                 if (!bookData) throw new Error("Libro no encontrado");
 
