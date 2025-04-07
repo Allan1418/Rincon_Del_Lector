@@ -70,8 +70,8 @@ export const updateUserProfile = async (token, userData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/user/`, {
       method: 'PATCH',
-      headers: { 
-        'Content-Type': 'application/json', 
+      headers: {
+        'Content-Type': 'application/json',
         Authorization: `${token}`
       },
       body: JSON.stringify(userData),
@@ -141,9 +141,9 @@ export const confirmResetPassword = async (uid, token, newPassword1, newPassword
 export const getFollowing = async (username, token) => {
   try {
     const response = await fetch(`${API_USERS_URL}/following/`, {
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        ...(token && { Authorization: `${token}` }) 
+        ...(token && { Authorization: `${token}` })
       },
     });
 
@@ -151,14 +151,14 @@ export const getFollowing = async (username, token) => {
       const errorData = await response.json();
       throw errorData;
     }
-    
+
     const data = await response.json();
-    
+
     return data.map(user => ({
       username: user.username,
       image_name: user.image_name,
     }));
-    
+
   } catch (error) {
     throw error;
   }
@@ -167,24 +167,24 @@ export const getFollowing = async (username, token) => {
 export const getFollowers = async (username, token) => {
   try {
     const response = await fetch(`${API_USERS_URL}/followers/`, {
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        ...(token && { Authorization: `${token}` }) 
+        ...(token && { Authorization: `${token}` })
       },
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw errorData;
     }
-    
+
     const data = await response.json();
-    
+
     return data.map(user => ({
       username: user.username,
       image_name: user.image_name,
     }));
-    
+
   } catch (error) {
     throw error;
   }
@@ -293,69 +293,76 @@ export const uploadProfileImage = async (imageFile, token) => {
 
 export const createBook = async (bookData, token) => {
   try {
-    const response = await fetch(`${API_LIBROS_URL}/libros/`, {
+    const response = await fetch('http://localhost:8000/api/libros/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `${token}`,
       },
-      body: JSON.stringify(bookData),
+      body: JSON.stringify({
+        title: bookData.title,
+        synopsis: bookData.synopsis,
+        index: bookData.index
+      }),
     });
 
-    const data = await response.json();
     if (!response.ok) {
-      throw data;
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
+      throw new Error(`Error ${response.status}: ${errorText}`);
     }
-    return data;
+
+    return await response.json();
   } catch (error) {
+    console.error('Error en createBook:', error);
     throw error;
   }
 };
 
 export const getLibros = async (token = null, username = null, ordering = null, owned = null, page = null, purchased = null, search = null) => {
   try {
-      let url = `${API_LIBROS_URL}/libros/`;
-      const queryParams = new URLSearchParams();
+    let url = `${API_LIBROS_URL}/libros/`;
+    const queryParams = new URLSearchParams();
 
-      if (username) queryParams.append('owner', username);
-      if (ordering) queryParams.append('ordering', ordering);
-      if (owned !== null) queryParams.append('owned', owned);
-      if (page) queryParams.append('page', page);
-      if (purchased !== null) queryParams.append('purchased', purchased);
-      if (search) queryParams.append('search', search);
+    if (username) queryParams.append('owner', username);
+    if (ordering) queryParams.append('ordering', ordering);
+    if (owned !== null) queryParams.append('owned', owned);
+    if (page) queryParams.append('page', page);
+    if (purchased !== null) queryParams.append('purchased', purchased);
+    if (search) queryParams.append('search', search);
 
-      const queryString = queryParams.toString();
-      if (queryString) url += `?${queryString}`;
+    const queryString = queryParams.toString();
+    if (queryString) url += `?${queryString}`;
 
-      const headers = {
-          'Content-Type': 'application/json',
-      };
-      if (token) {
-          headers.Authorization = `${token}`;
-      }
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers.Authorization = `${token}`;
+    }
 
-      const response = await fetch(url, {
-          headers: headers,
-      });
+    const response = await fetch(url, {
+      headers: headers,
+    });
 
-      if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error en getLibros:", errorData);
-          return { results: [], error: errorData };
-      }
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error en getLibros:", errorData);
+      return { results: [], error: errorData };
+    }
 
-      return response.json();
+    return response.json();
   } catch (error) {
-      console.error("Error en getLibros:", error);
-      return { results: [], error: { message: error.message || "Error desconocido" } };
+    console.error("Error en getLibros:", error);
+    return { results: [], error: { message: error.message || "Error desconocido" } };
   }
 };
 
-export const getLibroById = async (bookId) => {
+export const getLibroById = async (bookId, token) => {
   try {
     const response = await fetch(`${API_LIBROS_URL}/libros/${bookId}/`, {
       headers: {
-        'Content-Type': 'application/json'
+        Authorization: `${token}`,
       },
     });
 
@@ -390,7 +397,6 @@ export const updateLibro = async (bookId, bookData, token) => {
   } catch (error) {
     throw error;
   }
-  
 };
 
 export const uploadBookImage = async (bookId, imageFile, token) => {
@@ -454,27 +460,33 @@ export const uploadBookEpub = async (bookId, epubFile, token) => {
       body: formData,
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Error en servidor");
+    }
+
+    return await response.json();
   } catch (error) {
     console.error('Error en uploadBookEpub:', error);
-    throw new Error(error.message || 'Error al subir EPUB');
+    throw error;
   }
 };
 
-export const downloadBookEpub = async (bookId, token) => {
-  const response = await fetch(`${API_LIBROS_URL}/libros/${bookId}/get_file/`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `${token}`,
-      'Accept': 'application/epub+zip, application/json'
-    }
-  });
-  
-  const contentType = response.headers.get('content-type');
-  if (!contentType?.includes('epub')) {
-    throw new Error('El archivo no es un EPUB válido');
+export const getEpubFile = async (bookId, token) => {
+  try {
+    const response = await fetch(`${API_LIBROS_URL}/libros/${bookId}/get_file/`, {
+      headers: {
+        'Authorization': `${token}`
+      }
+    });
+    
+    if (!response.ok) throw new Error('Error en la descarga');
+    
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    throw new Error("Error cargando EPUB: " + error.message);
   }
-
-  return response;
 };
 
 export const addToCart = async (bookId, token) => {
@@ -517,7 +529,7 @@ export const getCarrito = async (token) => {
 
     const librosDetallados = await Promise.all(
       data.libros.map(async (libroId) => {
-        const libro = await getLibroById(libroId);
+        const libro = await getLibroById(libroId, token);
         return libro;
       })
     );
@@ -530,40 +542,40 @@ export const getCarrito = async (token) => {
 
 export const removeFromCart = async (token, libroId) => {
   try {
-      const formData = new URLSearchParams();
-      formData.append("book_id", libroId);
+    const formData = new URLSearchParams();
+    formData.append("book_id", libroId);
 
-      const response = await fetch(`${API_BUSINESS_URL}/cart/quitar/`, {
-          method: 'DELETE',
-          headers: {
-              Authorization: `${token}`,
-              'Content-Type': 'application/x-www-form-urlencoded' 
-          },
-          body: formData.toString()
-      });
+    const response = await fetch(`${API_BUSINESS_URL}/cart/quitar/`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `${token}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: formData.toString()
+    });
 
-      if (!response.ok) {
-          let errorMessage = "Error al eliminar el libro del carrito.";
-          try {
-              const errorData = await response.json();
-              if (errorData && errorData.detail) {
-                  errorMessage = errorData.detail;
-              } else if (typeof errorData === 'string') {
-                  errorMessage = errorData;
-              }
-          } catch (jsonError) {
-              if (response.status === 404) {
-                  errorMessage = "Libro no encontrado en el carrito";
-              } else {
-                  errorMessage = `Error ${response.status}: ${response.statusText}`;
-              }
-          }
-          throw new Error(errorMessage);
+    if (!response.ok) {
+      let errorMessage = "Error al eliminar el libro del carrito.";
+      try {
+        const errorData = await response.json();
+        if (errorData && errorData.detail) {
+          errorMessage = errorData.detail;
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData;
+        }
+      } catch (jsonError) {
+        if (response.status === 404) {
+          errorMessage = "Libro no encontrado en el carrito";
+        } else {
+          errorMessage = `Error ${response.status}: ${response.statusText}`;
+        }
       }
-      return response.status;
+      throw new Error(errorMessage);
+    }
+    return response.status;
   } catch (error) {
-      console.error("Error en removeFromCart:", error);
-      throw error;
+    console.error("Error en removeFromCart:", error);
+    throw error;
   }
 };
 
@@ -588,7 +600,6 @@ export const purchaseCart = async (token) => {
   }
 };
 
-// ProfileSection.js
 export const getPurchaseHistory = async (token) => {
   if (!token) {
     console.error('Token is undefined. Cannot make request.');

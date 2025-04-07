@@ -165,9 +165,8 @@
 
 .emptyState {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 20rem 1rem;
   color: var(--text-secondary);
-  background-color: var(--primary-lighter);
   border-radius: 8px;
   margin: 1rem 0;
 }

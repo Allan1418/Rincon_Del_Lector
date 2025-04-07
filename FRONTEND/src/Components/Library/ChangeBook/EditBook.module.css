@@ -41,7 +41,7 @@
 .title {
   text-align: left;
   margin: 0;
-  color: var(--accent-color);
+  color: white;
   font-size: 2rem;
   font-weight: 700;
   font-family: "Inter", sans-serif;
@@ -102,7 +102,7 @@
   font-size: 1rem;
   background: var(--bg-cream-dark);
   transition: all var(--transition-fast);
-  color: var(--text-primary);
+  color: white;
 }
 
 .input:focus,

@@ -4,6 +4,7 @@ body {
 }
 
 footer {
+  color: azure;
   display: grid;
   justify-content: center;
 }

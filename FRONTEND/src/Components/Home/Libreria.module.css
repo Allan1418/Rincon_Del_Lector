@@ -87,7 +87,7 @@
   color: var(--text-primary);
   margin-bottom: 16px;
   line-height: 1.2;
-  background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+  background: linear-gradient(135deg, var(--text-secondary), var(--primary-color));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -320,6 +320,7 @@
   max-width: 500px;
   margin: 0 auto;
   border: 1px solid var(--border-color-light);
+  color: var(--primary-color-light);
 }
 
 .loadingIcon,

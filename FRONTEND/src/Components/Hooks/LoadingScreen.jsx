@@ -6,7 +6,7 @@ import styles from "./LoadingScreen.module.css"
 const LoadingScreen = () => {
   const [progress, setProgress] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
-  const numBooks = 15 // Increased for a fuller shelf
+  const numBooks = 15
 
   useEffect(() => {
     const totalDuration = 2500
@@ -35,23 +35,17 @@ const LoadingScreen = () => {
   }, [progress])
 
 const getBookOpacity = (index) => {
-    // Calculate how many books should be visible based on progress
     const booksLoaded = Math.ceil((progress / 100) * numBooks);
     
-    // If the book should be visible, return full opacity
     if (index < booksLoaded) {
         return 1;
     }
     
-    // For the next book that's about to appear, create a smooth fade-in effect
     if (index === booksLoaded) {
-        // Calculate partial opacity for the book that's currently loading
         const partialProgress = (progress / 100) * numBooks;
         const decimal = partialProgress - Math.floor(partialProgress);
         return decimal;
     }
-    
-    // Books that haven't started loading yet are invisible
     return 0;
 };
 
@@ -76,8 +70,8 @@ const getBookOpacity = (index) => {
                     style={{ 
                         opacity: getBookOpacity(index),
                         animationDelay: `${index * 0.1}s`,
-                        height: `${130 + (index % 3) * 10}px`, // More predictable heights
-                        width: `${22 + (index % 4) * 3}px`     // More predictable widths
+                        height: `${130 + (index % 3) * 10}px`, 
+                        width: `${22 + (index % 4) * 3}px`     
                     }}
                 >
                   <div className={styles.bookSpine}>

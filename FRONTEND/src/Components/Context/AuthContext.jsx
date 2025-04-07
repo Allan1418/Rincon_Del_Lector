@@ -1,45 +1,50 @@
 import React, { createContext, useState, useEffect } from "react";
-import { getUserData } from "../../services/ProfileService"; // Asegúrate de la ruta correcta
+import { getUserData, handleLogout } from "../../services/ProfileService";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [token, setToken] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // Inicializamos en true
     const [username, setUsername] = useState(null);
     const [userData, setUserData] = useState(null);
 
     useEffect(() => {
         const storedToken = localStorage.getItem("Authorization");
         if (storedToken) {
-            setIsAuthenticated(true);
             setToken(storedToken);
-            getUserData(storedToken)
-                .then(data => {
-                    setUserData(data);
-                })
-                .catch(error => {
-                    console.error("Error al obtener datos del usuario:", error);
-                });
+            loadUserData(storedToken);
+        } else {
+          setIsLoading(false);
         }
     }, []);
+
+    const loadUserData = (token) => {
+      setIsLoading(true);
+      getUserData(token)
+          .then(data => {
+              setUserData(data);
+              setIsAuthenticated(true);
+          })
+          .catch(error => {
+              console.error("Error al obtener datos del usuario:", error);
+              setIsAuthenticated(false);
+          })
+          .finally(()=>{
+            setIsLoading(false);
+          })
+    }
 
     const login = (newToken, loggedInUsername) => {
         localStorage.setItem("Authorization", newToken);
         setToken(newToken);
         setUsername(loggedInUsername);
-        setIsAuthenticated(true);
-        getUserData(newToken)
-            .then(data => {
-                setUserData(data);
-            })
-            .catch(error => {
-                console.error("Error al obtener datos del usuario:", error);
-            });
+        loadUserData(newToken);
     };
 
     const logout = async () => {
+        setIsLoading(true);
         try {
             if (token) await handleLogout(token);
         } catch (error) {
@@ -50,21 +55,16 @@ export const AuthProvider = ({ children }) => {
             setUsername(null);
             setToken(null);
             setUserData(null);
+            setIsLoading(false);
         }
     };
 
-    const showLoading = () => setIsLoading(true);
-    const hideLoading = () => setIsLoading(false);
-
     const contextValue = {
         isAuthenticated,
-        setIsAuthenticated,
         login,
         logout,
         token,
         isLoading,
-        showLoading,
-        hideLoading,
         username,
         userData,
     };

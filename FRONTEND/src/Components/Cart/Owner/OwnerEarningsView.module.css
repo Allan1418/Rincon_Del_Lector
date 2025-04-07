@@ -1,283 +1,464 @@
 .container {
-    background-color: var(--bg-cream);
-    border-radius: 8px;
-    box-shadow: var(--shadow-md);
-    padding: 1.5rem;
-    max-width: 1200px;
-    margin: 7rem auto;
+  background-color: var(--bg-cream);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 7rem auto;
+}
+
+.header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 1rem;
+}
+
+.title {
+  color: var(--text-light);
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: -1px;
+}
+
+.tabButton {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.tabButton:hover {
+  color: var(--text-light);
+}
+
+.activeTab {
+  color: var(--secondary-color);
+  border-bottom: 2px solid var(--secondary-color);
+}
+
+/* Overview Section */
+.overviewSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.summaryCard {
+  background-color: var(--bg-cream-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.summaryHeader {
+  background-color: var(--primary-color);
+  padding: 1rem 1.5rem;
+}
+
+.summaryHeader h2 {
+  color: var(--text-light);
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.summaryContent {
+  padding: 2rem;
+  text-align: center;
+}
+
+.totalAmount {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.summaryFooter {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.statCard {
+  background-color: var(--bg-cream-dark);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+}
+
+.statCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.statYear {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--secondary-color);
+  margin-bottom: 0.5rem;
+}
+
+.statAmount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: 0.5rem;
+}
+
+.statLabel {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* Monthly Section */
+.monthlySection {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.yearSection {
+  margin-bottom: 1rem;
+}
+
+.yearTitle {
+  color: var(--text-light);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--primary-border);
+}
+
+.monthsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.monthCard {
+  background-color: var(--bg-cream-dark);
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+}
+
+.monthCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  background-color: var(--primary-lighter);
+}
+
+.monthName {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.monthAmount {
+  color: var(--text-light);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Chart Section */
+.chartSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.chartCard {
+  background-color: var(--bg-cream-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.chartHeader {
+  background-color: var(--primary-color);
+  padding: 1rem 1.5rem;
+}
+
+.chartHeader h2 {
+  color: var(--text-light);
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.chartContent {
+  padding: 1.5rem;
+}
+
+.chartContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.chartControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.chartTypeSelector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.chartTypeButton {
+  background-color: var(--bg-cream);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.chartTypeButton:hover {
+  background-color: var(--bg-cream-light);
+}
+
+.activeChartType {
+  background-color: var(--secondary-color);
+  color: white;
+  border-color: var(--secondary-color);
+}
+
+.yearSelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.yearButton {
+  background-color: var(--bg-cream);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.yearButton:hover {
+  background-color: var(--bg-cream-light);
+}
+
+.activeYear {
+  background-color: var(--secondary-color);
+  color: white;
+  border-color: var(--secondary-color);
+}
+
+.chartWrapper {
+  height: 400px;
+  width: 100%;
+  position: relative;
+}
+
+.loadingContainer,
+.errorContainer,
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  background-color: var(--bg-cream);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  min-height: 300px;
+  color: aliceblue;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--primary-light);
+  border-top: 4px solid var(--secondary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  .header {
-    margin-bottom: 2rem;
-    border-bottom: 1px solid var(--border-light);
-    padding-bottom: 1rem;
+  100% {
+    transform: rotate(360deg);
   }
-  
-  .title {
-    color: var(--text-light);
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
+}
+
+.errorIcon,
+.emptyIcon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.errorIcon {
+  color: #f44336;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(244, 67, 54, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.retryButton {
+  margin-top: 1rem;
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.retryButton:hover {
+  background-color: var(--secondary-dark);
+}
+
+.refreshButton {
+  margin-top: 1.5rem;
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refreshButton:hover {
+  background-color: var(--secondary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.refreshButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  background-color: var(--bg-cream);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  min-height: 300px;
+  margin: 10rem auto;
+  max-width: 500px;
+}
+
+.noEarningsMessage {
+  text-align: center;
+  padding: 2rem;
+  background-color: var(--bg-cream-dark);
+  border-radius: 8px;
+  margin: 1rem 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.noEarningsMessage h2 {
+  color: var(--text-light);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
   }
-  
-  .tabs {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: -1px;
-  }
-  
-  .tabButton {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    padding: 0.75rem 1.25rem;
-    font-size: 1rem;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: var(--transition-fast);
-  }
-  
-  .tabButton:hover {
-    color: var(--text-light);
-  }
-  
-  .activeTab {
-    color: var(--secondary-color);
-    border-bottom: 2px solid var(--secondary-color);
-  }
-  
-  /* Overview Section */
-  .overviewSection {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-  
-  .summaryCard {
-    background-color: var(--bg-cream-dark);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .summaryHeader {
-    background-color: var(--primary-color);
-    padding: 1rem 1.5rem;
-  }
-  
-  .summaryHeader h2 {
-    color: var(--text-light);
-    font-size: 1.25rem;
-    margin: 0;
-  }
-  
-  .summaryContent {
-    padding: 2rem;
-    text-align: center;
-  }
-  
-  .totalAmount {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--text-light);
-    margin-bottom: 1rem;
-  }
-  
-  .summaryFooter {
-    color: var(--text-muted);
-    font-size: 0.875rem;
-  }
-  
-  .statsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  .statCard {
-    background-color: var(--bg-cream-dark);
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-fast);
-  }
-  
-  .statCard:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-  }
-  
-  .statYear {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--secondary-color);
-    margin-bottom: 0.5rem;
-  }
-  
-  .statAmount {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-light);
-    margin-bottom: 0.5rem;
-  }
-  
-  .statLabel {
-    color: var(--text-muted);
-    font-size: 0.875rem;
-  }
-  
-  /* Monthly Section */
-  .monthlySection {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-  }
-  
-  .yearSection {
-    margin-bottom: 1rem;
-  }
-  
-  .yearTitle {
-    color: var(--text-light);
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--primary-border);
-  }
-  
+
+  .statsGrid,
   .monthsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .totalAmount {
+    font-size: 2.5rem;
+  }
+
+  .chartWrapper {
+    height: 300px;
+  }
+
+  .chartControls {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
   }
-  
-  .monthCard {
-    background-color: var(--bg-cream-dark);
-    border-radius: 8px;
-    padding: 1.25rem;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-fast);
-  }
-  
-  .monthCard:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    background-color: var(--primary-lighter);
-  }
-  
-  .monthName {
-    color: var(--text-secondary);
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .monthAmount {
-    color: var(--text-light);
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-  
-  /* Loading States */
-  .loadingContainer,
-  .errorContainer,
-  .emptyContainer {
-    display: flex;
+}
+
+@media (max-width: 480px) {
+  .tabs {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
+    gap: 0.5rem;
+  }
+
+  .tabButton {
+    width: 100%;
     text-align: center;
-    background-color: var(--bg-cream);
-    border-radius: 8px;
-    box-shadow: var(--shadow-md);
-    min-height: 300px;
   }
-  
-  .loadingSpinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid var(--primary-light);
-    border-top: 4px solid var(--secondary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
+
+  .statsGrid,
+  .monthsGrid {
+    grid-template-columns: 1fr;
   }
-  
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
+
+  .chartWrapper {
+    height: 250px;
   }
-  
-  .errorIcon,
-  .emptyIcon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+
+  .yearSelector {
+    width: 100%;
+    justify-content: flex-start;
   }
-  
-  .errorIcon {
-    color: #f44336;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: rgba(244, 67, 54, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-  }
-  
-  .retryButton {
-    margin-top: 1rem;
-    background-color: var(--secondary-color);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: var(--transition-fast);
-  }
-  
-  .retryButton:hover {
-    background-color: var(--secondary-dark);
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .container {
-      padding: 1rem;
-    }
-  
-    .statsGrid,
-    .monthsGrid {
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    }
-  
-    .totalAmount {
-      font-size: 2.5rem;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .tabs {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-  
-    .tabButton {
-      width: 100%;
-      text-align: center;
-    }
-  
-    .statsGrid,
-    .monthsGrid {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  
+}
+

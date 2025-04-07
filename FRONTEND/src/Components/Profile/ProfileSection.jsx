@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -5,7 +7,6 @@ import {
   getProfileImage,
   followUser,
   unfollowUser,
-  createBook,
   getLibros,
   getBookImageUrl,
   getFollowers,
@@ -25,100 +26,68 @@ import {
   Heart,
   Clock,
 } from "lucide-react";
-
-const defaultProfileImage = "/images/Avatar.png";
+import { FaUserCircle } from "react-icons/fa";
 
 const UserProfile = () => {
   const { username } = useParams();
   const { userData, isAuthenticated, token } = useContext(AuthContext);
   const [profileState, setProfileState] = useState({
     data: null,
-    imageUrl: defaultProfileImage,
+    imageUrl: null,
     isLoading: true,
     error: null,
     isUpdating: false,
   });
-  const [bookData, setBookData] = useState({ title: "", synopsis: "", price: 0 });
-  const [bookError, setBookError] = useState(null);
-  const [bookSuccess, setBookSuccess] = useState(null);
-  const [activeTab, setActiveTab] = useState("published"); // Establecer "published" como pestaña activa por defecto
+
+  const [activeTab, setActiveTab] = useState("published");
   const [publishedBooks, setPublishedBooks] = useState([]);
   const [purchasedBooks, setPurchasedBooks] = useState([]);
   const [followersList, setFollowersList] = useState([]);
   const [followingList, setFollowingList] = useState([]);
   const [showFullBio, setShowFullBio] = useState(false);
-  const [showBookForm, setShowBookForm] = useState(false);
   const navigate = useNavigate();
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = async (signal) => {
     setProfileState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
-      const data = await getUserByUsername(username, token);
+      const data = await getUserByUsername(username, token, { signal });
       setProfileState((prev) => ({
         ...prev,
         data,
-        imageUrl: data.image_name ? getProfileImage(data.image_name) : defaultProfileImage,
+        imageUrl: data.image_name ? getProfileImage(data.image_name) : null,
       }));
     } catch (err) {
-      setProfileState((prev) => ({ ...prev, error: err }));
+      if (err.name !== "AbortError") {
+        setProfileState((prev) => ({ ...prev, error: err }));
+      }
     } finally {
       setProfileState((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
-  const fetchPublishedBooks = async () => {
+  const fetchPublishedBooks = async (page = 1, signal) => {
     try {
-      let allBooks = [];
-      let currentPage = 1;
-      let hasMore = true;
-
-      while (hasMore) {
-        const response = await getLibros(
-          token,
-          username,
-          "-published_date",
-          null,
-          currentPage,
-          null,
-          null
-        );
-
-        if (response.results) {
-          allBooks = [...allBooks, ...response.results];
-          hasMore = !!response.next;
-          currentPage++;
-        } else {
-          hasMore = false;
-        }
-      }
-
-      setPublishedBooks(allBooks);
+      const response = await getLibros(token, username, "-published_date", null, page, null, null, { signal });
+      setPublishedBooks((prev) => (page === 1 ? response.results || [] : [...prev, ...(response.results || [])]));
+      return response.next;
     } catch (err) {
-      console.error("Error fetching published books:", err);
+      if (err.name !== "AbortError") {
+        console.error("Error fetching published books:", err);
+      }
+      return false;
     }
   };
 
-  const fetchPurchasedBooks = async () => {
+  const fetchPurchasedBooks = async (page = 1, signal) => {
     try {
-      let allPurchasedBooks = [];
-      let currentPage = 1;
-      let hasMore = true;
-
-      while (hasMore) {
-        const response = await getLibros(token, null, null, null, currentPage, true, null);
-
-        if (response.results) {
-          allPurchasedBooks = [...allPurchasedBooks, ...response.results];
-          hasMore = !!response.next;
-          currentPage++;
-        } else {
-          hasMore = false;
-        }
-      }
-
-      setPurchasedBooks(allPurchasedBooks);
+      const response = await getLibros(token, null, null, null, page, true, null, { signal });
+      setPurchasedBooks((prev) => (page === 1 ? response.results || [] : [...prev, ...(response.results || [])]));
+      return response.next;
     } catch (err) {
-      console.error("Error fetching purchased books:", err);
+      if (err.name !== "AbortError") {
+        console.error("Error fetching purchased books:", err);
+      }
+      return false;
     }
   };
 
@@ -164,60 +133,30 @@ const UserProfile = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setBookData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCreateBook = async (e) => {
-    e.preventDefault();
-    setBookError(null);
-    setBookSuccess(null);
-
-    if (!isAuthenticated) {
-      setBookError("🔒 Debes iniciar sesión para agregar un libro.");
-      return;
-    }
-
-    try {
-      const newBook = await createBook(bookData, token);
-      setBookSuccess(`✅ Libro "${newBook.title}" agregado con éxito.`);
-      setBookData({ title: "", price: "", synopsis: "" });
-      if (newBook.owner === username) fetchPublishedBooks();
-
-      setTimeout(() => {
-        setShowBookForm(false);
-        setBookSuccess(null);
-      }, 2000);
-    } catch (err) {
-      setBookError("❌ Error al agregar el libro. Verifica los datos e inténtalo de nuevo.");
-      console.error("💥 Error al agregar libro:", err);
-    }
-  };
-
   useEffect(() => {
-    const fetchData = async () => {
-      await fetchUserProfile();
-      await fetchPublishedBooks();
-      await fetchPurchasedBooks();
+    const abortController = new AbortController();
+    const { signal } = abortController;
+
+    const loadData = async () => {
+      try {
+        await fetchUserProfile(signal);
+        await fetchPublishedBooks(1, signal);
+        if (userData?.username === username) {
+          await fetchPurchasedBooks(1, signal);
+        }
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error("Error loading data:", err);
+        }
+      }
     };
 
-    fetchData();
+    loadData();
 
     return () => {
-      setProfileState({
-        data: null,
-        imageUrl: defaultProfileImage,
-        isLoading: true,
-        error: null,
-        isUpdating: false,
-      });
-      setPublishedBooks([]);
-      setPurchasedBooks([]);
-      setFollowersList([]);
-      setFollowingList([]);
+      abortController.abort();
     };
-  }, [username, token]);
+  }, [username, token, userData?.username]);
 
   useEffect(() => {
     if (activeTab === "followers") fetchFollowers();
@@ -268,6 +207,10 @@ const UserProfile = () => {
       );
     }
 
+    if (profileState.isLoading) {
+      return null;
+    }
+
     return (
       <div className={styles.usersGrid}>
         {users.map((user) => (
@@ -278,13 +221,18 @@ const UserProfile = () => {
   };
 
   const UserCard = ({ user, navigate }) => {
-    const imageUrl = user.image_name ? getProfileImage(user.image_name) : defaultProfileImage;
+    const imageUrl = user.image_name ? getProfileImage(user.image_name) : null;
 
     return (
       <div className={styles.userCard} onClick={() => navigate(`/user/${user.username}`)}>
-        <div className={styles.userImageContainer}>
-          <img src={imageUrl || "/placeholder.svg"} alt={`Perfil de ${user.username}`} className={styles.userImage} />
-        </div>
+        {imageUrl ? (
+          <img src={imageUrl} alt={`Perfil de ${user.username}`} className={styles.userImage} />
+        ) : (
+          <div className={styles.avatarFallback}>
+            <FaUserCircle className={styles.fallbackIcon} />
+            <span className={styles.avatarInitial}>{user.username.charAt(0).toUpperCase()}</span>
+          </div>
+        )}
         <div className={styles.userInfo}>
           <h4 className={styles.userName}>
             {user.username}
@@ -314,14 +262,10 @@ const UserProfile = () => {
             {isPublished ? "No hay libros publicados" : "No hay libros comprados"}
           </h3>
           <p className={styles.emptyStateText}>
-            {isPublished ? "Este usuario aún no ha publicado ningún libro" : "Este usuario aún no ha comprado ningún libro"}
+            {isPublished
+              ? "Este usuario aún no ha publicado ningún libro"
+              : "Este usuario aún no ha comprado ningún libro"}
           </p>
-          {isPublished && (
-            <button className={styles.emptyStateButton} onClick={() => setShowBookForm(true)}>
-              <PlusCircle size={18} />
-              Publicar mi primer libro
-            </button>
-          )}
         </div>
       );
     }
@@ -331,7 +275,16 @@ const UserProfile = () => {
         {books.map((book) => (
           <div key={book.id} className={styles.bookCard} onClick={() => handleViewDetails(book.id)}>
             <div className={styles.bookCoverWrapper}>
-              <img src={getBookImageUrl(book.id) || "/placeholder.svg"} alt={`Portada de ${book.title}`} className={styles.bookCover} />
+              {book.has_image ? (
+                <img
+                  src={getBookImageUrl(book.id)}
+                  alt={`Portada de ${book.title}`}
+                  className={styles.bookCover}
+                />
+              ) : (
+                <div className={`${styles.bookCoverFallback} ${styles.noImage}`}>
+                </div>
+              )}
             </div>
             <div className={styles.bookInfo}>
               <h3 className={styles.bookTitle}>{book.title}</h3>
@@ -348,9 +301,8 @@ const UserProfile = () => {
                 <>
                   <p className={styles.bookAuthor}>
                     <User size={14} />
-                    por {book.owner}
+                    {book.owner}
                   </p>
-                  <p className={styles.bookSynopsis}>{truncateSynopsis(book.synopsis, 100)}</p>
                   <div className={styles.bookMeta}>
                     <span className={styles.purchaseDate}>
                       <Clock size={14} />
@@ -368,22 +320,24 @@ const UserProfile = () => {
 
   const isOwnProfile = userData?.username === profileState.data?.username;
 
-  console.log("UserData PK:", userData?.pk);
-  console.log("Profile PK:", profileState.data?.pk);
-  console.log("Es mi perfil?", isOwnProfile);
-
   return (
     <div className={styles.profileContainer}>
       <div className={styles.profileHeader}>
         <div className={styles.headerBackground}></div>
         <div className={styles.profileContent}>
           <div className={styles.profileImageWrapper}>
-            <img
-              src={profileState.imageUrl || "/placeholder.svg"}
-              alt={`Imagen de perfil de ${profileState.data?.username}`}
-              className={styles.profileImage}
-              onError={() => setProfileState((prev) => ({ ...prev, imageUrl: defaultProfileImage }))}
-            />
+            {profileState.imageUrl ? (
+              <img
+                src={profileState.imageUrl}
+                alt={`Imagen de perfil de ${profileState.data?.username}`}
+                className={styles.profileImage}
+              />
+            ) : (
+              <div className={styles.avatarFallback}>
+                <FaUserCircle className={styles.fallbackIcon} />
+                <span className={styles.avatarInitial}>{profileState.data?.username.charAt(0).toUpperCase()}</span>
+              </div>
+            )}
           </div>
 
           <div className={styles.profileDetails}>
@@ -402,14 +356,8 @@ const UserProfile = () => {
                   onClick={handleFollow}
                   disabled={profileState.isUpdating}
                 >
-                  {profileState.isUpdating ? (
-                    profileState.data.is_following ? "Dejando de seguir..." : "Siguiendo..."
-                  ) : (
-                    <>
-                      {profileState.data.is_following ? <Heart size={16} /> : <Users size={16} />}
-                      {profileState.data.is_following ? "Siguiendo" : "Seguir"}
-                    </>
-                  )}
+                  {profileState.data.is_following ? <Heart size={16} /> : <Users size={16} />}
+                  {profileState.data.is_following ? "Dejar de seguir" : "Seguir"}
                 </button>
               )}
             </div>
@@ -431,7 +379,7 @@ const UserProfile = () => {
       </div>
 
       <div className={styles.statsSection}>
-        <button className={styles.statCard} onClick={() => setActiveTab("followers")} disabled={!isOwnProfile}>
+        <button className={styles.statCard} onClick={isOwnProfile ? () => setActiveTab("followers") : undefined}>
           <div className={styles.statValue}>{profileState.data?.follower_count || 0}</div>
           <div className={styles.statLabel}>
             <Users size={16} />
@@ -439,7 +387,7 @@ const UserProfile = () => {
           </div>
         </button>
 
-        <button className={styles.statCard} onClick={() => setActiveTab("following")} disabled={!isOwnProfile}>
+        <button className={styles.statCard} onClick={isOwnProfile ? () => setActiveTab("following") : undefined}>
           <div className={styles.statValue}>{profileState.data?.following_count || 0}</div>
           <div className={styles.statLabel}>
             <User size={16} />
@@ -455,78 +403,28 @@ const UserProfile = () => {
           </div>
         </button>
         {isOwnProfile && (
-        <button className={styles.statCard} onClick={() => setActiveTab("purchased")} disabled={!isOwnProfile}>
-          <div className={styles.statValue}>{purchasedBooks.length}</div>
-          <div className={styles.statLabel}>
-            <ShoppingCart size={16} />
-            Comprados
-          </div>
-        </button>
+          <button className={styles.statCard} onClick={() => setActiveTab("purchased")}>
+            <div className={styles.statValue}>{purchasedBooks.length}</div>
+            <div className={styles.statLabel}>
+              <ShoppingCart size={16} />
+              Comprados
+            </div>
+          </button>
         )}
       </div>
 
       <div className={styles.contentSection}>
         <div className={styles.contentHeader}>
           {isOwnProfile && (
-            <button className={styles.createBookButton} onClick={() => setShowBookForm(!showBookForm)}>
+            <button
+              className={styles.createBookButton}
+              onClick={() => navigate(`/user/${profileState.data?.username}/crearLibro`)}
+            >
               <PlusCircle size={18} />
-              {showBookForm ? "Cancelar" : "Publicar libro"}
+              Publicar libro
             </button>
           )}
         </div>
-
-        {showBookForm && (
-          <div className={styles.bookFormContainer}>
-            <h3 className={styles.formTitle}>Publicar un nuevo libro</h3>
-            <form onSubmit={handleCreateBook} className={styles.bookForm}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Título del libro</label>
-                <input
-                  type="text"
-                  name="title"
-                  placeholder="Escribe el título de tu libro"
-                  value={bookData.title}
-                  onChange={handleInputChange}
-                  required
-                  className={styles.bookInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Precio</label>
-                <input
-                  type="number"
-                  name="price"
-                  placeholder="Establece un precio"
-                  value={bookData.price}
-                  onChange={handleInputChange}
-                  required
-                  className={styles.bookInput}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Sinopsis</label>
-                <textarea
-                  name="synopsis"
-                  placeholder="Escribe una breve descripción de tu libro"
-                  value={bookData.synopsis}
-                  onChange={handleInputChange}
-                  required
-                  className={styles.bookTextarea}
-                />
-              </div>
-
-              <button type="submit" className={styles.bookButton}>
-                <Book size={18} />
-                Publicar libro
-              </button>
-            </form>
-            {bookError && <p className={styles.errorMessage}>{bookError}</p>}
-            {bookSuccess && <p className={styles.successMessage}>{bookSuccess}</p>}
-          </div>
-        )}
-
         <div className={styles.booksContainer}>{renderContent()}</div>
       </div>
     </div>

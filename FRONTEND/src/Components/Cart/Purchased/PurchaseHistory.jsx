@@ -75,7 +75,7 @@ const PurchaseHistory = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Purchase History</h2>
+      <h2 className={styles.title}>Historial de Compras</h2>
       <div className={styles.historyList}>
         {history.map((item, index) => (
           <Link key={index} to={`/libros/${item.id_libro}`} className={styles.historyCard}>
@@ -85,15 +85,11 @@ const PurchaseHistory = () => {
             </div>
             <div className={styles.cardBody}>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Book ID:</span>
-                <span className={styles.infoValue}>{item.id_libro}</span>
-              </div>
-              <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Titulo:</span>
                 <span className={styles.infoValue}>{item.titulo_libro}</span>
               </div>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Date:</span>
+                <span className={styles.infoLabel}>Fecha:</span>
                 <span className={styles.infoValue}>{formatDate(item.fecha)}</span>
               </div>
             </div>

@@ -35,7 +35,7 @@ class Libro(models.Model):
         blank=True,
         null=True)
     
-    # Relación de usuarios que compraron el libro
+    # Relacion de usuarios que compraron el libro
     purchased_by = models.ManyToManyField(
         User,
         through='Purchase',
@@ -48,7 +48,7 @@ class Libro(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.published_date:
-            self.published_date = timezone.now()
+            self.published_date = timezone.now().date()
         
         super().save(*args, **kwargs)
     
