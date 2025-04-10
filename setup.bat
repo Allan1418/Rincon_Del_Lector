@@ -72,6 +72,8 @@ call npm install lucide-react
 echo Biblioteca chart.js instalados correctamente.
 call npm install chart.js
 
+echo libreria classnames instalados correctamente
+call npm install classnames
 popd
 
 pause

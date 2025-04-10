@@ -646,3 +646,30 @@ export const getOwnerEarnings = async (token) => {
     return null;
   }
 };
+
+export const getLibrosByOwner = async (username, token = null) => {
+  try {
+    const url = `${API_LIBROS_URL}/libros/owner/${username}/`;
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers.Authorization = `${token}`;
+    }
+
+    const response = await fetch(url, {
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error(`Error fetching books for user ${username}:`, errorData);
+      throw errorData;
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error(`Error in getLibrosByOwner for user ${username}:`, error);
+    throw error;
+  }
+};

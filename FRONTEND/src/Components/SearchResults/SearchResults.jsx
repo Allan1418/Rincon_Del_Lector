@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import {
@@ -90,7 +88,15 @@ const UserSearchResults = () => {
           search = query
         }
 
-        results = await getLibros(token, owner, orderingFilter, ownedFilter, pageToFetch, purchasedFilter, search)
+        results = await getLibros(
+          token,
+          owner,
+          orderingFilter,
+          ownedFilter,
+          pageToFetch,
+          ownedFilter ? null : purchasedFilter, // Cambio clave aquí
+          search
+        )
       } else {
         results = await searchUsers(query, pageToFetch, token)
       }
@@ -126,7 +132,7 @@ const UserSearchResults = () => {
 
     if (orderingFilter) navigateUrl += `&ordering=${orderingFilter}`
     if (ownedFilter !== null) navigateUrl += `&owned=${ownedFilter}`
-    if (purchasedFilter !== null) navigateUrl += `&purchased=${purchasedFilter}`
+    if (purchasedFilter !== null && ownedFilter !== true) navigateUrl += `&purchased=${purchasedFilter}`
     if (goToPage) navigateUrl += `&page=${goToPage}`
     navigateUrl += `&searchType=${searchType}`
 
@@ -152,7 +158,7 @@ const UserSearchResults = () => {
 
     if (orderingFilter) navigateUrl += `&ordering=${orderingFilter}`
     if (ownedFilter !== null) navigateUrl += `&owned=${ownedFilter}`
-    if (purchasedFilter !== null) navigateUrl += `&purchased=${purchasedFilter}`
+    if (purchasedFilter !== null && ownedFilter !== true) navigateUrl += `&purchased=${purchasedFilter}`
     navigateUrl += `&searchType=${searchType}`
 
     navigate(navigateUrl)
@@ -168,26 +174,11 @@ const UserSearchResults = () => {
     navigate(navigateUrl)
   }
 
-  const handlePageChange = (newPage) => {
-    if (newPage > totalPages) {
-      newPage = totalPages
-    }
-
-    let navigateUrl = `/search?q=${encodeURIComponent(searchQuery)}&tab=${activeTab}&page=${newPage}`
-    if (orderingFilter) navigateUrl += `&ordering=${orderingFilter}`
-    if (ownedFilter !== null) navigateUrl += `&owned=${ownedFilter}`
-    if (purchasedFilter !== null) navigateUrl += `&purchased=${purchasedFilter}`
-    navigateUrl += `&searchType=${searchType}`
-    navigate(navigateUrl)
-  }
-
-  // Determine if a filter should be disabled based on login status and filter dependencies
   const isFilterDisabled = (filterType) => {
     if (!isLoggedIn && (filterType === "owned" || filterType === "purchased")) {
       return true
     }
 
-    // Additional filter logic - disable "purchased" if "owned" is set to true
     if (filterType === "purchased" && ownedFilter === true) {
       return true
     }
@@ -225,7 +216,7 @@ const UserSearchResults = () => {
           className={page === i ? styles.activePage : styles.pageButton}
         >
           {i}
-        </button>,
+        </button>
       )
     }
 
@@ -369,9 +360,11 @@ const UserSearchResults = () => {
                 <div className={styles.filterSelectWrapper}>
                   <select
                     value={ownedFilter === null ? "" : ownedFilter}
-                    onChange={(e) =>
-                      setOwnedFilter(e.target.value === "" ? null : e.target.value === "true" ? true : false)
-                    }
+                    onChange={(e) => {
+                      const newValue = e.target.value === "" ? null : e.target.value === "true"
+                      setOwnedFilter(newValue)
+                      if (newValue === true) setPurchasedFilter(null)
+                    }}
                     className={`${styles.filterSelect} ${isFilterDisabled("owned") ? styles.disabledFilter : ""}`}
                     title={renderFilterTooltip("owned")}
                     disabled={isFilterDisabled("owned")}

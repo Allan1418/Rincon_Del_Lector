@@ -236,11 +236,7 @@ function ChangeProfileForm() {
         <div className={styles.profileImageWrapper}>
           <img
             src={selectedFile ? URL.createObjectURL(selectedFile) : getProfileImage(profileData?.image_name)}
-            alt="Foto de perfil"
             className={styles.profileImage}
-            onError={(e) => {
-              e.target.src = "/default-profile.png"
-            }}
           />
           <button
             className={styles.editImageOverlay}
