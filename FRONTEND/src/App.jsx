@@ -15,6 +15,7 @@ import PurchaseHistory from './Components/Cart/Purchased/PurchaseHistory.jsx';
 import OwnerEarnings from './Components/Cart/Owner/OwnerEarnings.jsx';
 import CreateBookForm from './Components/Library/CreateBook/CreateBookForm.jsx';
 import ReadEpub from './Components/readEpub/ReadEpub.jsx'
+import Faq from './Components/Home/Faq.jsx'
 
 function App() {
   
@@ -36,6 +37,7 @@ function App() {
           <Route path="/historial" element={<PurchaseHistory />} />
           <Route path="/ganancias" element={<OwnerEarnings />} />
           <Route path="/lector/:bookId/ver" element={<ReadEpub />} />
+          <Route path='/FAQ' element={<Faq />} />
         </Routes>
       </Layout>
     </BrowserRouter>

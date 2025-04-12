@@ -64,7 +64,6 @@ function Navbar() {
         setIsMenuOpen(false)
     }
 
-    // Funciones de navegación
     const goToProfile = () => {
         navigate(`/user/${userData?.username}`)
         setIsMenuOpen(false)
@@ -85,7 +84,6 @@ function Navbar() {
         setIsMenuOpen(false)
     }
 
-    // Función de búsqueda
     const handleSearch = () => {
         const queryParam = searchQuery.trim() ? searchQuery : ""
         navigate(`/search/?q=${encodeURIComponent(queryParam)}&page=1&tab=books`)
@@ -93,16 +91,14 @@ function Navbar() {
         setIsMobileSearchOpen(false)
     }
 
-    // Manejar la pulsación de teclas para la búsqueda
     const handleKeyPress = (e) => {
         if (e.key === "Enter") {
             handleSearch()
         }
     }
 
-    // Renderizado condicional basado en isLoading
     if (isLoading) {
-        return; // O un spinner
+        return;
     }
 
     return (
@@ -117,6 +113,12 @@ function Navbar() {
                     </Link>
 
                     <div className={styles.navbarMenu}>
+
+                        <Link to='/FAQ' className={styles.menuItem}>
+                            <FaQuestionCircle className={styles.menuIcon} />
+                            <span>Ayuda</span>
+                        </Link>
+
                         <Link to="/explorar" className={styles.menuItem}>
                             <FaCompass className={styles.menuIcon} />
                             <span>Explorar</span>
@@ -201,11 +203,6 @@ function Navbar() {
                                             <FaHistory />
                                             <span>Historial Compras</span>
                                         </button>
-                                        <button className={styles.menuDropdownItem}>
-                                            <FaQuestionCircle />
-                                            <span>Ayuda</span>
-                                        </button>
-
                                         <div className={styles.menuDropdownSeparator} />
 
                                         <button className={styles.menuDropdownItemLogout} onClick={handleLogoutClick}>

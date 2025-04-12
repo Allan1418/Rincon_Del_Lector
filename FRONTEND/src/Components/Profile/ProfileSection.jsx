@@ -11,6 +11,7 @@ import {
   getBookImageUrl,
   getFollowers,
   getFollowing,
+  getLibrosByOwner,
 } from "../../services/ProfileService";
 import styles from "./ProfileSection.module.css";
 import ErrorDisplay from "../Hooks/ErrorDisplay";
@@ -67,14 +68,13 @@ const UserProfile = () => {
 
   const fetchPublishedBooks = async (page = 1, signal) => {
     try {
-      const response = await getLibros(token, username, "-published_date", null, page, null, null, { signal });
-      setPublishedBooks((prev) => (page === 1 ? response.results || [] : [...prev, ...(response.results || [])]));
-      return response.next;
+      const response = await getLibrosByOwner(username, token, { signal });
+      console.log("Response from getLibrosByOwner:", response);
+      setPublishedBooks(response?.results || []);
     } catch (err) {
       if (err.name !== "AbortError") {
         console.error("Error fetching published books:", err);
       }
-      return false;
     }
   };
 
@@ -95,7 +95,7 @@ const UserProfile = () => {
     setFollowersList([]);
     try {
       const response = await getFollowers(username, token);
-      setFollowersList(response.results || response || []);
+      setFollowersList(response || []);
     } catch (err) {
       setFollowersList([]);
     }
@@ -105,7 +105,7 @@ const UserProfile = () => {
     setFollowingList([]);
     try {
       const response = await getFollowing(username, token);
-      setFollowingList(response.results || response || []);
+      setFollowingList(response || []);
     } catch (err) {
       setFollowingList([]);
     }
@@ -140,7 +140,7 @@ const UserProfile = () => {
     const loadData = async () => {
       try {
         await fetchUserProfile(signal);
-        await fetchPublishedBooks(1, signal);
+        await fetchPublishedBooks(1, signal); // Llama a la función actualizada
         if (userData?.username === username) {
           await fetchPurchasedBooks(1, signal);
         }
@@ -252,7 +252,7 @@ const UserProfile = () => {
   };
 
   const renderBooks = (books, isPublished) => {
-    if (books.length === 0) {
+    if (!Array.isArray(books) || books.length === 0) {
       return (
         <div className={styles.emptyState}>
           <div className={styles.emptyStateIcon}>

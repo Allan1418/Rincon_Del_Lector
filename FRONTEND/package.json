@@ -15,6 +15,7 @@
     "bootstrap": "5.3.3",
     "buffer": "6.0.3",
     "chart.js": "4.4.8",
+    "classnames": "2.5.1",
     "date-fns": "4.1.0",
     "epubjs": "0.3.93",
     "jwt-decode": "4.0.0",
