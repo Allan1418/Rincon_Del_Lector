@@ -40,40 +40,26 @@ const UserSearchResults = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
-    const query = params.get("q")
+    const query = params.get("q") || ""
     const tab = params.get("tab") || "books"
-    const pageParam = params.get("page") ? Number.parseInt(params.get("page")) : 1
+    const pageParam = parseInt(params.get("page")) || 1
 
-    if (query !== null) {
-      setSearchQuery(query)
-      setActiveTab(tab)
-      setPage(pageParam)
+    setSearchQuery(query)
+    setActiveTab(tab)
+    setPage(pageParam)
 
+    if (tab === "books") {
       setOrderingFilter(params.get("ordering") || null)
-      setOwnedFilter(params.get("owned") === "true" ? true : params.get("owned") === "false" ? false : null)
-      setPurchasedFilter(params.get("purchased") === "true" ? true : params.get("purchased") === "false" ? false : null)
+      setOwnedFilter(params.get("owned") ? params.get("owned") === "true" : null)
+      setPurchasedFilter(params.get("purchased") ? params.get("purchased") === "true" : null)
       setSearchType(params.get("searchType") || "title_synopsis")
-      setGoToPage(params.get("page") || "")
-
-      fetchData(query, tab, pageParam)
-    } else {
-      setSearchQuery("")
-      setActiveTab(tab)
-      setPage(pageParam)
-
-      setOrderingFilter(params.get("ordering") || null)
-      setOwnedFilter(params.get("owned") === "true" ? true : params.get("owned") === "false" ? false : null)
-      setPurchasedFilter(params.get("purchased") === "true" ? true : params.get("purchased") === "false" ? false : null)
-      setSearchType(params.get("searchType") || "title_synopsis")
-      setGoToPage(params.get("page") || "")
-
-      fetchData("", tab, pageParam)
     }
+
+    fetchData(query, tab, pageParam)
   }, [location.search])
 
   const fetchData = async (query, tab, pageToFetch) => {
     setIsLoading(true)
-
     try {
       let results
       const pageSize = 20
@@ -94,7 +80,7 @@ const UserSearchResults = () => {
           orderingFilter,
           ownedFilter,
           pageToFetch,
-          ownedFilter ? null : purchasedFilter, // Cambio clave aquí
+          ownedFilter ? null : purchasedFilter,
           search
         )
       } else {
@@ -103,12 +89,7 @@ const UserSearchResults = () => {
 
       setItems(results.results)
       setTotalPages(Math.ceil(results.count / pageSize))
-
-      if (results.results.length === 0) {
-        setNoResultsMessage("No hay resultados para esta página.")
-      } else {
-        setNoResultsMessage("")
-      }
+      setNoResultsMessage(results.results.length === 0 ? "No hay resultados para esta página." : "")
     } catch (error) {
       console.error("Error fetching data:", error)
       setItems([])
@@ -118,71 +99,82 @@ const UserSearchResults = () => {
     }
   }
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value)
-  }
+  const handleSearchChange = (e) => setSearchQuery(e.target.value)
 
   const handleSearchSubmit = () => {
-    const navigateUrl = `/search?q=${encodeURIComponent(searchQuery)}&tab=${activeTab}&page=1&searchType=${searchType}`
-    navigate(navigateUrl)
+    const params = new URLSearchParams()
+    params.set("q", searchQuery)
+    params.set("tab", activeTab)
+    params.set("page", 1)
+    params.set("searchType", searchType)
+    
+    if (activeTab === "books") {
+      if (orderingFilter) params.set("ordering", orderingFilter)
+      if (ownedFilter !== null) params.set("owned", ownedFilter)
+      if (purchasedFilter !== null) params.set("purchased", purchasedFilter)
+    }
+    
+    navigate(`/search?${params.toString()}`)
   }
 
   const handleTabChange = (tab) => {
-    let navigateUrl = `/search?q=${encodeURIComponent(searchQuery)}&tab=${tab}&page=1`
+    const newParams = new URLSearchParams()
+    newParams.set("q", searchQuery)
+    newParams.set("tab", tab)
+    newParams.set("page", 1)
+    newParams.set("searchType", searchType)
 
-    if (orderingFilter) navigateUrl += `&ordering=${orderingFilter}`
-    if (ownedFilter !== null) navigateUrl += `&owned=${ownedFilter}`
-    if (purchasedFilter !== null && ownedFilter !== true) navigateUrl += `&purchased=${purchasedFilter}`
-    if (goToPage) navigateUrl += `&page=${goToPage}`
-    navigateUrl += `&searchType=${searchType}`
-
-    navigate(navigateUrl)
-  }
-
-  const handleBookClick = (bookId) => {
-    navigate(`/libros/${bookId}`)
-  }
-
-  const handleUserClick = (userId) => {
-    navigate(`/user/${userId}`)
-  }
-
-  const applyFilters = () => {
-    let pageNumber = goToPage && !isNaN(goToPage) && goToPage >= 1 ? Number.parseInt(goToPage) : 1
-
-    if (pageNumber > totalPages) {
-      pageNumber = totalPages
+    if (tab === "books") {
+      if (orderingFilter) newParams.set("ordering", orderingFilter)
+      if (ownedFilter !== null) newParams.set("owned", ownedFilter)
+      if (purchasedFilter !== null) newParams.set("purchased", purchasedFilter)
     }
 
-    let navigateUrl = `/search?q=${encodeURIComponent(searchQuery)}&tab=${activeTab}&page=${pageNumber}`
+    navigate(`/search?${newParams.toString()}`)
+  }
 
-    if (orderingFilter) navigateUrl += `&ordering=${orderingFilter}`
-    if (ownedFilter !== null) navigateUrl += `&owned=${ownedFilter}`
-    if (purchasedFilter !== null && ownedFilter !== true) navigateUrl += `&purchased=${purchasedFilter}`
-    navigateUrl += `&searchType=${searchType}`
+  const handlePageChange = (newPage) => {
+    const params = new URLSearchParams(location.search)
+    params.set("page", newPage)
+    navigate(`/search?${params.toString()}`)
+  }
 
-    navigate(navigateUrl)
+  const handleBookClick = (bookId) => navigate(`/libros/${bookId}`)
+  const handleUserClick = (userId) => navigate(`/user/${userId}`)
+
+  const applyFilters = () => {
+    let pageNumber = Math.min(Math.max(1, parseInt(goToPage) || 1), totalPages)
+    const params = new URLSearchParams(location.search)
+    params.set("page", pageNumber)
+    
+    if (activeTab === "books") {
+      if (orderingFilter) params.set("ordering", orderingFilter)
+      if (ownedFilter !== null) params.set("owned", ownedFilter)
+      if (purchasedFilter !== null) params.set("purchased", purchasedFilter)
+      params.set("searchType", searchType)
+    }
+    
+    navigate(`/search?${params.toString()}`)
   }
 
   const clearFilters = () => {
+    const params = new URLSearchParams(location.search)
+    params.delete("ordering")
+    params.delete("owned")
+    params.delete("purchased")
+    params.set("page", 1)
+    
     setOrderingFilter(null)
     setOwnedFilter(null)
     setPurchasedFilter(null)
     setGoToPage("")
-
-    const navigateUrl = `/search?q=${encodeURIComponent(searchQuery)}&tab=${activeTab}&page=1&searchType=${searchType}`
-    navigate(navigateUrl)
+    
+    navigate(`/search?${params.toString()}`)
   }
 
   const isFilterDisabled = (filterType) => {
-    if (!isLoggedIn && (filterType === "owned" || filterType === "purchased")) {
-      return true
-    }
-
-    if (filterType === "purchased" && ownedFilter === true) {
-      return true
-    }
-
+    if (!isLoggedIn && (filterType === "owned" || filterType === "purchased")) return true
+    if (filterType === "purchased" && ownedFilter === true) return true
     return false
   }
 
@@ -190,73 +182,62 @@ const UserSearchResults = () => {
     if (!isLoggedIn && (filterType === "owned" || filterType === "purchased")) {
       return "Inicia sesión para usar este filtro"
     }
-
     if (filterType === "purchased" && ownedFilter === true) {
       return "No disponible cuando 'Mis Libros' está seleccionado"
     }
-
     return ""
   }
 
   const renderPagination = () => {
     const visiblePages = 5
     let startPage = Math.max(1, page - Math.floor(visiblePages / 2))
-    const endPage = Math.min(totalPages, startPage + visiblePages - 1)
+    let endPage = Math.min(totalPages, startPage + visiblePages - 1)
 
     if (endPage - startPage < visiblePages - 1) {
       startPage = Math.max(1, endPage - visiblePages + 1)
     }
 
-    const pages = []
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          className={page === i ? styles.activePage : styles.pageButton}
-        >
-          {i}
-        </button>
-      )
-    }
-
     return (
       <div className={styles.pagination}>
-        {startPage > 1 && (
-          <>
-            <button onClick={() => handlePageChange(1)} className={styles.pageButton} aria-label="Primera página">
-              <FaChevronLeft className={styles.paginationIcon} />
-            </button>
-            {startPage > 2 && <span className={styles.ellipsis}>...</span>}
-          </>
-        )}
-        {pages}
-        {endPage < totalPages && (
-          <>
-            {endPage < totalPages - 1 && <span className={styles.ellipsis}>...</span>}
-            <button
-              onClick={() => handlePageChange(totalPages)}
-              className={styles.pageButton}
-              aria-label="Última página"
-            >
-              <FaChevronRight className={styles.paginationIcon} />
-            </button>
-          </>
-        )}
+        <button
+          onClick={() => handlePageChange(page - 1)}
+          disabled={page === 1}
+          className={styles.pageButton}
+        >
+          <FaChevronLeft />
+        </button>
+
+        {Array.from({ length: endPage - startPage + 1 }, (_, i) => (
+          <button
+            key={startPage + i}
+            onClick={() => handlePageChange(startPage + i)}
+            className={`${styles.pageButton} ${
+              page === startPage + i ? styles.activePage : ""
+            }`}
+            disabled={page === startPage + i}
+          >
+            {startPage + i}
+          </button>
+        ))}
+
+        <button
+          onClick={() => handlePageChange(page + 1)}
+          disabled={page === totalPages}
+          className={styles.pageButton}
+        >
+          <FaChevronRight />
+        </button>
       </div>
     )
   }
 
   const getDynamicTitle = () => {
     if (activeTab === "books") {
-      if (searchType === "owner") {
-        return "Búsqueda por Creadores"
-      } else {
-        return "Búsqueda por Títulos y Sinopsis"
-      }
-    } else {
-      return "Búsqueda de Usuarios"
+      return searchType === "owner" 
+        ? "Búsqueda por Creadores" 
+        : "Búsqueda por Títulos y Sinopsis"
     }
+    return "Búsqueda de Usuarios"
   }
 
   return (
@@ -274,14 +255,12 @@ const UserSearchResults = () => {
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder={
-              activeTab === "books" ? "Buscar por título, sinopsis o autor..." : "Buscar usuarios por nombre..."
+              activeTab === "books" 
+                ? "Buscar por título, sinopsis o autor..." 
+                : "Buscar usuarios por nombre..."
             }
             className={styles.searchInput}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                handleSearchSubmit()
-              }
-            }}
+            onKeyPress={(e) => e.key === "Enter" && handleSearchSubmit()}
           />
           <button onClick={handleSearchSubmit} className={`${styles.searchButton} ${styles.enhancedButton}`}>
             <FaSearch className={styles.searchIcon} />
@@ -289,22 +268,24 @@ const UserSearchResults = () => {
           </button>
         </div>
       </div>
+
       <div className={styles.tabs}>
         <button
-          className={`${styles.tabButton} ${activeTab === "books" ? styles.activeTab : ""} ${styles.enhancedTab}`}
+          className={`${styles.tabButton} ${activeTab === "books" ? styles.activeTab : ""}`}
           onClick={() => handleTabChange("books")}
         >
           <FaBook className={styles.tabIcon} />
           <span>Libros</span>
         </button>
         <button
-          className={`${styles.tabButton} ${activeTab === "users" ? styles.activeTab : ""} ${styles.enhancedTab}`}
+          className={`${styles.tabButton} ${activeTab === "users" ? styles.activeTab : ""}`}
           onClick={() => handleTabChange("users")}
         >
           <FaUser className={styles.tabIcon} />
           <span>Usuarios</span>
         </button>
       </div>
+
       {activeTab === "books" && (
         <div className={styles.filters}>
           <div className={styles.filtersHeader}>
@@ -327,8 +308,10 @@ const UserSearchResults = () => {
               </button>
             </div>
           </div>
+
           {showFilters && (
             <div className={styles.filtersGrid}>
+              {/* Filtros específicos de libros */}
               <div className={styles.filterGroup}>
                 <label className={styles.filterLabel}>
                   <FaSort className={styles.filterLabelIcon} />
@@ -338,7 +321,6 @@ const UserSearchResults = () => {
                   value={orderingFilter || ""}
                   onChange={(e) => setOrderingFilter(e.target.value || null)}
                   className={styles.filterSelect}
-                  title="Ordena los resultados según diferentes criterios"
                 >
                   <option value="">Sin ordenar</option>
                   <option value="title">Título (A-Z)</option>
@@ -351,60 +333,47 @@ const UserSearchResults = () => {
                   <option value="least_purchased">Popularidad (Menos Comprados)</option>
                 </select>
               </div>
+
               <div className={styles.filterGroup}>
                 <label className={styles.filterLabel}>
                   <FaUserCircle className={styles.filterLabelIcon} />
                   Propiedad
-                  {!isLoggedIn && <FaLock className={styles.lockIcon} title="Inicia sesión para usar este filtro" />}
+                  {!isLoggedIn && <FaLock className={styles.lockIcon} />}
                 </label>
-                <div className={styles.filterSelectWrapper}>
-                  <select
-                    value={ownedFilter === null ? "" : ownedFilter}
-                    onChange={(e) => {
-                      const newValue = e.target.value === "" ? null : e.target.value === "true"
-                      setOwnedFilter(newValue)
-                      if (newValue === true) setPurchasedFilter(null)
-                    }}
-                    className={`${styles.filterSelect} ${isFilterDisabled("owned") ? styles.disabledFilter : ""}`}
-                    title={renderFilterTooltip("owned")}
-                    disabled={isFilterDisabled("owned")}
-                  >
-                    <option value="">Todos los libros</option>
-                    <option value="true">Mis Libros</option>
-                    <option value="false">Libros de Otros</option>
-                  </select>
-                  {!isLoggedIn && (
-                    <div className={styles.filterOverlay} title="Inicia sesión para usar este filtro"></div>
-                  )}
-                </div>
+                <select
+                  value={ownedFilter === null ? "" : ownedFilter}
+                  onChange={(e) => {
+                    const newValue = e.target.value === "" ? null : e.target.value === "true"
+                    setOwnedFilter(newValue)
+                    if (newValue === true) setPurchasedFilter(null)
+                  }}
+                  className={`${styles.filterSelect} ${isFilterDisabled("owned") ? styles.disabledFilter : ""}`}
+                  disabled={isFilterDisabled("owned")}
+                >
+                  <option value="">Todos los libros</option>
+                  <option value="true">Mis Libros</option>
+                  <option value="false">Libros de Otros</option>
+                </select>
               </div>
+
               <div className={styles.filterGroup}>
                 <label className={styles.filterLabel}>
                   <FaShoppingCart className={styles.filterLabelIcon} />
                   Estado de Compra
-                  {(!isLoggedIn || ownedFilter === true) && (
-                    <FaLock className={styles.lockIcon} title={renderFilterTooltip("purchased")} />
-                  )}
+                  {(!isLoggedIn || ownedFilter === true) && <FaLock className={styles.lockIcon} />}
                 </label>
-                <div className={styles.filterSelectWrapper}>
-                  <select
-                    value={purchasedFilter === null ? "" : purchasedFilter}
-                    onChange={(e) =>
-                      setPurchasedFilter(e.target.value === "" ? null : e.target.value === "true" ? true : false)
-                    }
-                    className={`${styles.filterSelect} ${isFilterDisabled("purchased") ? styles.disabledFilter : ""}`}
-                    title={renderFilterTooltip("purchased")}
-                    disabled={isFilterDisabled("purchased")}
-                  >
-                    <option value="">Todos los Libros</option>
-                    <option value="true">Ya Comprados</option>
-                    <option value="false">No Comprados</option>
-                  </select>
-                  {isFilterDisabled("purchased") && (
-                    <div className={styles.filterOverlay} title={renderFilterTooltip("purchased")}></div>
-                  )}
-                </div>
+                <select
+                  value={purchasedFilter === null ? "" : purchasedFilter}
+                  onChange={(e) => setPurchasedFilter(e.target.value === "" ? null : e.target.value === "true")}
+                  className={`${styles.filterSelect} ${isFilterDisabled("purchased") ? styles.disabledFilter : ""}`}
+                  disabled={isFilterDisabled("purchased")}
+                >
+                  <option value="">Todos los Libros</option>
+                  <option value="true">Ya Comprados</option>
+                  <option value="false">No Comprados</option>
+                </select>
               </div>
+
               <div className={styles.filterGroup}>
                 <label className={styles.filterLabel}>
                   <FaSearch className={styles.filterLabelIcon} />
@@ -419,6 +388,7 @@ const UserSearchResults = () => {
                   <option value="owner">Propietario</option>
                 </select>
               </div>
+
               <div className={styles.filterGroup}>
                 <label className={styles.filterLabel}>
                   <FaChevronRight className={styles.filterLabelIcon} />
@@ -430,12 +400,12 @@ const UserSearchResults = () => {
                   onChange={(e) => setGoToPage(e.target.value)}
                   placeholder="Número de página"
                   className={styles.filterInput}
-                  title="Ir a una página específica"
                   min="1"
                   max={totalPages}
                 />
               </div>
-              <div className={`${styles.filterGroup} ${styles.filterActions}`}>
+
+              <div className={styles.filterGroup}>
                 <button onClick={applyFilters} className={`${styles.filterButton} ${styles.pulseButton}`}>
                   <FaFilter className={styles.buttonIcon} />
                   Aplicar Filtros
@@ -445,6 +415,7 @@ const UserSearchResults = () => {
           )}
         </div>
       )}
+
       {isLoading ? (
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
@@ -452,17 +423,15 @@ const UserSearchResults = () => {
         </div>
       ) : items.length === 0 ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>{activeTab === "books" ? <FaBook size={32} /> : <FaUser size={32} />}</div>
+          <div className={styles.emptyIcon}>
+            {activeTab === "books" ? <FaBook size={32} /> : <FaUser size={32} />}
+          </div>
           <h2 className={styles.emptyTitle}>No se encontraron resultados</h2>
           <p className={styles.emptyDescription}>
             {searchQuery
               ? `No encontramos resultados para "${searchQuery}". Intenta con diferentes términos o ajusta los filtros.`
               : `No hay ${activeTab === "books" ? "libros" : "usuarios"} disponibles. Intenta con una nueva búsqueda.`}
           </p>
-          <button onClick={clearFilters} className={`${styles.clearFiltersButton} ${styles.enhancedButton}`}>
-            <FaTimes className={styles.clearIcon} />
-            <span>Refrescar</span>
-          </button>
         </div>
       ) : (
         <div className={activeTab === "books" ? styles.booksGrid : styles.usersGrid}>
@@ -470,12 +439,12 @@ const UserSearchResults = () => {
             ? items.map((user) => (
                 <div
                   key={user.id}
-                  className={`${styles.userCard} ${styles.fadeIn}`}
+                  className={styles.userCard}
                   onClick={() => handleUserClick(user.username)}
                 >
                   {user.image_name ? (
                     <img
-                      src={getProfileImage(user.image_name) || "/placeholder.svg"}
+                      src={getProfileImage(user.image_name)}
                       alt={user.username}
                       className={styles.avatar}
                     />
@@ -498,14 +467,14 @@ const UserSearchResults = () => {
             : items.map((book) => (
                 <div
                   key={book.id}
-                  className={`${styles.bookCard} ${styles.fadeIn}`}
+                  className={styles.bookCard}
                   onClick={() => handleBookClick(book.id)}
                 >
                   <div className={styles.bookCover}>
                     {book.has_image ? (
-                      <img src={getBookImageUrl(book.id) || "/placeholder.svg"} alt={book.title} />
+                      <img src={getBookImageUrl(book.id)} alt={book.title} />
                     ) : (
-                      <div className={`${styles.bookCoverFallback} ${styles.noImage}`}></div>
+                      <div className={styles.bookCoverFallback}></div>
                     )}
                     {book.is_new && <span className={styles.bookBadge}>Nuevo</span>}
                   </div>
@@ -529,6 +498,7 @@ const UserSearchResults = () => {
               ))}
         </div>
       )}
+
       {totalPages > 1 && <div className={styles.paginationContainer}>{renderPagination()}</div>}
       {noResultsMessage && <p className={styles.noResultsMessage}>{noResultsMessage}</p>}
     </div>
@@ -536,4 +506,3 @@ const UserSearchResults = () => {
 }
 
 export default UserSearchResults
-
