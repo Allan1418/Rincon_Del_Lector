@@ -128,11 +128,7 @@ const AyudaFaq = () => {
 
       <div className={styles.contactoContainer}>
         <p className={styles.contacto}>
-          Si tienes alguna otra pregunta o necesitas más ayuda, no dudes en contactarnos a través de nuestra página de{" "}
-          <a href="/contacto" className={styles.link}>
-            Contacto
-          </a>
-          .
+          Si tienes alguna otra pregunta o necesitas más ayuda, no dudes en contactarnos a través de nuestra página de{" Rincon del Lector "}
         </p>
       </div>
     </div>
