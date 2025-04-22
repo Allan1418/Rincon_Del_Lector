@@ -53,30 +53,8 @@ rmdir /s /q node_modules
 
 echo Instalando dependencias del proyecto FRONTEND...
 call npm install
-
-echo Instalando librería router en FRONTEND...
-call npm install react-router-dom
-
-echo Instalando librería pdf en FRONTEND...
-call npm install react-pdf pdfjs-dist
-
-echo Istalando libreria de iconos FRONTEND...
-call npm i react-icons
-
-echo Instalando Bootstrap 5.3.3 en FRONTEND...
-call npm install bootstrap@5.3.3
-
-echo Dependencias y Bootstrap instalados correctamente.
-call npm install lucide-react
-
-echo Biblioteca chart.js instalados correctamente.
-call npm install chart.js
-
-echo libreria classnames instalados correctamente
-call npm install classnames
 popd
 
-pause
 
 rem creacion archivos de configuracion para conexiones
 echo Copiando archivos de configuaricon...
